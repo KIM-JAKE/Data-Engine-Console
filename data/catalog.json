@@ -1,0 +1,909 @@
+{
+  "product": {
+    "name": "Physical Data Engine",
+    "workflow": "seed-demo-to-training-v1",
+    "apiVersion": "physical-data-engine/workflow@v1",
+    "failClosed": true
+  },
+  "contract": {
+    "schema": "pde/training-dataset@v1",
+    "timebase": {
+      "rate_hz": 10,
+      "timestamp_unit": "s",
+      "alignment": "timestamp",
+      "max_skew_s": 0.05,
+      "terminal_policy": "keep_with_validity_mask"
+    },
+    "action": {
+      "schema": "pde/eef-delta@v1",
+      "feature_name": "action.eef_delta_metric",
+      "validity_feature_name": "action.eef_delta_metric_valid",
+      "validity_layout": "per_dimension",
+      "rate_hz": 10,
+      "frame": "robot_base",
+      "representation": "delta_cartesian",
+      "translation": {
+        "units": "m"
+      },
+      "rotation": {
+        "representation": "axis_angle",
+        "units": "rad",
+        "composition": "left_multiply_in_base_frame"
+      },
+      "gripper": {
+        "representation": "binary_closed",
+        "open": 0,
+        "closed": 1
+      },
+      "temporal_semantics": "command_at_t",
+      "preserve_native_action": true,
+      "missing_dimension_policy": "reject"
+    },
+    "images": {
+      "rate_hz": 10,
+      "dtype": "uint8",
+      "layout": "HWC",
+      "color_space": "srgb",
+      "size": {
+        "width": 320,
+        "height": 180
+      },
+      "views": {
+        "required": [
+          "third_person_0",
+          "third_person_1",
+          "wrist"
+        ],
+        "optional": []
+      },
+      "missing_view_policy": "reject",
+      "resize": {
+        "policy": "reject",
+        "interpolation": "area"
+      },
+      "calibration": {
+        "intrinsics": "required",
+        "extrinsics": "required",
+        "distortion": "preserve",
+        "frame_graph": "required"
+      }
+    },
+    "storage": {
+      "primary": {
+        "format": "lerobot_v3",
+        "tabular": {
+          "format": "parquet",
+          "compression": "zstd"
+        },
+        "video": {
+          "allowed_codecs": [
+            "h264",
+            "av1"
+          ],
+          "pixel_format": "yuv420p",
+          "fps": 10
+        }
+      },
+      "native_artifacts": {
+        "preserve": true,
+        "include": [
+          "hdf5",
+          "mcap",
+          "parquet",
+          "mp4",
+          "npz",
+          "pt"
+        ]
+      },
+      "overwrite": false
+    },
+    "lineage": {
+      "record_resampling": true,
+      "record_resize": true,
+      "record_view_mapping": true,
+      "record_action_profile": true,
+      "record_checksums": true
+    },
+    "source": "blueprints/v1.yaml"
+  },
+  "stages": [
+    {
+      "id": "ingest",
+      "uses": "builtin.ingest",
+      "enabled": true,
+      "config": {
+        "verify_checksums": true,
+        "preserve_native_artifacts": true
+      }
+    },
+    {
+      "id": "contract_validate",
+      "uses": "builtin.contract_validate",
+      "enabled": true,
+      "needs": [
+        "ingest"
+      ]
+    },
+    {
+      "id": "rl_teacher",
+      "uses": "rl_teacher",
+      "enabled": false,
+      "needs": [
+        "contract_validate"
+      ],
+      "config": {
+        "canonical_adapter_scope": "reviewed_cube_collector_slice"
+      }
+    },
+    {
+      "id": "sim_retargeting",
+      "uses": "sim_retargeting",
+      "enabled": false,
+      "needs": [
+        "contract_validate"
+      ],
+      "config": {
+        "canonical_adapter_scope": "reviewed_cube_conversion_export_slice"
+      }
+    },
+    {
+      "id": "neural_trajectory",
+      "uses": "neural_trajectory",
+      "enabled": false,
+      "needs": [
+        "contract_validate"
+      ]
+    },
+    {
+      "id": "robot_3dpc",
+      "uses": "robot_3dpc",
+      "enabled": false,
+      "needs": [
+        "contract_validate"
+      ]
+    },
+    {
+      "id": "splataug_3dgs",
+      "uses": "splataug_3dgs",
+      "enabled": false,
+      "needs": [
+        "contract_validate"
+      ]
+    },
+    {
+      "id": "merge",
+      "uses": "builtin.lineage_merge",
+      "enabled": true,
+      "needs": [
+        "contract_validate",
+        "rl_teacher",
+        "sim_retargeting",
+        "neural_trajectory",
+        "robot_3dpc",
+        "splataug_3dgs"
+      ],
+      "config": {
+        "deduplicate_by": [
+          "content_sha256",
+          "parent_episode_id",
+          "transform_digest"
+        ],
+        "allow_native_passthrough": true
+      }
+    },
+    {
+      "id": "canonicalize",
+      "uses": "builtin.canonicalize_outputs",
+      "enabled": true,
+      "needs": [
+        "merge"
+      ]
+    },
+    {
+      "id": "filter_contract",
+      "uses": "builtin.filter_contract",
+      "enabled": false,
+      "needs": [
+        "canonicalize"
+      ]
+    },
+    {
+      "id": "filter_kinematic",
+      "uses": "builtin.filter_kinematic",
+      "enabled": false,
+      "needs": [
+        "filter_contract"
+      ]
+    },
+    {
+      "id": "filter_physics_replay",
+      "uses": "builtin.filter_physics_replay",
+      "enabled": false,
+      "needs": [
+        "filter_kinematic"
+      ]
+    },
+    {
+      "id": "filter_task_success",
+      "uses": "builtin.filter_task_success",
+      "enabled": false,
+      "needs": [
+        "filter_kinematic",
+        "filter_physics_replay"
+      ]
+    },
+    {
+      "id": "filter_visual_quality",
+      "uses": "builtin.filter_visual_quality",
+      "enabled": false,
+      "needs": [
+        "filter_kinematic"
+      ]
+    },
+    {
+      "id": "curate_diversity",
+      "uses": "builtin.curate_diversity",
+      "enabled": false,
+      "needs": [
+        "filter_kinematic",
+        "filter_task_success",
+        "filter_visual_quality"
+      ]
+    },
+    {
+      "id": "split",
+      "uses": "builtin.leakage_safe_split",
+      "enabled": false,
+      "needs": [
+        "curate_diversity"
+      ],
+      "config": {
+        "group_by": "root_seed_episode_id",
+        "ratios": {
+          "train": 0.8,
+          "validation": 0.1,
+          "test": 0.1
+        }
+      }
+    },
+    {
+      "id": "train",
+      "uses": "builtin.train",
+      "enabled": false,
+      "needs": [
+        "split"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "id": "neural_trajectory",
+      "name": "Neural Trajectory Pipeline",
+      "role": "video_trajectory_generation",
+      "summary": "Generate branched video trajectories, infer pseudo-actions with the matching IDM, and filter action coherence.",
+      "integrationStatus": "audited_waiting_golden",
+      "adapterStatus": "planned",
+      "adapterScope": null,
+      "domains": [
+        "real",
+        "synthetic",
+        "hybrid"
+      ],
+      "capabilities": [
+        "rgb"
+      ],
+      "pipelines": [
+        "assemble_inputs",
+        "generate_tree",
+        "prepare_idm",
+        "infer_actions",
+        "filter",
+        "review",
+        "native_passthrough"
+      ],
+      "nativeInputs": [
+        "768x432 four-tile conditioning image",
+        "task-specific Cosmos Predict2 LoRA and tokenizer",
+        "fine-tuned GR00T-Dreams IDM checkpoint and training stats.json"
+      ],
+      "nativeOutputs": [
+        "93-frame generated clips and 369-frame stitched trajectories",
+        "LeRobot-layout three-camera video dataset",
+        "28-D pseudo-actions at 15 Hz",
+        "filter_results.json and self-contained review HTML/data"
+      ],
+      "limitations": [
+        "The native IDM rotation slice is invalid and cannot satisfy reject-on-missing dimensions.",
+        "The 15 Hz pose-track resampler and camera calibration passthrough are not implemented."
+      ],
+      "goldenRequirements": [
+        "conditioning frame and source camera layout",
+        "matching IDM checkpoint plus exact training stats",
+        "held-out real demonstrations and expected filter results"
+      ],
+      "integrityGates": [
+        "require the IDM dumper patch and record its applied commit/digest",
+        "require stats.json identity with the IDM training split",
+        "assert stitched frame count and explicit 16 fps encoding",
+        "preserve raw gripper vote alongside postprocessed state",
+        "treat C1-C3 as action-coherence only, never task-success evidence",
+        "block physics promotion until dataset-to-simulator frame alignment is supplied and replay succeeds"
+      ],
+      "upstream": {
+        "url": "https://github.com/finde30526/neural-trajectory-pipeline.git",
+        "commit": "981610c3e079",
+        "tree": "4b0fb7e52961",
+        "path": "vendor/neural_trajectory"
+      },
+      "code": {
+        "component": "components/neural_trajectory/component.yaml",
+        "module": "modules/neural_trajectory/module.yaml",
+        "vendor": "vendor/neural_trajectory"
+      }
+    },
+    {
+      "id": "rl_teacher",
+      "name": "RL-Teacher / OmniReset FR3",
+      "role": "sim_teacher_rollout",
+      "summary": "Generate reset pools, train or evaluate state teachers, and collect successful RGB rollouts in Isaac Sim.",
+      "integrationStatus": "validated_collector_slice",
+      "adapterStatus": "implemented",
+      "adapterScope": "reviewed_cube_collector_slice",
+      "domains": [
+        "sim",
+        "real",
+        "hybrid"
+      ],
+      "capabilities": [
+        "task_contract"
+      ],
+      "pipelines": [
+        "reset_generation",
+        "teacher_training",
+        "teacher_evaluation",
+        "rgb_collection",
+        "mimicgen_collection",
+        "native_passthrough"
+      ],
+      "nativeInputs": [
+        "task and embodiment contract",
+        "reset pools stored with Git LFS",
+        "state-policy checkpoint stored with Git LFS",
+        "optional system-identification bundle"
+      ],
+      "nativeOutputs": [
+        "reset pools (.pt)",
+        "successful rollout trajectories",
+        "LeRobot Dataset v3 with H.264 RGB",
+        "evaluation and release evidence"
+      ],
+      "limitations": [
+        "Other RL tasks require their own reviewed action profile and golden parity evidence."
+      ],
+      "goldenRequirements": [
+        "one canonical sim task bundle",
+        "released checkpoint and reset-pool access",
+        "expected fixed-seed rollout metrics"
+      ],
+      "integrityGates": [
+        "verify every Git LFS object and SHA256SUMS entry before execution",
+        "verify task, robot asset, reset pool, action scale, observation shape, controller and checkpoint",
+        "preserve native action values and require an exact reviewed action profile before canonical export",
+        "preserve the two-pass state/RGB equivalence gate for MimicGen p=1",
+        "report per-reset and per-stage success, fixed seeds and sample counts",
+        "never promote on aggregate success rate alone"
+      ],
+      "upstream": {
+        "url": "https://github.com/KIM-JAKE/Data-Engine.git",
+        "commit": "394b6c7f6e3e",
+        "tree": "66349efaaf6d",
+        "path": "vendor/rl_teacher"
+      },
+      "code": {
+        "component": "components/rl_teacher/component.yaml",
+        "module": "modules/rl_teacher/module.yaml",
+        "vendor": "vendor/rl_teacher"
+      }
+    },
+    {
+      "id": "robot_3dpc",
+      "name": "Robot 3DPC / demogen-rgbd",
+      "role": "real_pixel_spatial_augmentation",
+      "summary": "Reconstruct layered RGB-D demonstrations, apply spatial augmentations, and validate exported robot trajectories.",
+      "integrationStatus": "smoke_validated_waiting_full_golden",
+      "adapterStatus": "planned",
+      "adapterScope": null,
+      "domains": [
+        "real",
+        "hybrid"
+      ],
+      "capabilities": [
+        "rgb",
+        "robot_state"
+      ],
+      "pipelines": [
+        "all",
+        "augment",
+        "validate",
+        "native_passthrough"
+      ],
+      "nativeInputs": [
+        "steps.jsonl with end-effector pose, gripper state and timestamps",
+        "per-camera JPEG frames",
+        "task grasp/release intervals and segmentation prompts"
+      ],
+      "nativeOutputs": [
+        "trajectory.npz, actions.csv and metadata.yaml",
+        "depth, intrinsics, masks and calibration artifacts",
+        "point clouds and layer transforms",
+        "augmented RGB MP4",
+        "benchmark and validation reports"
+      ],
+      "limitations": [
+        "Native actions are previous-state differences; 10 Hz output requires pose resampling and delta recomputation.",
+        "The canonical LeRobot writer is not implemented."
+      ],
+      "goldenRequirements": [
+        "one complete multi-view real episode with steps.jsonl and frames",
+        "task contact intervals and object prompts",
+        "expected identity reconstruction and calibration metrics"
+      ],
+      "integrityGates": [
+        "verify state/action convention, frame counts, timestamps and video rate",
+        "invalidate and rebuild the background plate whenever masks change",
+        "report calibration residuals and observability; never hide regularized wrist translation",
+        "preserve identity reconstruction PSNR, SSIM, seam and temporal metrics",
+        "record whether any background pixels were generated rather than copied"
+      ],
+      "upstream": {
+        "url": "https://github.com/KIM-JAKE/Data-Engine.git",
+        "commit": "48a42882a9e6",
+        "tree": "200218a3c11b",
+        "path": "vendor/robot_3dpc"
+      },
+      "code": {
+        "component": "components/robot_3dpc/component.yaml",
+        "module": "modules/robot_3dpc/module.yaml",
+        "vendor": "vendor/robot_3dpc"
+      }
+    },
+    {
+      "id": "sim_retargeting",
+      "name": "Sim Retargeting / MimicGen + SART",
+      "role": "sim_retargeting",
+      "summary": "Retarget annotated seed demonstrations through physics-aware MimicGen, optional SART, rendering, and LeRobot export.",
+      "integrationStatus": "validated_conversion_export_slice",
+      "adapterStatus": "implemented",
+      "adapterScope": "reviewed_cube_conversion_export_slice",
+      "domains": [
+        "real",
+        "sim",
+        "hybrid"
+      ],
+      "capabilities": [
+        "object_centric_annotations"
+      ],
+      "pipelines": [
+        "hf80k",
+        "hf80k_preflight",
+        "native_passthrough"
+      ],
+      "nativeInputs": [
+        "annotated seed demonstrations (HDF5)",
+        "measured physics posterior bundle",
+        "visual randomization assets and camera contract",
+        "task profile"
+      ],
+      "nativeOutputs": [
+        "gen.hdf5 and gen.provenance.json",
+        "optional SART shards, gen_sart.hdf5 and sart_report.json",
+        "contract.hdf5",
+        "rgb.hdf5 and vrand_log.json",
+        "LeRobot Dataset v3 and chunk MANIFEST.json"
+      ],
+      "limitations": [
+        "Profile selection must follow the controller that encoded the source artifact."
+      ],
+      "goldenRequirements": [
+        "annotated seed HDF5 with subtask boundaries",
+        "calibration and visual assets",
+        "expected source-yield and output-yield measurements"
+      ],
+      "integrityGates": [
+        "require a unique SHARD_ID and SEED_BASE per worker to prevent silent overwrite",
+        "validate per-chunk manifest, episode/frame counts and uploaded artifacts",
+        "preserve raw MimicGen HDF5 because rendering requires its joint state",
+        "mark SART failure as degraded; Data Engine must not silently promote fallback gen.hdf5",
+        "retain visual-randomization and physics sample logs per episode",
+        "preserve source action gripper commands; infer from finger positions only when source actions are absent",
+        "select action profiles by the controller that encoded each artifact, never by the MimicGen producer label",
+        "preserve native action values and reject source-manifest/profile scale conflicts",
+        "reject converted cube demonstrations unless both open and close supervision remain after resampling"
+      ],
+      "upstream": {
+        "url": "https://github.com/KIM-JAKE/Data-Engine.git",
+        "commit": "394b6c7f6e3e",
+        "tree": "9f6c634c5b0c",
+        "path": "vendor/sim_retargeting"
+      },
+      "code": {
+        "component": "components/sim_retargeting/component.yaml",
+        "module": "modules/sim_retargeting/module.yaml",
+        "vendor": "vendor/sim_retargeting"
+      }
+    },
+    {
+      "id": "splataug_3dgs",
+      "name": "3DGS / SplatAug FR3",
+      "role": "real_scene_reconstruction_and_rendering",
+      "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
+      "integrationStatus": "audited_waiting_golden",
+      "adapterStatus": "planned",
+      "adapterScope": null,
+      "domains": [
+        "real",
+        "hybrid"
+      ],
+      "capabilities": [
+        "raw_video",
+        "calibration_bundle"
+      ],
+      "pipelines": [
+        "reconstruct",
+        "campaign_postprocess",
+        "demo_batch",
+        "native_passthrough"
+      ],
+      "nativeInputs": [
+        "immutable multi-view camera video",
+        "ChArUco and camera calibration bundle",
+        "robot URDF/CAD surface and task object definitions",
+        "external 3DGS, 2DGS, RoboSplat and SplatSim repositories"
+      ],
+      "nativeOutputs": [
+        "COLMAP reconstruction and 3D Gaussian models",
+        "Sim(3) registrations, labels, calibration and audit artifacts",
+        "HDF5 action/qpos/end-effector/object poses and multi-view RGB",
+        "MP4 review views, montage, contact sheets and validation JSON"
+      ],
+      "limitations": [
+        "Native actions are absolute joint targets; the FK-to-base-frame EEF-delta adapter is not implemented.",
+        "A user-supplied 360-degree capture campaign is still required for golden validation."
+      ],
+      "goldenRequirements": [
+        "one immutable raw capture campaign and calibration bundle",
+        "exact external repository commits and environments",
+        "released geometry, photometric, articulation and demo validation reports"
+      ],
+      "integrityGates": [
+        "rclone ingest check must report zero differences",
+        "require registered-image ratio and every expected camera folder",
+        "preserve failed reconstruction lineages; never overwrite or infer completion from logs",
+        "require metric registration, link articulation, gripper closure and object continuity gates",
+        "enforce rasterizer scale, tilted-table placement and per-part inverse-FK round-trip checks",
+        "keep non-commercial third-party attribution and license constraints"
+      ],
+      "upstream": {
+        "url": "https://github.com/martian35/splataug-fr3.git",
+        "commit": "2ab06267bd1b",
+        "tree": "011639870527",
+        "path": "vendor/splataug_3dgs"
+      },
+      "code": {
+        "component": "components/splataug_3dgs/component.yaml",
+        "module": "modules/splataug_3dgs/module.yaml",
+        "vendor": "vendor/splataug_3dgs"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "rl-cube-parity-20260824",
+      "component": "rl_teacher",
+      "title": "Cube collector refactor parity",
+      "status": "succeeded",
+      "recordedAt": "2026-08-24T05:32:00Z",
+      "process": [
+        [
+          "preflight",
+          "passed"
+        ],
+        [
+          "native rollout",
+          "passed"
+        ],
+        [
+          "success gate",
+          "passed"
+        ],
+        [
+          "HDF5 collect",
+          "passed"
+        ],
+        [
+          "parity compare",
+          "passed"
+        ]
+      ],
+      "metrics": {
+        "rollouts": 8,
+        "raw successes": 3,
+        "saved demos": 2,
+        "samples": 127
+      },
+      "evidence": "evaluations/rl_teacher/cube_fullstack_refactor_parity_20260824.json"
+    },
+    {
+      "id": "sim-cube-parity-20260824",
+      "component": "sim_retargeting",
+      "title": "Cube conversion and export parity",
+      "status": "succeeded",
+      "recordedAt": "2026-08-24T05:31:00Z",
+      "process": [
+        [
+          "native preflight",
+          "passed"
+        ],
+        [
+          "contract conversion",
+          "passed"
+        ],
+        [
+          "gripper gate",
+          "passed"
+        ],
+        [
+          "LeRobot export",
+          "passed"
+        ],
+        [
+          "three-view compare",
+          "passed"
+        ]
+      ],
+      "metrics": {
+        "episodes": 1,
+        "frames": 176,
+        "write rate": 1.0,
+        "close fraction": 0.42613636363636365
+      },
+      "evidence": "evaluations/sim_retargeting/cube_stack_refactor_parity_20260824.json"
+    },
+    {
+      "id": "3dpc-front-stride30-20260824",
+      "component": "robot_3dpc",
+      "title": "FR3 front-camera stride-30 smoke",
+      "status": "degraded",
+      "recordedAt": "2026-08-24T06:31:00Z",
+      "process": [
+        [
+          "extract",
+          "pass"
+        ],
+        [
+          "depth",
+          "pass"
+        ],
+        [
+          "segment",
+          "pass_with_documented_sam2_extension_fallback"
+        ],
+        [
+          "calibrate",
+          "pass"
+        ],
+        [
+          "pointcloud",
+          "pass"
+        ],
+        [
+          "export",
+          "pass"
+        ],
+        [
+          "background",
+          "pass"
+        ],
+        [
+          "augment",
+          "pass"
+        ],
+        [
+          "benchmark",
+          "pass"
+        ],
+        [
+          "verify_actions",
+          "pass"
+        ],
+        [
+          "validate",
+          "pass"
+        ]
+      ],
+      "metrics": {
+        "source frames": 1742,
+        "selected frames": 59,
+        "outputs": 8,
+        "identity score": 97.26
+      },
+      "evidence": "evaluations/robot_3dpc/franka_teleop0_stride30_smoke_20260824.json"
+    },
+    {
+      "id": "mimicgen-canonical-export-20260824",
+      "component": "sim_retargeting",
+      "title": "MimicGen P1 canonical action export",
+      "status": "succeeded",
+      "recordedAt": "2026-08-24T00:00:00Z",
+      "process": [
+        [
+          "profile audit",
+          "passed"
+        ],
+        [
+          "canonical action write",
+          "passed"
+        ],
+        [
+          "metadata reload",
+          "passed"
+        ],
+        [
+          "native media retention",
+          "passed"
+        ]
+      ],
+      "metrics": {
+        "episodes": 10000,
+        "frames": 1744065,
+        "fps": 10,
+        "parquet files": 4
+      },
+      "evidence": "evaluations/action_contracts/mimicgen_hf10k_canonical_export_20260824.json"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "franka-teleop0-real-seed",
+      "module": "seed",
+      "title": "FR3 real cube-stacking seed",
+      "kind": "real seed",
+      "episodes": 1,
+      "frames": 1742,
+      "rate": 40.02,
+      "container": "JPEG + MP4 + steps.jsonl",
+      "status": "input assessed",
+      "media": [
+        {
+          "type": "image",
+          "role": "front",
+          "src": "./assets/real-demo/front-000600.jpg"
+        },
+        {
+          "type": "image",
+          "role": "left",
+          "src": "./assets/real-demo/left-000600.jpg"
+        },
+        {
+          "type": "image",
+          "role": "right",
+          "src": "./assets/real-demo/right-000600.jpg"
+        }
+      ]
+    },
+    {
+      "id": "sim-retargeting-cube-slice",
+      "module": "sim_retargeting",
+      "title": "Sim-retargeted cube episode",
+      "kind": "canonical preview",
+      "episodes": 1,
+      "frames": 176,
+      "rate": 10,
+      "container": "LeRobot v3",
+      "status": "slice validated",
+      "media": [
+        {
+          "type": "video",
+          "role": "third_person_0",
+          "src": "./assets/sim-retargeting/third-person-0.mp4"
+        },
+        {
+          "type": "video",
+          "role": "third_person_1",
+          "src": "./assets/sim-retargeting/third-person-1.mp4"
+        },
+        {
+          "type": "video",
+          "role": "wrist",
+          "src": "./assets/sim-retargeting/wrist.mp4"
+        }
+      ]
+    },
+    {
+      "id": "robot-3dpc-front-stride30",
+      "module": "robot_3dpc",
+      "title": "Robot 3DPC front-camera smoke",
+      "kind": "native augmentation preview",
+      "episodes": 8,
+      "frames": 59,
+      "rate": 1.38,
+      "container": "NPZ + MP4 + reports",
+      "status": "degraded quality",
+      "media": [
+        {
+          "type": "image",
+          "role": "segmentation",
+          "src": "./assets/robot-3dpc/masks-000600.jpg"
+        },
+        {
+          "type": "image",
+          "role": "point cloud",
+          "src": "./assets/robot-3dpc/point-cloud-000600.png"
+        },
+        {
+          "type": "image",
+          "role": "background plate",
+          "src": "./assets/robot-3dpc/background-plate.jpg"
+        }
+      ]
+    }
+  ],
+  "filtering": {
+    "local": [
+      {
+        "component": "rl_teacher",
+        "label": "Full-task success gate",
+        "input": 8,
+        "accepted": 3,
+        "retained": 2,
+        "note": "Three rollouts passed the native success condition; the collector cap retained two demos.",
+        "evidence": "cube_fullstack_refactor_parity_20260824.json"
+      },
+      {
+        "component": "sim_retargeting",
+        "label": "Contract and gripper supervision gates",
+        "input": 176,
+        "accepted": 176,
+        "retained": 176,
+        "note": "All converted rows passed; 75 close and 101 open commands were preserved.",
+        "evidence": "cube_stack_gripper_regression_20260824.json"
+      },
+      {
+        "component": "robot_3dpc",
+        "label": "Native validation and visual benchmark",
+        "input": 8,
+        "accepted": 8,
+        "retained": 8,
+        "note": "Execution passed, but visible mask/inpainting artifacts keep this slice out of production acceptance.",
+        "evidence": "franka_teleop0_stride30_smoke_20260824.json",
+        "degraded": true
+      }
+    ],
+    "global": {
+      "status": "not_implemented",
+      "stages": [
+        "filter_contract",
+        "filter_kinematic",
+        "filter_physics_replay",
+        "filter_task_success",
+        "filter_visual_quality",
+        "curate_diversity"
+      ],
+      "input": null,
+      "accepted": null,
+      "dropped": null
+    }
+  },
+  "release": {
+    "status": "disabled",
+    "reason": "Global filtering and promotion are not implemented.",
+    "layout": [
+      "runs/<run_id>/run.json",
+      "runs/<run_id>/stages/<stage_id>/request.json",
+      "runs/<run_id>/stages/<stage_id>/native/...",
+      "runs/<run_id>/stages/<stage_id>/result.json",
+      "runs/<run_id>/stages/<stage_id>/logs/...",
+      "releases/<release_id>/manifest.json"
+    ]
+  }
+}
