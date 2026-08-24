@@ -58,7 +58,7 @@
       },
       "missing_view_policy": "reject",
       "resize": {
-        "policy": "reject",
+        "policy": "stretch",
         "interpolation": "area"
       },
       "calibration": {
@@ -160,7 +160,10 @@
       "enabled": false,
       "needs": [
         "contract_validate"
-      ]
+      ],
+      "config": {
+        "canonical_adapter_scope": "franka_teleop_multiview_v1"
+      }
     },
     {
       "id": "splataug_3dgs",
@@ -281,7 +284,7 @@
       "name": "Neural Trajectory Pipeline",
       "role": "video_trajectory_generation",
       "summary": "Generate branched video trajectories, infer pseudo-actions with the matching IDM, and filter action coherence.",
-      "integrationStatus": "audited_waiting_golden",
+      "integrationStatus": "checkpoints_verified_native_runtime_in_progress",
       "adapterStatus": "planned",
       "adapterScope": null,
       "domains": [
@@ -293,8 +296,13 @@
         "rgb"
       ],
       "pipelines": [
+        "verify_assets",
+        "merge_world_model",
+        "prepare_prompt_embeddings",
+        "prepare_world_input",
         "assemble_inputs",
         "generate_tree",
+        "generate_smoke_clip",
         "prepare_idm",
         "infer_actions",
         "filter",
@@ -303,8 +311,8 @@
       ],
       "nativeInputs": [
         "768x432 four-tile conditioning image",
-        "task-specific Cosmos Predict2 LoRA and tokenizer",
-        "fine-tuned GR00T-Dreams IDM checkpoint and training stats.json"
+        "task-specific Cosmos Predict2 LoRA, its separately gated base/tokenizer, and the verified reconstructed native checkpoint",
+        "fine-tuned GR00T-Dreams IDM checkpoint plus the packaged training statistics"
       ],
       "nativeOutputs": [
         "93-frame generated clips and 369-frame stitched trajectories",
@@ -318,12 +326,13 @@
       ],
       "goldenRequirements": [
         "conditioning frame and source camera layout",
-        "matching IDM checkpoint plus exact training stats",
+        "locked IDM checkpoint plus materialized exact training stats",
         "held-out real demonstrations and expected filter results"
       ],
       "integrityGates": [
         "require the IDM dumper patch and record its applied commit/digest",
-        "require stats.json identity with the IDM training split",
+        "verify every checkpoint file against components/neural_trajectory/asset-lock.json",
+        "materialize stats.json only from the locked IDM experiment metadata and verify its semantic digest",
         "assert stitched frame count and explicit 16 fps encoding",
         "preserve raw gripper vote alongside postprocessed state",
         "treat C1-C3 as action-coherence only, never task-success evidence",
@@ -411,8 +420,8 @@
       "role": "real_pixel_spatial_augmentation",
       "summary": "Reconstruct layered RGB-D demonstrations, apply spatial augmentations, and validate exported robot trajectories.",
       "integrationStatus": "smoke_validated_waiting_full_golden",
-      "adapterStatus": "planned",
-      "adapterScope": null,
+      "adapterStatus": "implemented",
+      "adapterScope": "franka_teleop_multiview_v1",
       "domains": [
         "real",
         "hybrid"
@@ -425,6 +434,8 @@
         "all",
         "augment",
         "validate",
+        "build_canonical_calibration",
+        "canonicalize",
         "native_passthrough"
       ],
       "nativeInputs": [
@@ -440,8 +451,9 @@
         "benchmark and validation reports"
       ],
       "limitations": [
-        "Native actions are previous-state differences; 10 Hz output requires pose resampling and delta recomputation.",
-        "The canonical LeRobot writer is not implemented."
+        "Native actions remain previous-state differences; canonical actions are independently recomputed from the timestamp-resampled pose track.",
+        "Full-rate native RGB-D outputs are required for 10 Hz export; stride-30 smoke videos cannot be promoted.",
+        "The selected full-frame 4:3 to 16:9 resize preserves task content but introduces anisotropic pixel scaling recorded in the calibration bundle."
       ],
       "goldenRequirements": [
         "one complete multi-view real episode with steps.jsonl and frames",
@@ -537,7 +549,7 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "audited_waiting_golden",
+      "integrationStatus": "asset_gated_waiting_360_capture",
       "adapterStatus": "planned",
       "adapterScope": null,
       "domains": [
