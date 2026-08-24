@@ -58,10 +58,6 @@ Error generating stack: `+e.message+`
           ${Lf(`frame`,`Coordinate frame`,lf,t.frame)}
           ${Lf(`storage`,`Dataset container`,uf,t.storage)}
         </div>
-        <div class="frame-explainer">
-          <div class="axis-glyph" aria-hidden="true"><i class="axis-x">X</i><i class="axis-y">Y</i><i class="axis-z">Z</i><b></b></div>
-          <div><span>WHAT “${$(t.frame.label.toUpperCase())}” MEANS</span><strong>${$(t.frame.example)}</strong></div>
-        </div>
         <div class="contract-lines">
           <div><span>Schema</span><strong>${$(e.schema)}</strong></div>
           <div><span>Action feature</span><strong>${$(e.actionSchema)} · ${t.action.dimensions}D</strong></div>
