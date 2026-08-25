@@ -28448,7 +28448,11 @@
       "repoStatus": "unavailable \u2014 no current candidate repo id recorded",
       "uploadDryRun": "unavailable \u2014 no current candidate dry-run artifact recorded",
       "uploadObserved": false,
-      "visualizerUrl": "https://huggingface.co/spaces/lerobot/visualize_dataset",
+      "visualizer": {
+        "mode": "built_in",
+        "upstream": "huggingface/lerobot-dataset-visualizer",
+        "license": "Apache-2.0"
+      },
       "candidateLaunchUrl": null,
       "credentialPolicy": "Authenticate in Hugging Face or server-side tooling; never place tokens or private paths in browser URLs."
     }
