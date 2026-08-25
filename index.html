@@ -5,37 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f2f3f0" />
     <meta name="description" content="Operator console for Physical Data Engine workflows." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23ec7211'/%3E%3Cpath d='M8 9h8a5 5 0 0 1 0 10h-4v5H8V9Zm4 4v2h4a1 1 0 0 0 0-2h-4Z' fill='white'/%3E%3C/svg%3E" />
     <title>Physical Data Engine — Operator Console</title>
-    <script type="module" crossorigin src="/Data-Engine-Console/assets/index-C2FgV5Go.js"></script>
-    <link rel="stylesheet" crossorigin href="/Data-Engine-Console/assets/index-DCj2sncb.css">
+    <script type="module" crossorigin src="/Data-Engine-Console/assets/index-D1vWNfcA.js"></script>
+    <link rel="stylesheet" crossorigin href="/Data-Engine-Console/assets/index-cnVM6aAH.css">
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <button class="mobile-menu" type="button" aria-label="Toggle navigation">Menu</button>
-        <a class="brand" href="#setup" aria-label="Physical Data Engine home">
+        <a class="brand" href="#dashboard" aria-label="Physical Data Engine home">
           <span class="brand-mark">PDE</span>
           <span>Physical Data Engine</span>
         </a>
         <div class="workflow-id"><span>Workspace</span> / cube-stacking</div>
         <div class="topbar-spacer"></div>
-        <span class="runtime-mode"><i></i> STATIC PREVIEW</span>
+        <span class="runtime-mode"><i></i> READ-ONLY EVIDENCE</span>
         <a class="repo-link" href="https://github.com/KIM-JAKE/Data-Engine" target="_blank" rel="noreferrer">Repository</a>
       </header>
 
       <aside class="sidebar" aria-label="Product navigation">
-        <div class="nav-section">CREATE</div>
-        <a class="nav-item is-active" href="#setup" data-route="setup"><span>IN</span><div><strong>Input & contract</strong><small>Seed data boundary</small></div></a>
-        <a class="nav-item" href="#workflow" data-route="workflow"><span>PL</span><div><strong>Pipeline</strong><small>Modules & execution plan</small></div></a>
-        <div class="nav-section">OBSERVE</div>
-        <a class="nav-item" href="#live" data-route="live"><span>LV</span><div><strong>Live execution</strong></div></a>
-        <a class="nav-item" href="#runs" data-route="runs"><span>RN</span><div><strong>Run history</strong></div></a>
-        <a class="nav-item" href="#datasets" data-route="datasets"><span>DS</span><div><strong>Datasets</strong></div></a>
-        <a class="nav-item" href="#filtering" data-route="filtering"><span>QA</span><div><strong>Quality gates</strong></div></a>
+        <a class="nav-item is-active" href="#dashboard" data-route="dashboard"><div><strong>Dashboard</strong><small>Candidate overview</small></div></a>
+        <div class="nav-section">BUILD</div>
+        <a class="nav-item" href="#setup" data-route="setup"><div><strong>Input & contract</strong><small>Seed data boundary</small></div></a>
+        <a class="nav-item" href="#workflow" data-route="workflow"><div><strong>Pipeline</strong><small>Modules and plan</small></div></a>
+        <div class="nav-section">MONITOR</div>
+        <a class="nav-item" href="#runs" data-route="runs"><div><strong>Runs</strong></div></a>
+        <a class="nav-item" href="#datasets" data-route="datasets"><div><strong>Datasets</strong></div></a>
+        <a class="nav-item" href="#filtering" data-route="filtering"><div><strong>Quality gates</strong></div></a>
         <div class="nav-section">DELIVER</div>
-        <a class="nav-item" href="#releases" data-route="releases"><span>OUT</span><div><strong>Output bundles</strong></div></a>
+        <a class="nav-item" href="#releases" data-route="releases"><div><strong>Release</strong></div></a>
         <div class="nav-section">SYSTEM</div>
-        <a class="nav-item" href="#modules" data-route="modules"><span>MOD</span><div><strong>Module registry</strong><small>Code-backed capabilities</small></div></a>
+        <a class="nav-item" href="#modules" data-route="modules"><div><strong>Modules</strong><small>Capabilities and evidence</small></div></a>
 
         <div class="sidebar-foot">
           <span class="health-dot"></span>

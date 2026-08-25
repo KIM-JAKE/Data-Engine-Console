@@ -847,6 +847,7 @@
         "build_fr3_surface_reference",
         "refine_scene_registration",
         "build_articulation_assets",
+        "build_articulation_assets_from_shared_registration",
         "render_articulated_episode",
         "export_rendered_lerobot",
         "native_passthrough"
@@ -28341,14 +28342,6 @@
       "status": "not_implemented_not_run",
       "executed": false,
       "training_promotion_allowed": false,
-      "stages": [
-        "filter_contract",
-        "filter_kinematic",
-        "filter_physics_replay",
-        "filter_task_success",
-        "filter_visual_quality",
-        "curate_diversity"
-      ],
       "input": null,
       "accepted": null,
       "dropped": null
@@ -28444,6 +28437,12 @@
   "release": {
     "status": "candidate_not_promoted",
     "reason": "Global filtering is not implemented and was not run.",
+    "materialized": {
+      "status": "unavailable",
+      "reason": "No materialized LeRobot release metadata was found under runs/releases.",
+      "moduleLookup": null,
+      "episodeLineage": null
+    },
     "hf": {
       "repoId": null,
       "repoStatus": "unavailable \u2014 no current candidate repo id recorded",
