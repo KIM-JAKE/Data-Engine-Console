@@ -148,6 +148,12 @@
         "status": "optional stage-local resume only"
       },
       {
+        "id": "drive_v3_checkpoint",
+        "kind": "derived checkpoint",
+        "role": "Original 48-clip drive_v3 extracted-frame and COLMAP checkpoint. This is an automatically produced resume boundary, never a substitute for raw RGB when full capture replay is requested.",
+        "status": "optional stage-local resume only"
+      },
+      {
         "id": "source_episode_hdf5",
         "kind": "derived checkpoint",
         "role": "Native SplatSim episode replayed by the original RoboSplat B-line renderer. This is normally produced by the module, not authored by the user.",
@@ -181,6 +187,18 @@
         "id": "bline_asset_root",
         "kind": "derived checkpoint",
         "role": "Derived per-link FR3 plus static table/background Gaussian asset root. Accepted only to resume the independently repairable B-line render stage; a full capture-to-render run produces it from the scene Gaussian, registration, labels, table geometry, and object assets.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "fr3_surface_reference",
+        "kind": "derived checkpoint",
+        "role": "Deterministic capture-pose FR3 visual surface generated from the pinned URDF, meshes, and capture qpos. It is a module-derived intermediate, not a user-authored NPZ.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_asset_attestation",
+        "kind": "derived checkpoint",
+        "role": "Module-produced checksum and visual-certification attestation for every FR3, static, cube, camera, and URDF asset consumed by the original B-line renderer.",
         "status": "optional stage-local resume only"
       },
       {
@@ -307,13 +325,22 @@
       "sourceAccess": "resolved",
       "sources": [
         {
-          "name": "robosplat_custom",
-          "role": "final_r2_bline_fr3_renderer",
+          "name": "robosplat_custom_handoff",
+          "role": "fr3_cubestack_handoff_asset_build_and_pipeline_runtime",
           "path": "vendor/splataug_3dgs_runtime/robosplat_custom",
+          "commit": "019a03066964",
+          "tree": "19bfcebc0b77",
+          "status": "resolved",
+          "provenanceStatus": "exact_latest_handoff_revision_verified"
+        },
+        {
+          "name": "robosplat_custom_recovery",
+          "role": "five_camera_recovery_renderer_mounted_at_workspace_recovery",
+          "path": "vendor/splataug_3dgs_runtime/robosplat_custom_recovery",
           "commit": "a19692fc8c4c",
           "tree": "38e2c034c0e9",
           "status": "resolved",
-          "provenanceStatus": "exact_documented_revision_verified"
+          "provenanceStatus": "exact_documented_recovery_revision_verified"
         },
         {
           "name": "robosplat",
@@ -435,7 +462,7 @@
         "contract_validate"
       ],
       "config": {
-        "canonical_adapter_scope": "franka_teleop_fixed_three_view_v1"
+        "canonical_adapter_scope": "franka_teleop_multiview_verified_wrist_v1"
       }
     },
     {
@@ -773,6 +800,125 @@
       ],
       "historicalLineages": [],
       "repairLineages": [],
+      "operationalPlanes": {
+        "status": "pass",
+        "source": "modules/neural_trajectory/planes.yaml",
+        "knowledgeIndex": "modules/neural_trajectory/knowledge/INDEX.yaml",
+        "knowledgeCommand": "pde module knowledge neural_trajectory",
+        "planesCommand": "pde module planes neural_trajectory",
+        "planes": [
+          {
+            "id": "forge",
+            "summary": "Verify and materialize the Cosmos base, task LoRA, prompt embeddings, and tuned IDM capability artifacts.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": "schemas/forge-artifact.v1.schema.json",
+            "outputContract": null,
+            "pipelines": [
+              "verify_assets",
+              "merge_world_model",
+              "prepare_prompt_embeddings",
+              "prepare_idm"
+            ],
+            "runbook": "modules/neural_trajectory/forge/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/RUNBOOK.md",
+            "guideCommand": "pde module guide neural_trajectory --plane forge",
+            "knowledge": [
+              {
+                "id": "neural_trajectory.readme",
+                "title": "Neural Trajectory upstream overview",
+                "authority": "upstream",
+                "summary": "Native checkpoints, inputs, pipeline entrypoints, and expected artifacts.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/neural_trajectory/README.md",
+                "revision": "981610c3e079",
+                "url": "https://github.com/finde30526/neural-trajectory-pipeline/blob/981610c3e07913ddd1a4fef56721e226df9b55e5/README.md"
+              },
+              {
+                "id": "neural_trajectory.pipeline",
+                "title": "Neural Trajectory pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative subtask generation, IDM, filtering, and review sequence.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/neural_trajectory/docs/PIPELINE.md",
+                "revision": "981610c3e079",
+                "url": "https://github.com/finde30526/neural-trajectory-pipeline/blob/981610c3e07913ddd1a4fef56721e226df9b55e5/docs/PIPELINE.md"
+              }
+            ]
+          },
+          {
+            "id": "augmentation",
+            "summary": "Generate subtask clips, stitch a full episode, infer actions, run native C1-C3 filtering, and export canonical LeRobot.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": null,
+            "outputContract": {
+              "profile": "blueprints/v1.yaml#output_contract",
+              "sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6"
+            },
+            "pipelines": [
+              "prepare_world_input",
+              "assemble_inputs",
+              "generate_tree",
+              "generate_smoke_clip",
+              "infer_actions",
+              "filter",
+              "review",
+              "canonicalize_actions",
+              "generate_full_episode",
+              "export_canonical_lerobot"
+            ],
+            "runbook": "modules/neural_trajectory/augmentation/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/augmentation/RUNBOOK.md",
+            "guideCommand": "pde module guide neural_trajectory --plane augmentation",
+            "knowledge": [
+              {
+                "id": "neural_trajectory.readme",
+                "title": "Neural Trajectory upstream overview",
+                "authority": "upstream",
+                "summary": "Native checkpoints, inputs, pipeline entrypoints, and expected artifacts.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/neural_trajectory/README.md",
+                "revision": "981610c3e079",
+                "url": "https://github.com/finde30526/neural-trajectory-pipeline/blob/981610c3e07913ddd1a4fef56721e226df9b55e5/README.md"
+              },
+              {
+                "id": "neural_trajectory.pipeline",
+                "title": "Neural Trajectory pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative subtask generation, IDM, filtering, and review sequence.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/neural_trajectory/docs/PIPELINE.md",
+                "revision": "981610c3e079",
+                "url": "https://github.com/finde30526/neural-trajectory-pipeline/blob/981610c3e07913ddd1a4fef56721e226df9b55e5/docs/PIPELINE.md"
+              },
+              {
+                "id": "neural_trajectory.isaac_replay",
+                "title": "Isaac replay guide",
+                "authority": "upstream",
+                "summary": "Simulator replay transforms, action interpretation, and validation limitations.",
+                "stages": [
+                  "infer_actions",
+                  "filter",
+                  "review",
+                  "canonicalize_actions",
+                  "export_canonical_lerobot"
+                ],
+                "source": "vendor/neural_trajectory/docs/ISAAC_REPLAY.md",
+                "revision": "981610c3e079",
+                "url": "https://github.com/finde30526/neural-trajectory-pipeline/blob/981610c3e07913ddd1a4fef56721e226df9b55e5/docs/ISAAC_REPLAY.md"
+              }
+            ]
+          }
+        ]
+      },
+      "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/finde30526/neural-trajectory-pipeline.git",
         "commit": "981610c3e079",
@@ -939,6 +1085,161 @@
       ],
       "historicalLineages": [],
       "repairLineages": [],
+      "operationalPlanes": {
+        "status": "pass",
+        "source": "modules/rl_teacher/planes.yaml",
+        "knowledgeIndex": "modules/rl_teacher/knowledge/INDEX.yaml",
+        "knowledgeCommand": "pde module knowledge rl_teacher",
+        "planesCommand": "pde module planes rl_teacher",
+        "planes": [
+          {
+            "id": "forge",
+            "summary": "Build reset distributions and train and evaluate reusable OmniReset teacher policies.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": "schemas/forge-artifact.v1.schema.json",
+            "outputContract": null,
+            "pipelines": [
+              "reset_generation",
+              "teacher_training",
+              "teacher_evaluation"
+            ],
+            "runbook": "modules/rl_teacher/forge/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/RUNBOOK.md",
+            "guideCommand": "pde module guide rl_teacher --plane forge",
+            "knowledge": [
+              {
+                "id": "rl_teacher.pipeline",
+                "title": "Native RL-Teacher pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative reset, training, evaluation, and collection stage ordering.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/rl_teacher/docs/rl_teacher/PIPELINE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/rl_teacher/PIPELINE.md"
+              },
+              {
+                "id": "rl_teacher.reset_data",
+                "title": "Reset data guide",
+                "authority": "upstream",
+                "summary": "How reset pools are generated, inspected, versioned, and consumed by training.",
+                "stages": [
+                  "reset_generation",
+                  "teacher_training"
+                ],
+                "source": "vendor/rl_teacher/docs/rl_teacher/RESET_DATA_GUIDE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/rl_teacher/RESET_DATA_GUIDE.md"
+              },
+              {
+                "id": "rl_teacher.reset_priors",
+                "title": "Reset distribution priors",
+                "authority": "upstream",
+                "summary": "Reviewed reset-distribution assumptions and task-stage priors that must not be replaced by generic sampling.",
+                "stages": [
+                  "reset_generation",
+                  "teacher_training",
+                  "teacher_evaluation"
+                ],
+                "source": "vendor/rl_teacher/docs/rl_teacher/RESET_DISTRIBUTION_PRIORS.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/rl_teacher/RESET_DISTRIBUTION_PRIORS.md"
+              },
+              {
+                "id": "rl_teacher.full10k_handoff",
+                "title": "FR3 Cube full-10K training handoff",
+                "authority": "upstream",
+                "summary": "Exact training recovery, checkpoint, runtime, and evaluation lessons from the production campaign.",
+                "stages": [
+                  "teacher_training",
+                  "teacher_evaluation"
+                ],
+                "source": "vendor/rl_teacher/docs/handoff/FR3_CUBE_FULL10K_GP_TRAINING_HANDOFF_20260816.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/handoff/FR3_CUBE_FULL10K_GP_TRAINING_HANDOFF_20260816.md"
+              },
+              {
+                "id": "rl_teacher.onestack_rootcause",
+                "title": "One-stack near-object root-cause report",
+                "authority": "upstream",
+                "summary": "Failure analysis that constrains reset-state and task-success repairs.",
+                "stages": [
+                  "reset_generation",
+                  "teacher_training",
+                  "teacher_evaluation",
+                  "rgb_collection"
+                ],
+                "source": "vendor/rl_teacher/docs/history/ONESTACK_NEAROBJECT_ROOTCAUSE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/history/ONESTACK_NEAROBJECT_ROOTCAUSE.md"
+              }
+            ]
+          },
+          {
+            "id": "augmentation",
+            "summary": "Collect successful native RGB rollouts and project them into the common training contract.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": null,
+            "outputContract": {
+              "profile": "blueprints/v1.yaml#output_contract",
+              "sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6"
+            },
+            "pipelines": [
+              "rgb_collection",
+              "mimicgen_collection",
+              "build_canonical_calibration"
+            ],
+            "runbook": "modules/rl_teacher/augmentation/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/augmentation/RUNBOOK.md",
+            "guideCommand": "pde module guide rl_teacher --plane augmentation",
+            "knowledge": [
+              {
+                "id": "rl_teacher.pipeline",
+                "title": "Native RL-Teacher pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative reset, training, evaluation, and collection stage ordering.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/rl_teacher/docs/rl_teacher/PIPELINE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/rl_teacher/PIPELINE.md"
+              },
+              {
+                "id": "rl_teacher.rgb_preflight",
+                "title": "FR3 Cube RGB collection preflight",
+                "authority": "upstream",
+                "summary": "Camera, checkpoint, success, and collection preconditions for native RGB data.",
+                "stages": [
+                  "rgb_collection",
+                  "mimicgen_collection",
+                  "build_canonical_calibration"
+                ],
+                "source": "vendor/rl_teacher/docs/fr3_cube_rgb_collection_preflight.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/fr3_cube_rgb_collection_preflight.md"
+              },
+              {
+                "id": "rl_teacher.onestack_rootcause",
+                "title": "One-stack near-object root-cause report",
+                "authority": "upstream",
+                "summary": "Failure analysis that constrains reset-state and task-success repairs.",
+                "stages": [
+                  "reset_generation",
+                  "teacher_training",
+                  "teacher_evaluation",
+                  "rgb_collection"
+                ],
+                "source": "vendor/rl_teacher/docs/history/ONESTACK_NEAROBJECT_ROOTCAUSE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/docs/history/ONESTACK_NEAROBJECT_ROOTCAUSE.md"
+              }
+            ]
+          }
+        ]
+      },
+      "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -1001,6 +1302,7 @@
         "build_canonical_calibration",
         "audit_eef_body",
         "build_corrected_native_trajectory",
+        "audit_recorded_twist",
         "canonicalize",
         "native_passthrough"
       ],
@@ -1066,10 +1368,19 @@
           ]
         },
         {
+          "id": "audit_recorded_twist",
+          "description": "Verify the recorded Cartesian command trace and bind the fr3_quest base-frame TCP twist profile.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/audit_recorded_twist.py",
+          "requiredInputs": [
+            "steps_jsonl"
+          ]
+        },
+        {
           "id": "canonicalize",
           "description": "Export one synchronized native augmentation as the complete unified LeRobot V3 output contract.",
           "entrypoint": "python ../../modules/robot_3dpc/tools/export_lerobot.py",
           "requiredInputs": [
+            "steps_jsonl",
             "native_view_outputs",
             "augmentation_name",
             "canonical_calibration_bundle",
@@ -1097,7 +1408,7 @@
         "benchmark and validation reports"
       ],
       "limitations": [
-        "Native actions remain previous-state differences and the supplied lineage has no verified desired Cartesian command. The derived forward pose delta is a realized_delta_estimate and cannot populate pde/eef-delta@v1 until desired-target provenance is recovered.",
+        "Native module actions remain previous-state differences and are preserved unchanged. Canonical actions are derived independently from the recorder's action.linear/action.angular command trace plus the explicit upstream augmentation transform delta.",
         "Full-rate native RGB-D outputs are required for 10 Hz export; stride-30 smoke videos cannot be promoted.",
         "The selected full-frame 4:3 to 16:9 resize preserves task content but introduces anisotropic pixel scaling recorded in the calibration bundle.",
         "The supplied capture has a physical wrist stream under the misleading JPEG key `left`; complete export requires the checksummed decoded-video-to-JPEG camera-identity evidence."
@@ -1116,6 +1427,140 @@
       ],
       "historicalLineages": [],
       "repairLineages": [],
+      "operationalPlanes": {
+        "status": "pass",
+        "source": "modules/robot_3dpc/planes.yaml",
+        "knowledgeIndex": "modules/robot_3dpc/knowledge/INDEX.yaml",
+        "knowledgeCommand": "pde module knowledge robot_3dpc",
+        "planesCommand": "pde module planes robot_3dpc",
+        "planes": [
+          {
+            "id": "forge",
+            "summary": "Verify pretrained perception dependencies, source calibration, EEF body identity, and recorded desired-twist semantics.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": "schemas/forge-artifact.v1.schema.json",
+            "outputContract": null,
+            "pipelines": [
+              "build_canonical_calibration",
+              "audit_eef_body",
+              "audit_recorded_twist"
+            ],
+            "runbook": "modules/robot_3dpc/forge/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/RUNBOOK.md",
+            "guideCommand": "pde module guide robot_3dpc --plane forge",
+            "knowledge": [
+              {
+                "id": "robot_3dpc.readme",
+                "title": "Robot 3DPC upstream overview",
+                "authority": "upstream",
+                "summary": "Native inputs, dependencies, CLI surface, and output conventions.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/README.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/README.md"
+              },
+              {
+                "id": "robot_3dpc.pipeline",
+                "title": "Robot 3DPC pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative RGB-D reconstruction, augmentation, validation, and export flow.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/docs/pipeline.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/docs/pipeline.md"
+              },
+              {
+                "id": "robot_3dpc.engineering_log",
+                "title": "Robot 3DPC engineering log",
+                "authority": "upstream",
+                "summary": "Implementation decisions, observed failure modes, repairs, and unresolved constraints.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/docs/engineering-log.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/docs/engineering-log.md"
+              }
+            ]
+          },
+          {
+            "id": "augmentation",
+            "summary": "Run native RGB-D spatial augmentation and validation, then preserve native outputs while emitting canonical LeRobot.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": null,
+            "outputContract": {
+              "profile": "blueprints/v1.yaml#output_contract",
+              "sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6"
+            },
+            "pipelines": [
+              "all",
+              "augment",
+              "validate",
+              "build_corrected_native_trajectory",
+              "canonicalize"
+            ],
+            "runbook": "modules/robot_3dpc/augmentation/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/augmentation/RUNBOOK.md",
+            "guideCommand": "pde module guide robot_3dpc --plane augmentation",
+            "knowledge": [
+              {
+                "id": "robot_3dpc.readme",
+                "title": "Robot 3DPC upstream overview",
+                "authority": "upstream",
+                "summary": "Native inputs, dependencies, CLI surface, and output conventions.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/README.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/README.md"
+              },
+              {
+                "id": "robot_3dpc.pipeline",
+                "title": "Robot 3DPC pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative RGB-D reconstruction, augmentation, validation, and export flow.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/docs/pipeline.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/docs/pipeline.md"
+              },
+              {
+                "id": "robot_3dpc.engineering_log",
+                "title": "Robot 3DPC engineering log",
+                "authority": "upstream",
+                "summary": "Implementation decisions, observed failure modes, repairs, and unresolved constraints.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/robot_3dpc/docs/engineering-log.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/docs/engineering-log.md"
+              },
+              {
+                "id": "robot_3dpc.benchmarks",
+                "title": "Robot 3DPC benchmark contract",
+                "authority": "upstream",
+                "summary": "Native image, geometry, temporal, and performance evaluation expectations.",
+                "stages": [
+                  "validate",
+                  "canonicalize"
+                ],
+                "source": "vendor/robot_3dpc/docs/benchmarks.md",
+                "revision": "48a42882a9e6",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/48a42882a9e690131cac174f5b88a9339b84ebb1/docs/benchmarks.md"
+              }
+            ]
+          }
+        ]
+      },
+      "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "48a42882a9e6",
@@ -1282,6 +1727,140 @@
       ],
       "historicalLineages": [],
       "repairLineages": [],
+      "operationalPlanes": {
+        "status": "pass",
+        "source": "modules/sim_retargeting/planes.yaml",
+        "knowledgeIndex": "modules/sim_retargeting/knowledge/INDEX.yaml",
+        "knowledgeCommand": "pde module knowledge sim_retargeting",
+        "planesCommand": "pde module planes sim_retargeting",
+        "planes": [
+          {
+            "id": "forge",
+            "summary": "Verify the simulator, task assets, controller contract, and canonical camera capability consumed by generation.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": "schemas/forge-artifact.v1.schema.json",
+            "outputContract": null,
+            "pipelines": [
+              "hf80k_preflight",
+              "build_canonical_calibration"
+            ],
+            "runbook": "modules/sim_retargeting/forge/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/RUNBOOK.md",
+            "guideCommand": "pde module guide sim_retargeting --plane forge",
+            "knowledge": [
+              {
+                "id": "sim_retargeting.pipeline",
+                "title": "Native hf80k pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative generation, rendering, filtering, and export stage map.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/PIPELINE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/PIPELINE.md"
+              },
+              {
+                "id": "sim_retargeting.controller_contract",
+                "title": "Canonical delta-EEF and controller SysID",
+                "authority": "upstream",
+                "summary": "Native DIIK, legacy controller, TCP/body, and canonical action distinctions.",
+                "stages": [
+                  "hf80k_preflight",
+                  "hf80k",
+                  "hf80k_legacy_multitask"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/CANONICAL_DELTA_EEF_AND_CONTROLLER_SYSID.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/CANONICAL_DELTA_EEF_AND_CONTROLLER_SYSID.md"
+              },
+              {
+                "id": "sim_retargeting.visual_randomization",
+                "title": "FR3 visual-randomization specification",
+                "authority": "upstream",
+                "summary": "Shared visual identity, ranges, adoption rules, and validation requirements.",
+                "stages": [
+                  "hf80k_preflight"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/assets/fr3_visual_randomization_v1/VISUAL_RANDOMIZATION_SPEC.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/assets/fr3_visual_randomization_v1/VISUAL_RANDOMIZATION_SPEC.md"
+              }
+            ]
+          },
+          {
+            "id": "augmentation",
+            "summary": "Generate native-DIIK or explicitly selected legacy MimicGen trajectories, run native success audits, and export LeRobot.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": null,
+            "outputContract": {
+              "profile": "blueprints/v1.yaml#output_contract",
+              "sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6"
+            },
+            "pipelines": [
+              "hf80k",
+              "hf80k_legacy_multitask"
+            ],
+            "runbook": "modules/sim_retargeting/augmentation/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/augmentation/RUNBOOK.md",
+            "guideCommand": "pde module guide sim_retargeting --plane augmentation",
+            "knowledge": [
+              {
+                "id": "sim_retargeting.pipeline",
+                "title": "Native hf80k pipeline",
+                "authority": "upstream",
+                "summary": "Authoritative generation, rendering, filtering, and export stage map.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/PIPELINE.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/PIPELINE.md"
+              },
+              {
+                "id": "sim_retargeting.clean10k_postmortem",
+                "title": "MimicGen clean-10K postmortem and runbook",
+                "authority": "upstream",
+                "summary": "Production failure modes, clean-run recovery, shard integrity, and acceptance guidance.",
+                "stages": [
+                  "hf80k"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/docs/mimicgen_clean10k_postmortem_and_runbook.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/docs/mimicgen_clean10k_postmortem_and_runbook.md"
+              },
+              {
+                "id": "sim_retargeting.human_seed",
+                "title": "Native human-seed generation guide",
+                "authority": "upstream",
+                "summary": "How annotated human seeds and subtask boundaries enter native generation.",
+                "stages": [
+                  "hf80k",
+                  "hf80k_legacy_multitask"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/docs/mimicgen_human_seed_native_generation.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/docs/mimicgen_human_seed_native_generation.md"
+              },
+              {
+                "id": "sim_retargeting.controller_contract",
+                "title": "Canonical delta-EEF and controller SysID",
+                "authority": "upstream",
+                "summary": "Native DIIK, legacy controller, TCP/body, and canonical action distinctions.",
+                "stages": [
+                  "hf80k_preflight",
+                  "hf80k",
+                  "hf80k_legacy_multitask"
+                ],
+                "source": "vendor/sim_retargeting/hf80k/CANONICAL_DELTA_EEF_AND_CONTROLLER_SYSID.md",
+                "revision": "394b6c7f6e3e",
+                "url": "https://github.com/KIM-JAKE/Data-Engine/blob/394b6c7f6e3ef05c67ddf232ac0dd4459596dd59/hf80k/CANONICAL_DELTA_EEF_AND_CONTROLLER_SYSID.md"
+              }
+            ]
+          }
+        ]
+      },
+      "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -1326,8 +1905,8 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "final_r2_bline_fresh153_native_gates_pairing_and_current_contract_passed",
-      "adapterStatus": "complete_adapter_e2e_verified_on_fresh_original_r2_episode",
+      "integrationStatus": "upstream_ed92_runtime_pass_release_revalidation_pending",
+      "adapterStatus": "implemented",
       "adapterScope": null,
       "domains": [
         "real",
@@ -1338,28 +1917,29 @@
         "calibration_bundle"
       ],
       "pipelines": [
+        "latest_handoff_preflight",
         "capture_preflight",
         "reconstruct",
-        "reconstruct_2dgs_full_repair",
+        "audit_drive_v3_checkpoint",
         "campaign_postprocess",
         "demo_batch",
-        "build_fr3_surface_reference",
-        "refine_scene_registration",
-        "build_articulation_assets",
-        "build_articulation_assets_from_shared_registration",
-        "build_2dgs_cube_separate_articulation",
-        "export_original_bline_assets",
         "flatten_original_bline_assets",
-        "render_articulated_episode",
+        "scrub_capture_robot_from_static",
+        "verify_original_bline_assets",
         "render_original_bline",
         "review_original_bline",
         "attest_original_bline",
         "audit_original_bline_pairing",
         "export_original_bline_lerobot",
-        "export_rendered_lerobot",
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "latest_handoff_preflight",
+          "description": "Read-only source, GPU, image, rclone, machine-path, and release-manifest preflight for the pinned six-stage upstream reproduction.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/preflight_latest_handoff.py",
+          "requiredInputs": []
+        },
         {
           "id": "capture_preflight",
           "description": "Verify every capture payload, calibration checksum, COLMAP vocabulary tree, executable, and exact external trainer revision before reconstruction.",
@@ -1391,11 +1971,11 @@
           ]
         },
         {
-          "id": "reconstruct_2dgs_full_repair",
-          "description": "Reconstruct a surfel scene from an internal COLMAP dataset using the pinned public 2DGS-full repair runtime. This lineage is explicitly distinct from the unavailable historical local depth-prior fork.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_2dgs_full_repair.py",
+          "id": "audit_drive_v3_checkpoint",
+          "description": "Validate the original 48-clip, 3,000-frame drive_v3 extracted-frame/COLMAP checkpoint before an isolated resume. The checkpoint remains an upstream intermediate, not a user input.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/audit_drive_v3_checkpoint.py",
           "requiredInputs": [
-            "scene_colmap_dataset"
+            "drive_v3_checkpoint"
           ]
         },
         {
@@ -1422,75 +2002,6 @@
           ]
         },
         {
-          "id": "build_fr3_surface_reference",
-          "description": "Build a deterministic FR3 visual-surface reference from the pinned task URDF and capture configuration without changing native scene Gaussians.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/build_fr3_surface_reference.py",
-          "requiredInputs": [
-            "robot_geometry",
-            "task_contract"
-          ]
-        },
-        {
-          "id": "refine_scene_registration",
-          "description": "Preserve the metric camera/ChArUco Sim(3) and recover a moved board-to-base rigid offset against the FR3 surface under the upstream 30 mm / 0.50 gate.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/refine_scene_registration_from_fr3_surface.py",
-          "requiredInputs": [
-            "camera_calibration",
-            "robot_geometry"
-          ]
-        },
-        {
-          "id": "build_articulation_assets",
-          "description": "Resume the immutable FR3 surface-to-final-label artifact DAG from an internally produced registration checkpoint; surface NPZ, refined/axis-corrected registration, and label arrays are produced inside the module.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py",
-          "requiredInputs": [
-            "scene_gaussian",
-            "initial_scene_registration",
-            "robot_geometry",
-            "robot_mesh_root",
-            "capture_qpos_csv"
-          ]
-        },
-        {
-          "id": "build_articulation_assets_from_shared_registration",
-          "description": "Run the original v3 plain-label, joint-1 axis-correction, and final faithful-label DAG from a shared-image registration produced earlier in the same campaign.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py --registration-mode shared_image",
-          "requiredInputs": [
-            "scene_gaussian",
-            "initial_scene_registration",
-            "robot_geometry",
-            "robot_mesh_root",
-            "capture_qpos_csv"
-          ]
-        },
-        {
-          "id": "build_2dgs_cube_separate_articulation",
-          "description": "For the current capture layout, automatically materialize the FR3v2 URDF, sample fr3_surface_qpos.npz, label the native 2DGS scene without requiring embedded cubes, and add only the declared viewer thickness required by the unchanged campaign exporter. Cubes remain authoritative separate reconstructions.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py --registration-mode 2dgs_cube_separate",
-          "requiredInputs": [
-            "scene_gaussian",
-            "initial_scene_registration",
-            "table_geometry",
-            "robot_geometry",
-            "robot_mesh_root",
-            "capture_qpos_csv"
-          ]
-        },
-        {
-          "id": "export_original_bline_assets",
-          "description": "Run the native SH-aware campaign exporter to partition the registered full-scene Gaussian into canonical FR3 links, table_top.ply, background.ply, and origin-centred object checkpoints. All required PLYs and labels are upstream intermediates from reconstruction, registration, articulation, and object segmentation.",
-          "entrypoint": "python scripts/export_campaign_robosplat_assets.py",
-          "requiredInputs": [
-            "scene_gaussian",
-            "initial_scene_registration",
-            "robot_labels",
-            "robot_geometry",
-            "canonical_object_gaussians",
-            "table_geometry",
-            "capture_qpos_csv"
-          ]
-        },
-        {
           "id": "flatten_original_bline_assets",
           "description": "Run the reviewed native flat-table postprocess on a derived B-line asset root, producing a new table_top.ply and background.ply plus complete checksum provenance without modifying the source root.",
           "entrypoint": "python scripts/flatten_table_asset.py",
@@ -1500,14 +2011,23 @@
           ]
         },
         {
-          "id": "render_articulated_episode",
-          "description": "Recovery-only renderer for repairing an articulation stage when the pinned original B-line runtime is unavailable. Its output must pass the native gates and must not replace an original B-line parity claim.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/render_articulated_episode.py",
+          "id": "scrub_capture_robot_from_static",
+          "description": "Remove capture-pose FR3 residue left outside the native centre-based ownership band by intersecting the derived static background with the deterministic capture-pose FR3 surface and Gaussian support. The source asset root remains immutable.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/scrub_capture_robot_from_static.py",
           "requiredInputs": [
-            "camera_calibration",
-            "robot_geometry",
-            "object_definitions",
-            "task_contract"
+            "bline_asset_root",
+            "fr3_surface_reference"
+          ]
+        },
+        {
+          "id": "verify_original_bline_assets",
+          "description": "Verify the complete B-line FR3/static/cube/camera/URDF topology and bind it to a human-reviewed visual reference before rendering. Numeric episode gates alone cannot authorize a candidate.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/verify_bline_asset_root.py",
+          "requiredInputs": [
+            "bline_asset_root",
+            "bline_cube_asset_root",
+            "bline_camera_candidates",
+            "robot_geometry"
           ]
         },
         {
@@ -1518,7 +2038,8 @@
             "source_episode_hdf5",
             "bline_asset_root",
             "bline_cube_asset_root",
-            "bline_camera_candidates"
+            "bline_camera_candidates",
+            "bline_asset_attestation"
           ]
         },
         {
@@ -1560,17 +2081,6 @@
             "bline_render_validation",
             "bline_source_attestation",
             "bline_camera_candidates",
-            "camera_calibration",
-            "robot_geometry",
-            "object_definitions",
-            "task_contract"
-          ]
-        },
-        {
-          "id": "export_rendered_lerobot",
-          "description": "Export a gate-passed recovery-renderer episode and canonical delta-EEF action stream as a complete LeRobot V3 lineage while preserving native artifacts.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/export_rendered_lerobot.py",
-          "requiredInputs": [
             "camera_calibration",
             "robot_geometry",
             "object_definitions",
@@ -1639,178 +2149,320 @@
           "evidenceImage": null
         }
       ],
-      "repairLineages": [
-        {
-          "id": "reconstruct_2dgs_full_repair",
-          "label": "Pinned public 2DGS-full repair",
-          "status": "fail",
-          "passClaimed": false,
-          "description": "Reconstruct a surfel scene from an internal COLMAP dataset using the pinned public 2DGS-full repair runtime. This lineage is explicitly distinct from the unavailable historical local depth-prior fork.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_2dgs_full_repair.py",
-          "articulationPipeline": {
-            "id": "build_2dgs_cube_separate_articulation",
-            "description": "For the current capture layout, automatically materialize the FR3v2 URDF, sample fr3_surface_qpos.npz, label the native 2DGS scene without requiring embedded cubes, and add only the declared viewer thickness required by the unchanged campaign exporter. Cubes remain authoritative separate reconstructions.",
-            "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py --registration-mode 2dgs_cube_separate",
-            "status": "pass"
+      "repairLineages": [],
+      "operationalPlanes": {
+        "status": "pass",
+        "source": "modules/splataug_3dgs/planes.yaml",
+        "knowledgeIndex": "modules/splataug_3dgs/knowledge/INDEX.yaml",
+        "knowledgeCommand": "pde module knowledge splataug_3dgs",
+        "planesCommand": "pde module planes splataug_3dgs",
+        "planes": [
+          {
+            "id": "forge",
+            "summary": "Reconstruct or verify a scene and independently build metric cube, alignment, articulated-root, and calibrated-table capability artifacts.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": "schemas/forge-artifact.v1.schema.json",
+            "outputContract": null,
+            "pipelines": [
+              "latest_handoff_preflight",
+              "capture_preflight",
+              "reconstruct",
+              "audit_drive_v3_checkpoint",
+              "campaign_postprocess",
+              "flatten_original_bline_assets",
+              "scrub_capture_robot_from_static",
+              "verify_original_bline_assets"
+            ],
+            "runbook": "modules/splataug_3dgs/forge/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/forge/RUNBOOK.md",
+            "guideCommand": "pde module guide splataug_3dgs --plane forge",
+            "knowledge": [
+              {
+                "id": "splataug.readme",
+                "title": "Latest SplatAug FR3 overview",
+                "authority": "upstream",
+                "summary": "Current end-to-end intent, metric methods, outputs, native stages, and prohibitions.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/README.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/README.md"
+              },
+              {
+                "id": "splataug.pipeline",
+                "title": "Six-stage pipeline and reference gates",
+                "authority": "upstream",
+                "summary": "Authoritative cubes, align, root, flat, demo, and views stages with reference metrics.",
+                "stages": [
+                  "campaign_postprocess",
+                  "demo_batch",
+                  "render_original_bline",
+                  "review_original_bline"
+                ],
+                "source": "vendor/splataug_3dgs/docs/PIPELINE.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/PIPELINE.md"
+              },
+              {
+                "id": "splataug.environment",
+                "title": "Multi-runtime environment contract",
+                "authority": "upstream",
+                "summary": "Required conda stacks, Docker image, GPU architecture, SAPIEN Vulkan capability, and sibling repositories.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/docs/ENVIRONMENT.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ENVIRONMENT.md"
+              },
+              {
+                "id": "splataug.new_machine",
+                "title": "New-machine reproduction guide",
+                "authority": "upstream",
+                "summary": "Required/reference assets, exact handoff and recovery checkouts, resume policy, numeric reporting, and no-retraining rule.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/docs/REPRODUCE_ON_A_NEW_MACHINE.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
+              },
+              {
+                "id": "splataug.robot_alignment",
+                "title": "Metric robot-alignment method",
+                "authority": "upstream",
+                "summary": "Board-scale correction, fixed-scale opaque-core ICP, faithful link labels, pose-invariant rulers, and rejected alternatives.",
+                "stages": [
+                  "campaign_postprocess"
+                ],
+                "source": "vendor/splataug_3dgs/docs/ROBOT_ALIGNMENT_METHOD.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ROBOT_ALIGNMENT_METHOD.md"
+              },
+              {
+                "id": "splataug.reconstruction",
+                "title": "Raw-capture reconstruction pipeline",
+                "authority": "upstream",
+                "summary": "Upstream phone-video, frame-selection, COLMAP, and Gaussian optimization path that precedes the released six-stage reproduction.",
+                "stages": [
+                  "capture_preflight",
+                  "reconstruct"
+                ],
+                "source": "vendor/splataug_3dgs/docs/RECONSTRUCTION_PIPELINE.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/RECONSTRUCTION_PIPELINE.md"
+              }
+            ]
           },
-          "input": {
-            "id": "scene_colmap_dataset",
-            "artifactClass": "upstream_intermediate",
-            "description": "Internally reconstructed COLMAP dataset consumed by the pinned public 2DGS-full repair lineage. This is a workflow intermediate, not an external user input."
-          },
-          "workflowBoundary": {
-            "setupInputs": [
-              "robot_urdf",
-              "franka_description_root"
+          {
+            "id": "augmentation",
+            "summary": "Generate and replay the three-cube episode, run original visual gates, attest RGB/action pairing, and export canonical LeRobot.",
+            "executionPolicy": "independent_idempotent_stages",
+            "artifactContract": null,
+            "outputContract": {
+              "profile": "blueprints/v1.yaml#output_contract",
+              "sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6"
+            },
+            "pipelines": [
+              "demo_batch",
+              "render_original_bline",
+              "review_original_bline",
+              "attest_original_bline",
+              "audit_original_bline_pairing",
+              "export_original_bline_lerobot"
             ],
-            "upstreamIntermediates": [
-              "scene_ply",
-              "axis_corrected_registration",
-              "table_plane"
-            ],
-            "generated": [
-              "resolved_robot_urdf",
-              "resolved_robot_report",
-              "fr3_surface_qpos",
-              "fr3_surface_report",
-              "fr3_labels",
-              "fr3_label_report",
-              "viewer_scene_ply",
-              "viewer_conversion_report"
-            ],
-            "downstreamGenerated": [
-              "table_top.ply",
-              "background.ply"
-            ],
-            "cubes": "Separate authoritative object reconstructions; not embedded in the public 2DGS full-scene model."
-          },
-          "workflowStages": [
+            "runbook": "modules/splataug_3dgs/augmentation/RUNBOOK.md",
+            "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/augmentation/RUNBOOK.md",
+            "guideCommand": "pde module guide splataug_3dgs --plane augmentation",
+            "knowledge": [
+              {
+                "id": "splataug.readme",
+                "title": "Latest SplatAug FR3 overview",
+                "authority": "upstream",
+                "summary": "Current end-to-end intent, metric methods, outputs, native stages, and prohibitions.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/README.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/README.md"
+              },
+              {
+                "id": "splataug.pipeline",
+                "title": "Six-stage pipeline and reference gates",
+                "authority": "upstream",
+                "summary": "Authoritative cubes, align, root, flat, demo, and views stages with reference metrics.",
+                "stages": [
+                  "campaign_postprocess",
+                  "demo_batch",
+                  "render_original_bline",
+                  "review_original_bline"
+                ],
+                "source": "vendor/splataug_3dgs/docs/PIPELINE.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/PIPELINE.md"
+              },
+              {
+                "id": "splataug.environment",
+                "title": "Multi-runtime environment contract",
+                "authority": "upstream",
+                "summary": "Required conda stacks, Docker image, GPU architecture, SAPIEN Vulkan capability, and sibling repositories.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/docs/ENVIRONMENT.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ENVIRONMENT.md"
+              },
+              {
+                "id": "splataug.new_machine",
+                "title": "New-machine reproduction guide",
+                "authority": "upstream",
+                "summary": "Required/reference assets, exact handoff and recovery checkouts, resume policy, numeric reporting, and no-retraining rule.",
+                "stages": [
+                  "all"
+                ],
+                "source": "vendor/splataug_3dgs/docs/REPRODUCE_ON_A_NEW_MACHINE.md",
+                "revision": "ed92e3d242ef",
+                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
+              }
+            ]
+          }
+        ]
+      },
+      "latestHandoff": {
+        "status": "blocked",
+        "runtime": {
+          "status": "pass",
+          "label": "Runtime capability smoke",
+          "detail": "NVIDIA L40S sm_89 \u00b7 CUDA Gaussian and SAPIEN Vulkan finite \u00b7 campaign container started",
+          "evidence": "evaluations/splataug_3dgs/latest_handoff_runtime_smoke_20260826.json"
+        },
+        "preflight": {
+          "status": "blocked",
+          "readOnly": true,
+          "retrainingAllowed": false,
+          "gates": [
             {
-              "id": "resolve_robot_geometry",
-              "authority": "reviewed_module_adapter",
-              "status": "complete"
+              "id": "source_identity",
+              "status": "pass",
+              "message": "Pinned pipeline, handoff, recovery, and base runtime trees must be exact."
             },
             {
-              "id": "build_surface",
-              "authority": "native_upstream",
-              "status": "complete"
+              "id": "gpu_architecture",
+              "status": "pass",
+              "message": "The current rasterizer build target is L40S/sm_89; another GPU requires a rebuild."
             },
             {
-              "id": "label_fr3_surface",
-              "authority": "reviewed_module_adapter",
-              "status": "complete"
+              "id": "runtime_image",
+              "status": "pass",
+              "message": "Use the exact upstream image name; never relabel the older recovery image as equivalent."
             },
             {
-              "id": "convert_viewer_schema",
-              "authority": "reviewed_module_adapter",
-              "status": "complete"
+              "id": "release_remote",
+              "status": "blocked",
+              "message": "The release is fetched through a configured rclone remote; credentials are never stored in the repo."
+            },
+            {
+              "id": "machine_paths",
+              "status": "pass",
+              "message": "A gitignored machine-local paths.sh must bind CAMP, PY, SplatSim, RoboSplat, and table calibration."
+            },
+            {
+              "id": "release_manifest",
+              "status": "blocked",
+              "message": "Required and reference payloads must be verified against the published MANIFEST.json before execution."
+            },
+            {
+              "id": "splatsim_runtime",
+              "status": "pass",
+              "message": "The native demo/evaluator stack requires a Python 3.12 splatsim312-equivalent environment."
+            },
+            {
+              "id": "splatsim_source_bundle",
+              "status": "blocked",
+              "message": "SplatSim is materialized only from the published git bundle for this reproduction."
             }
           ],
-          "reconstruction": {
-            "iterations": 30000,
-            "registeredViews": 2474,
-            "primitives": 636742
-          },
-          "localGate": {
-            "status": "pass",
-            "authority": "vendor/splataug_3dgs/scripts/review_bline_episode.py",
-            "frames": 153,
-            "rateHz": 10,
-            "blackFrames": {
-              "right_standing_cam": 0,
-              "left_standing_cam": 0,
-              "wrist_cam": 0
+          "evidence": "evaluations/splataug_3dgs/latest_handoff_preflight_20260826.json"
+        },
+        "reproduction": {
+          "status": "pending",
+          "detail": "Release remote, manifest, and SplatSim source bundle are blocked; no native stage result is claimed.",
+          "stages": [
+            {
+              "id": "cubes",
+              "status": "pending",
+              "gate": "Cube height 50.7 mm \u00b11; seam \u0394rgb \u2264 face spread",
+              "result": "Awaiting released cube assets"
             },
-            "wristCarryVisibility": "PASS",
-            "video": "./assets/evidence/splataug-2dgs-full-repair-review.mp4",
-            "evidence": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json"
-          },
-          "requiredVisualReview": {
-            "status": "fail",
-            "authority": "upstream-required owner motion/appearance review",
-            "failedViews": [
-              "left_standing_cam",
-              "wrist_cam"
-            ],
-            "observedFailures": [
-              "capture-pose FR3 residual remains in the static background and overlaps the articulated robot",
-              "large stretched or translucent surfels corrupt the table and background",
-              "robot silhouette and photometric quality are materially below the upstream reference"
-            ],
-            "diagnosis": {
-              "numeric_review_gap": "review_bline_episode.py checks gripper state, black frames, and carried-cube color occupancy; it does not detect robot ghosts or background deformation",
-              "reference_robot_gaussians": 104792,
-              "automatic_robot_gaussians": 60113,
-              "automatic_to_reference_ratio": 0.5736411176425681,
-              "reference_robot_gaussians_per_link_0_to_9": [
-                15300,
-                6325,
-                7236,
-                8820,
-                10430,
-                12520,
-                20279,
-                18862,
-                2386,
-                2634
-              ],
-              "automatic_robot_gaussians_per_link_0_to_9": [
-                5901,
-                5239,
-                7249,
-                6674,
-                334,
-                7473,
-                4212,
-                17383,
-                2298,
-                3350
-              ],
-              "known_recipe_deviations": [
-                "viewer thickness was 0.5 mm instead of the upstream 2dgs_full 0.1 mm convention",
-                "the required assemble_2dgsfull_scene.py K=3.4 near-cull frame was not used",
-                "the required 8-60 mm skirt cull and large-surfel split assembly was not used",
-                "the public 2DGS repair is not the original corrected 2dgs_full per-link asset lineage"
-              ]
+            {
+              "id": "align",
+              "status": "pending",
+              "gate": "Finger-pair and link-length rulers within \u00b11%",
+              "result": "Awaiting released alignment payload"
+            },
+            {
+              "id": "root",
+              "status": "pending",
+              "gate": "Inverse-FK round trip \u2264 1e-3 mm",
+              "result": "Awaiting native asset root"
+            },
+            {
+              "id": "flat",
+              "status": "pending",
+              "gate": "Calibrated table plane and measured rectangle",
+              "result": "Awaiting native flat-table output"
+            },
+            {
+              "id": "demo",
+              "status": "pending",
+              "gate": "Grasp 52.7 mm; 0 black frames; wrist carry visible",
+              "result": "Awaiting native demo and validation JSON"
+            },
+            {
+              "id": "views",
+              "status": "pending",
+              "gate": "Native free-view videos materialized",
+              "result": "Awaiting views stage"
             }
+          ]
+        },
+        "numericReference": [
+          {
+            "gate": "A-line episode",
+            "reference": "153 steps \u00b7 grasp 52.70 mm \u00b7 side clearance 1.0 mm \u00b7 0 black frames"
           },
-          "withdrawal": {
-            "status": "withdrawn",
-            "reason": "Owner visual review found severe static-robot ghosting and background deformation in the automatic public-2DGS render.",
-            "promotionAllowed": false,
-            "hfPublicationAllowed": false,
-            "supersededCandidate": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
-            "evidence": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/WITHDRAWN.json"
+          {
+            "gate": "Replay",
+            "reference": "0 black frames in all three views"
           },
-          "canonicalOutput": {
-            "status": "pass",
-            "rows": 153,
-            "views": [
-              "third_person_0",
-              "third_person_1",
-              "wrist"
-            ],
-            "rateHz": 10,
-            "actionSchema": "pde/eef-delta@v1",
-            "root": "runs/splataug-2dgs-full-repair-fresh153-lerobot-20260826"
+          {
+            "gate": "Wrist carry visibility",
+            "reference": "red 9.6% / black 9.5% \u00b7 minima 9.3% / 9.3%"
           },
-          "outputRoot": "runs/splataug-2dgs-full-repair-30k-r1024-20260826",
-          "parity": "distinct_from_exact_historical_r2",
-          "referenceLineage": {
-            "id": "exact_r2_cached_intermediate",
-            "status": "pass",
-            "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
+          {
+            "gate": "Scale rulers",
+            "reference": "finger-pair \u22120.29% \u00b7 link-pairs +0.51%"
           },
-          "historicalRuntime": "2dgs-depth-prior unavailable",
-          "promotionGate": "review_original_bline",
+          {
+            "gate": "Core \u2192 CAD",
+            "reference": "p50 3.82 mm"
+          }
+        ],
+        "canonicalPromotion": {
+          "status": "pending",
+          "latestHandoffExport": "not produced",
+          "currentCandidate": "Exact-R2 remains the current five-module candidate",
           "globalFilter": "not_implemented_not_run",
           "trainingPromotionAllowed": false
         }
-      ],
+      },
       "upstream": {
         "url": "https://github.com/martian35/splataug-fr3.git",
-        "commit": "512e49ffe991",
-        "tree": "cbeb0ab643c0",
+        "commit": "ed92e3d242ef",
+        "tree": "a2dae55b6eb1",
         "path": "vendor/splataug_3dgs"
       },
       "code": {
