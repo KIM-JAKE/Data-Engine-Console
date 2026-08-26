@@ -142,6 +142,12 @@
         "status": "optional stage-local resume only"
       },
       {
+        "id": "scene_colmap_dataset",
+        "kind": "derived checkpoint",
+        "role": "Internally reconstructed COLMAP dataset consumed by the pinned public 2DGS-full repair lineage. This is a workflow intermediate, not an external user input.",
+        "status": "optional stage-local resume only"
+      },
+      {
         "id": "source_episode_hdf5",
         "kind": "derived checkpoint",
         "role": "Native SplatSim episode replayed by the original RoboSplat B-line renderer. This is normally produced by the module, not authored by the user.",
@@ -760,6 +766,7 @@
         "report physics-replay readiness separately from native Neural Trajectory acceptance"
       ],
       "historicalLineages": [],
+      "repairLineages": [],
       "upstream": {
         "url": "https://github.com/finde30526/neural-trajectory-pipeline.git",
         "commit": "981610c3e079",
@@ -925,6 +932,7 @@
         "resolve robot, object, measured SysID, table and camera identity from the common task asset bundle and reject conflicting runtime paths"
       ],
       "historicalLineages": [],
+      "repairLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -1101,6 +1109,7 @@
         "record whether any background pixels were generated rather than copied"
       ],
       "historicalLineages": [],
+      "repairLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "48a42882a9e6",
@@ -1266,6 +1275,7 @@
         "resolve generation and render assets from the same task asset bundle; reject a module-local robot, cube, SysID posterior, table or camera substitution"
       ],
       "historicalLineages": [],
+      "repairLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -1324,6 +1334,7 @@
       "pipelines": [
         "capture_preflight",
         "reconstruct",
+        "reconstruct_2dgs_full_repair",
         "campaign_postprocess",
         "demo_batch",
         "build_fr3_surface_reference",
@@ -1370,6 +1381,14 @@
             "expected_cameras",
             "registration_threshold",
             "scene_iterations"
+          ]
+        },
+        {
+          "id": "reconstruct_2dgs_full_repair",
+          "description": "Reconstruct a surfel scene from an internal COLMAP dataset using the pinned public 2DGS-full repair runtime. This lineage is explicitly distinct from the unavailable historical local depth-prior fork.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_2dgs_full_repair.py",
+          "requiredInputs": [
+            "scene_colmap_dataset"
           ]
         },
         {
@@ -1598,6 +1617,25 @@
           "cause": "The exporter roundtrip proves only that each selected Gaussian can be unposed and reposed. It does not prove correct link ownership. The large count mismatch, missing distal geometry, and rendered floating/occluding surfaces identify the registration/link-label lineage as the failed stage; the generated background is not silently promoted.",
           "evidence": "evaluations/splataug_3dgs/auto_derived_bline_assets_native_review_20260826.json",
           "evidenceImage": null
+        }
+      ],
+      "repairLineages": [
+        {
+          "id": "reconstruct_2dgs_full_repair",
+          "label": "Pinned public 2DGS-full repair",
+          "status": "running_30k_validation",
+          "passClaimed": false,
+          "description": "Reconstruct a surfel scene from an internal COLMAP dataset using the pinned public 2DGS-full repair runtime. This lineage is explicitly distinct from the unavailable historical local depth-prior fork.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_2dgs_full_repair.py",
+          "input": {
+            "id": "scene_colmap_dataset",
+            "artifactClass": "upstream_intermediate",
+            "description": "Internally reconstructed COLMAP dataset consumed by the pinned public 2DGS-full repair lineage. This is a workflow intermediate, not an external user input."
+          },
+          "outputRoot": "runs/splataug-2dgs-full-repair-30k-r1024-20260826",
+          "parity": "distinct_from_exact_historical_r2",
+          "historicalRuntime": "2dgs-depth-prior unavailable",
+          "promotionGate": "review_original_bline"
         }
       ],
       "upstream": {
