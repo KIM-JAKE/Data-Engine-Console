@@ -136,7 +136,180 @@
     ],
     "moduleSetup": [
       {
+        "id": "raw_forge_config",
+        "mode": "raw_rgb_forge",
+        "label": "Raw RGB Forge",
+        "kind": "credential-free machine-local YAML",
+        "role": "Machine-local pde/splataug-raw-forge@v1 binding for a raw RGB capture-to-Forge run. It references only acquisition evidence and setup/runtime inputs; release checkpoints are neither required nor accepted as substitutes.",
+        "status": "registered \u00b7 execution not run",
+        "artifactClass": "setup_input",
+        "fields": [
+          "schema_version",
+          "campaign_id",
+          "state_root",
+          "capture_root",
+          "calibration_bundle",
+          "robot_urdf",
+          "robot_mesh_root",
+          "trainer_checkout",
+          "vocabulary_tree",
+          "python_executable",
+          "colmap_environment",
+          "gaussian_environment",
+          "capture_qpos",
+          "gpu_index",
+          "captures"
+        ],
+        "requiredFields": [
+          "schema_version",
+          "campaign_id",
+          "state_root",
+          "capture_root",
+          "calibration_bundle",
+          "robot_urdf",
+          "robot_mesh_root",
+          "capture_qpos",
+          "trainer_checkout",
+          "vocabulary_tree",
+          "python_executable",
+          "colmap_environment",
+          "gaussian_environment",
+          "captures"
+        ],
+        "captureGroups": [
+          "scene_board_off",
+          "scene_board_on",
+          "cube_static",
+          "cube_rolled"
+        ],
+        "pipelines": [
+          "raw_rgb_forge"
+        ],
+        "stages": [
+          {
+            "id": "prepare",
+            "needs": [],
+            "produces": [
+              "prepare_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "scene",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "scene_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "board",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "board_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "cubes",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "cubes_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "registration",
+            "needs": [
+              "scene",
+              "board"
+            ],
+            "produces": [
+              "registration_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "robot_alignment",
+            "needs": [
+              "registration"
+            ],
+            "produces": [
+              "robot_alignment_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "attest",
+            "needs": [
+              "robot_alignment",
+              "cubes"
+            ],
+            "produces": [
+              "attest_record",
+              "forge_artifact"
+            ],
+            "status": "not_run"
+          }
+        ],
+        "generatedArtifacts": [
+          {
+            "id": "scene_gaussian",
+            "path": "state_root/models/scene_static_raw_30000/point_cloud/iteration_30000/point_cloud.ply",
+            "class": "generated_resumable",
+            "role": "30k scene Gaussian"
+          },
+          {
+            "id": "registration_json",
+            "path": "state_root/artifacts/robot_alignment_raw/scene_registration.json",
+            "class": "generated_resumable",
+            "role": "metric scene-to-base registration"
+          },
+          {
+            "id": "fr3_surface_qpos.npz",
+            "path": "state_root/artifacts/robot_geometry/fr3_surface_qpos.npz",
+            "class": "generated_resumable",
+            "role": "capture-pose FR3 surface"
+          },
+          {
+            "id": "fr3_labels.npy",
+            "path": "state_root/artifacts/robot_alignment_raw/fr3_labels_faithful.npy",
+            "class": "generated_resumable",
+            "role": "faithful Gaussian-to-link labels"
+          },
+          {
+            "id": "cube_assets",
+            "path": "state_root/artifacts/cube_assets_spatial/",
+            "class": "generated_resumable",
+            "role": "canonical static/rolled cube Gaussians"
+          },
+          {
+            "id": "forge_artifact.json",
+            "path": "state_root/forge_artifact.json",
+            "class": "output_resumable",
+            "role": "checksummed Forge capability output"
+          }
+        ],
+        "releaseManifestRequired": false,
+        "referenceRequired": false,
+        "schema": "schemas/splataug-raw-forge.v1.schema.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-raw-forge.v1.schema.json",
+        "example": "modules/splataug_3dgs/runtime/raw-forge.example.yaml",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/runtime/raw-forge.example.yaml",
+        "workflow": "modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+        "workflowUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+        "credentialPolicy": "Raw Forge config contains machine-local acquisition/setup paths only. Credentials, release MANIFESTs, and reference artifacts are not inputs to this mode."
+      },
+      {
         "id": "latest_handoff_machine_config",
+        "mode": "latest_handoff",
+        "label": "Latest handoff replay",
         "kind": "credential-free machine-local YAML",
         "role": "Machine-local YAML binding for the pinned ed92 six-stage handoff. It contains absolute paths and an rclone remote name, never credentials or scientific parameters.",
         "status": "required only for latest handoff preflight/export",
@@ -176,6 +349,8 @@
           "latest_handoff_preflight",
           "export_latest_handoff_lerobot"
         ],
+        "releaseManifestRequired": true,
+        "referenceRequired": true,
         "schema": "schemas/splataug-handoff-machine.v1.schema.json",
         "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-handoff-machine.v1.schema.json",
         "example": "modules/splataug_3dgs/runtime/latest-handoff-machine.example.yaml",
@@ -645,6 +820,7 @@
         "rgb"
       ],
       "pipelines": [
+        "publish_forge_artifact",
         "verify_assets",
         "merge_world_model",
         "prepare_prompt_embeddings",
@@ -662,6 +838,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "publish_forge_artifact",
+          "description": "Fail-closed publication of independently verified Cosmos LoRA, prompt embedding, and tuned IDM capabilities under the fixed NT Forge profile.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/publish_forge_artifact.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "verify_assets",
           "description": "Verify the pinned base, LoRA, T5, IDM, tensor headers, and packaged training statistics without loading model tensors.",
@@ -866,7 +1050,8 @@
               "verify_assets",
               "merge_world_model",
               "prepare_prompt_embeddings",
-              "prepare_idm"
+              "prepare_idm",
+              "publish_forge_artifact"
             ],
             "runbook": "modules/neural_trajectory/forge/RUNBOOK.md",
             "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/RUNBOOK.md",
@@ -967,6 +1152,7 @@
           }
         ]
       },
+      "rawForge": null,
       "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/finde30526/neural-trajectory-pipeline.git",
@@ -1024,6 +1210,7 @@
         "task_contract"
       ],
       "pipelines": [
+        "publish_forge_artifact",
         "reset_generation",
         "teacher_training",
         "teacher_evaluation",
@@ -1033,6 +1220,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "publish_forge_artifact",
+          "description": "Fail-closed publication of a passed reset pool and teacher checkpoint under the fixed module-owned Forge profile.",
+          "entrypoint": "python ../../modules/rl_teacher/tools/publish_forge_artifact.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "reset_generation",
           "description": "Run the maintained task-profile-driven OmniReset generation loop.",
@@ -1150,7 +1345,8 @@
             "pipelines": [
               "reset_generation",
               "teacher_training",
-              "teacher_evaluation"
+              "teacher_evaluation",
+              "publish_forge_artifact"
             ],
             "runbook": "modules/rl_teacher/forge/RUNBOOK.md",
             "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/RUNBOOK.md",
@@ -1288,6 +1484,7 @@
           }
         ]
       },
+      "rawForge": null,
       "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
@@ -1345,6 +1542,7 @@
         "robot_state"
       ],
       "pipelines": [
+        "publish_forge_artifact",
         "all",
         "augment",
         "validate",
@@ -1356,6 +1554,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "publish_forge_artifact",
+          "description": "Fail-closed publication of the verified perception/runtime, camera, EEF-body, and desired-twist substrate; no task model training is invented.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/publish_forge_artifact.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "all",
           "description": "Run the complete native inspect-to-export pipeline from one YAML configuration.",
@@ -1492,7 +1698,8 @@
             "pipelines": [
               "build_canonical_calibration",
               "audit_eef_body",
-              "audit_recorded_twist"
+              "audit_recorded_twist",
+              "publish_forge_artifact"
             ],
             "runbook": "modules/robot_3dpc/forge/RUNBOOK.md",
             "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/RUNBOOK.md",
@@ -1609,6 +1816,7 @@
           }
         ]
       },
+      "rawForge": null,
       "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
@@ -1671,6 +1879,7 @@
         "object_centric_annotations"
       ],
       "pipelines": [
+        "publish_forge_artifact",
         "hf80k",
         "hf80k_preflight",
         "hf80k_legacy_multitask",
@@ -1678,6 +1887,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "publish_forge_artifact",
+          "description": "Fail-closed publication of the verified native-DIIK simulator/task/camera substrate; no learned checkpoint is invented.",
+          "entrypoint": "python ../../modules/sim_retargeting/tools/publish_forge_artifact.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "hf80k",
           "description": "Run reviewed human28 native-DIIK MimicGen, canonical desired-delta conversion, exact OmniReset RGB replay, and LeRobot export.",
@@ -1791,7 +2008,8 @@
             "outputContract": null,
             "pipelines": [
               "hf80k_preflight",
-              "build_canonical_calibration"
+              "build_canonical_calibration",
+              "publish_forge_artifact"
             ],
             "runbook": "modules/sim_retargeting/forge/RUNBOOK.md",
             "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/RUNBOOK.md",
@@ -1909,6 +2127,7 @@
           }
         ]
       },
+      "rawForge": null,
       "latestHandoff": null,
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
@@ -1966,6 +2185,7 @@
         "calibration_bundle"
       ],
       "pipelines": [
+        "raw_rgb_forge",
         "latest_handoff_preflight",
         "capture_preflight",
         "reconstruct",
@@ -1984,6 +2204,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "raw_rgb_forge",
+          "description": "Execute the declarative raw multiview RGB to aligned scene/robot/cube Forge workflow with pinned native quality gates and no release MANIFEST/reference dependency.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_raw_forge_workflow.py",
+          "requiredInputs": [
+            "raw_forge_config"
+          ]
+        },
         {
           "id": "latest_handoff_preflight",
           "description": "Read-only source, GPU, image, rclone, machine-path, and release-manifest preflight for the pinned six-stage upstream reproduction.",
@@ -2224,6 +2452,7 @@
             "artifactContract": "schemas/forge-artifact.v1.schema.json",
             "outputContract": null,
             "pipelines": [
+              "raw_rgb_forge",
               "latest_handoff_preflight",
               "capture_preflight",
               "reconstruct",
@@ -2389,6 +2618,174 @@
                 "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
               }
             ]
+          }
+        ]
+      },
+      "rawForge": {
+        "status": "registered_not_run",
+        "mode": "raw_rgb_forge",
+        "label": "Raw RGB Forge",
+        "configField": "raw_forge_config",
+        "configSchema": "https://kim-jake.github.io/Data-Engine/schemas/splataug-raw-forge.v1.schema.json",
+        "configSchemaVersion": "pde/splataug-raw-forge@v1",
+        "configFields": [
+          "schema_version",
+          "campaign_id",
+          "state_root",
+          "capture_root",
+          "calibration_bundle",
+          "robot_urdf",
+          "robot_mesh_root",
+          "trainer_checkout",
+          "vocabulary_tree",
+          "python_executable",
+          "colmap_environment",
+          "gaussian_environment",
+          "capture_qpos",
+          "gpu_index",
+          "captures"
+        ],
+        "requiredFields": [
+          "schema_version",
+          "campaign_id",
+          "state_root",
+          "capture_root",
+          "calibration_bundle",
+          "robot_urdf",
+          "robot_mesh_root",
+          "capture_qpos",
+          "trainer_checkout",
+          "vocabulary_tree",
+          "python_executable",
+          "colmap_environment",
+          "gaussian_environment",
+          "captures"
+        ],
+        "captureGroups": [
+          "scene_board_off",
+          "scene_board_on",
+          "cube_static",
+          "cube_rolled"
+        ],
+        "workflow": "modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+        "workflowUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+        "schema": "schemas/splataug-raw-forge.v1.schema.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-raw-forge.v1.schema.json",
+        "example": "modules/splataug_3dgs/runtime/raw-forge.example.yaml",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/runtime/raw-forge.example.yaml",
+        "runtimeSource": "modules/splataug_3dgs/tools/raw_forge_runtime.py",
+        "releaseManifestRequired": false,
+        "referenceRequired": false,
+        "summary": "Reconstruct, metric-register, articulate, and gate a raw FR3 three-cube RGB capture without requiring a release checkpoint, MANIFEST, or reference render.",
+        "stages": [
+          {
+            "id": "prepare",
+            "needs": [],
+            "produces": [
+              "prepare_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "scene",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "scene_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "board",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "board_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "cubes",
+            "needs": [
+              "prepare"
+            ],
+            "produces": [
+              "cubes_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "registration",
+            "needs": [
+              "scene",
+              "board"
+            ],
+            "produces": [
+              "registration_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "robot_alignment",
+            "needs": [
+              "registration"
+            ],
+            "produces": [
+              "robot_alignment_record"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "attest",
+            "needs": [
+              "robot_alignment",
+              "cubes"
+            ],
+            "produces": [
+              "attest_record",
+              "forge_artifact"
+            ],
+            "status": "not_run"
+          }
+        ],
+        "generatedArtifacts": [
+          {
+            "id": "scene_gaussian",
+            "path": "state_root/models/scene_static_raw_30000/point_cloud/iteration_30000/point_cloud.ply",
+            "class": "generated_resumable",
+            "role": "30k scene Gaussian"
+          },
+          {
+            "id": "registration_json",
+            "path": "state_root/artifacts/robot_alignment_raw/scene_registration.json",
+            "class": "generated_resumable",
+            "role": "metric scene-to-base registration"
+          },
+          {
+            "id": "fr3_surface_qpos.npz",
+            "path": "state_root/artifacts/robot_geometry/fr3_surface_qpos.npz",
+            "class": "generated_resumable",
+            "role": "capture-pose FR3 surface"
+          },
+          {
+            "id": "fr3_labels.npy",
+            "path": "state_root/artifacts/robot_alignment_raw/fr3_labels_faithful.npy",
+            "class": "generated_resumable",
+            "role": "faithful Gaussian-to-link labels"
+          },
+          {
+            "id": "cube_assets",
+            "path": "state_root/artifacts/cube_assets_spatial/",
+            "class": "generated_resumable",
+            "role": "canonical static/rolled cube Gaussians"
+          },
+          {
+            "id": "forge_artifact.json",
+            "path": "state_root/forge_artifact.json",
+            "class": "output_resumable",
+            "role": "checksummed Forge capability output"
           }
         ]
       },
