@@ -30,7 +30,7 @@ Error generating stack: `+e.message+`
       ${e.path||e.artifact?`<code>${$(e.path||e.artifact)}</code>`:``}
     </div>`).join(``)}</div>
   </section>`}function jp(e){return e?`<section class="bline-runtime-card">
-    <div class="bline-runtime-head"><div><span>3DGS · ORIGINAL B-LINE</span><h3>Renderer runtime</h3><p>The normal pipeline uses repository-pinned sources. No renderer checkout is required from the operator.</p></div><div class="bline-runtime-head-status"><b class="status-${e.sourceAccess===`resolved`?`ready`:`blocked`}">SOURCE ACCESS ${$(e.sourceAccess).toUpperCase()}</b><b class="status-${e.promotionAllowed?`ready`:`blocked`}">PROMOTION ${e.promotionAllowed?`ALLOWED`:`BLOCKED`}</b></div></div>
+    <div class="bline-runtime-head"><div><span>3DGS · ORIGINAL B-LINE</span><h3>Renderer runtime</h3><p>The normal pipeline uses repository-pinned sources. No renderer checkout is required from the operator.</p></div><div class="bline-runtime-head-status"><b class="status-${e.sourceAccess===`resolved`?`ready`:`blocked`}">SOURCE ACCESS ${$(e.sourceAccess).toUpperCase()}</b><b class="status-${e.candidateReady?`ready`:`blocked`}">MODULE CANDIDATE ${e.candidateReady?`READY`:`BLOCKED`}</b><b class="status-blocked">TRAINING PROMOTION DISABLED</b></div></div>
     <div class="bline-runtime-sources">${e.sources.map(e=>`<div><span><strong>${$(e.name)}</strong><small>${$(e.role)}</small></span><code>${$(e.path)}</code><span><b>${$(e.commit)}</b><small>tree ${$(e.tree)}</small></span><strong class="status-${e.status===`resolved`?`ready`:`blocked`}">${$(e.status).toUpperCase()}</strong></div>`).join(``)}</div>
     <div class="bline-runtime-gates">${e.gates.map(e=>`<div><span>${$(e.label)}</span><strong class="status-${e.status===`pass`?`ready`:`blocked`}">${$(bp(e.status))}</strong><small>${$(e.detail)}</small></div>`).join(``)}</div>
     <details class="bline-runtime-override"><summary><span><strong>Advanced external override</strong><small>Optional · leave empty to use the pinned internal runtime</small></span><b>Configure</b></summary><div><label class="field"><span>${$(e.externalOverride.field)}</span><input data-setup="blineRendererCheckout" value="${$(Q.setup.blineRendererCheckout)}" placeholder="Optional external checkout URI or path"></label><p>${$(e.externalOverride.description)}</p></div></details>
@@ -124,11 +124,13 @@ Error generating stack: `+e.message+`
     <section class="input-boundary-section">
       <details class="input-boundary-disclosure"><summary><span><strong>Module-specific inputs and derived artifacts</strong><small>Requested only when a selected module needs them · derived intermediates are never normal user inputs</small></span><b>Review boundary</b></summary>
         <div class="input-boundary-content"><div class="section-heading"><div><span>INTERFACE BOUNDARY</span><h2>Supplied versus derived artifacts</h2></div><small>Source: ${$(Z.inputs.evidence)}</small></div>
-          <div class="input-boundary-grid">
+          <div class="input-boundary-grid input-boundary-grid-single">
             ${Ap(`User-supplied inputs`,`INPUT`,Z.inputs.userSupplied,`supplied`)}
-            ${Ap(`Isolated repair input`,`REPAIR MODE ONLY`,Z.inputs.repairOnly,`repair`)}
           </div>
           ${jp(Z.inputs.blineRuntime)}
+          <details class="derived-artifacts resume-checkpoints"><summary><span><strong>Stage-local resume checkpoints</strong><small>${Z.inputs.repairOnly.length} derived artifacts · accepted only to resume an isolated stage</small></span><b>Show checkpoints</b></summary>
+            ${Ap(`Accepted only for repair or resume`,`INTERNAL CHECKPOINTS`,Z.inputs.repairOnly,`repair`)}
+          </details>
           <details class="derived-artifacts"><summary><span><strong>Engine-derived 3DGS artifacts</strong><small>${Z.inputs.derived.length} artifacts · ${$(Z.inputs.splataugStatus)}</small></span><b>Show artifact DAG</b></summary>
             ${Ap(`Produced inside the module`,`NOT NORMAL USER INPUTS`,Z.inputs.derived,`derived`)}
           </details>
@@ -249,6 +251,7 @@ Error generating stack: `+e.message+`
         <div class="module-detail-section"><span>REGISTERED PIPELINES</span><div class="token-list">${e.pipelines.map(e=>`<b>${$(e)}</b>`).join(``)}</div></div>
         <div class="module-io-grid"><div><span>NATIVE INPUTS</span><ul>${e.nativeInputs.map(e=>`<li>${$(e)}</li>`).join(``)}</ul></div><div><span>NATIVE OUTPUTS</span><ul>${e.nativeOutputs.map(e=>`<li>${$(e)}</li>`).join(``)}</ul></div></div>
         <div class="module-detail-section"><span>${t.blocker?`BLOCKER EVIDENCE`:`GOLDEN REQUIREMENTS`}</span>${t.blocker?`<div class="blocker-evidence-layout"><dl class="blocker-detail"><dt>Stage</dt><dd>${$(t.blocker.stage)}</dd><dt>Reason codes</dt><dd>${$((t.blocker.reasonCodes||[]).join(` · `)||`—`)}</dd><dt>Observed</dt><dd>${$(t.blocker.observed||`—`)}</dd><dt>Cause</dt><dd>${$(t.blocker.cause||`—`)}</dd></dl>${t.blocker.evidenceImage?`<figure class="blocker-evidence-image"><img src="${$(t.blocker.evidenceImage)}" alt="3DGS frame 50 visual review failure"><figcaption>Frame 50 · static robot residual with separately moving hand/gripper</figcaption></figure>`:``}</div>`:`<ul>${e.goldenRequirements.map(e=>`<li>${$(e)}</li>`).join(``)}</ul>`}</div>
+        ${(e.historicalLineages||[]).map(e=>`<section class="historical-lineage"><div class="historical-lineage-head"><div><span>SEPARATE FAILED LINEAGE</span><h3>${$(e.label)}</h3><p>Preserved for audit evidence and not merged into the current gate-passed 3DGS candidate.</p></div><b class="status-blocked">${$(e.status).toUpperCase()}</b></div><div class="blocker-evidence-layout"><dl class="blocker-detail"><dt>Stage</dt><dd>${$(e.stage)}</dd><dt>Observed</dt><dd>${$(e.reason||`—`)}</dd><dt>Cause</dt><dd>${$(e.cause||`—`)}</dd><dt>Evidence</dt><dd><code>${$(e.evidence)}</code></dd></dl>${e.evidenceImage?`<figure class="blocker-evidence-image"><img src="${$(e.evidenceImage)}" alt="Rejected recovery renderer frame 50 evidence"><figcaption>Historical recovery renderer · frame 50 visual-review failure</figcaption></figure>`:``}</div></section>`).join(``)}
         <div class="code-map"><span>REPOSITORY MAPPING</span><strong>${$(e.code.component)}</strong><strong>${$(e.code.module)}</strong><strong>${$(e.code.vendor)}</strong><strong>${$(t.evidence)}</strong></div>
       </section>
     </div>

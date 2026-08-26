@@ -122,7 +122,7 @@
         "id": "task_asset_bundle",
         "kind": "checksummed asset bundle",
         "role": "Robot geometry, cube/table assets, calibration bindings, and task identity.",
-        "status": "contract_extension_pass_exact_payload_identity",
+        "status": "verified \u00b7 exact payload identity",
         "evidence": "evaluations/task_assets/fr3_cube_stack_bundle_v2_20260825.json",
         "artifact": "assets/task_bundles/fr3_cube_stack_omnireset_v2.json"
       },
@@ -136,10 +136,76 @@
     ],
     "repairOnly": [
       {
+        "id": "scene_gaussian",
+        "kind": "derived checkpoint",
+        "role": "Internally reconstructed Gaussian PLY accepted only by an isolated resume/repair pipeline.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "source_episode_hdf5",
+        "kind": "derived checkpoint",
+        "role": "Native SplatSim episode replayed by the original RoboSplat B-line renderer. This is normally produced by the module, not authored by the user.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_render_root",
+        "kind": "derived checkpoint",
+        "role": "Original B-line three-view render directory containing metadata, validation, and view videos.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_render_metadata",
+        "kind": "derived checkpoint",
+        "role": "metadata.json emitted by the original B-line replay.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_render_validation",
+        "kind": "derived checkpoint",
+        "role": "Module-local validation emitted by the original B-line review pipeline.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_source_attestation",
+        "kind": "derived checkpoint",
+        "role": "Checksum binding between the exact native HDF5 and B-line render metadata, generated inside the workflow.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_asset_root",
+        "kind": "derived checkpoint",
+        "role": "Derived per-link FR3 plus static table/background Gaussian asset root. Accepted only to resume the independently repairable B-line render stage; a full capture-to-render run produces it from the scene Gaussian, registration, labels, table geometry, and object assets.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "bline_cube_asset_root",
+        "kind": "derived checkpoint",
+        "role": "Derived origin-centred cube Gaussian assets used by the B-line renderer. Accepted only as a reconstruction/segmentation checkpoint for stage-local resume.",
+        "status": "optional stage-local resume only"
+      },
+      {
         "id": "initial_scene_registration",
-        "kind": "checkpoint",
-        "role": "Accepted only by the isolated 3DGS artifact-repair workflow; never a normal full-run input.",
-        "status": "optional repair boundary"
+        "kind": "derived checkpoint",
+        "role": "Optional internal checkpoint for starting or repairing the isolated articulation stage. The full campaign pipeline produces this artifact and does not require a user-authored transform.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "robot_labels",
+        "kind": "derived checkpoint",
+        "role": "Derived Gaussian-to-FR3-link ownership array consumed by the native B-line asset exporter.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "canonical_object_gaussians",
+        "kind": "derived checkpoint",
+        "role": "Derived origin-centred object Gaussian checkpoints produced by object reconstruction and segmentation.",
+        "status": "optional stage-local resume only"
+      },
+      {
+        "id": "table_geometry",
+        "kind": "derived checkpoint",
+        "role": "Derived table plane, physical surface offset, and reviewed footprint used by the native asset exporter and flat-table stage.",
+        "status": "optional stage-local resume only"
       }
     ],
     "derived": [
@@ -148,88 +214,88 @@
         "path": "geometry/fr3.resolved.urdf",
         "role": "Execution-only URDF with every original mesh URI resolved to a checksummed file.",
         "owner": "splataug_3dgs",
-        "status": "derived by module"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "resolved_robot_report",
         "path": "geometry/fr3.resolved.report.json",
         "role": "Source URDF and per-mesh identity provenance.",
         "owner": "splataug_3dgs",
-        "status": "derived by module"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "fr3_surface_qpos",
         "path": "geometry/fr3_surface_qpos.npz",
         "role": "Deterministic posed FR3 visual surface with xyz, link, and qpos arrays.",
         "owner": "splataug_3dgs",
-        "status": "derived by module"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "fr3_surface_report",
         "path": "geometry/fr3_surface_qpos.report.json",
         "role": "URDF, mesh, qpos, sampling, and checksum provenance.",
         "owner": "splataug_3dgs",
-        "status": "derived by module"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "scene_registration",
         "path": "registration/scene_registration_fr3_refined.json",
         "role": "Metric registration refined against the capture-pose FR3 surface under the native gate.",
         "owner": "splataug_3dgs",
-        "status": "derived; rejected by native gate"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "preliminary_labels",
         "path": "articulation/fr3_labels.preliminary.npy",
         "role": "Preliminary native nearest-CAD ownership used only to estimate the joint-1 axis.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "preliminary_robot_ply",
         "path": "articulation/fr3_robot.preliminary.ply",
         "role": "Preliminary labelled robot Gaussian subset.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "preliminary_label_report",
         "path": "articulation/fr3_labels.preliminary.report.json",
         "role": "Original nearest-CAD label audit.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "axis_correction",
         "path": "registration/scene_registration_axis_corrected.json",
         "role": "Original joint-1 axis-corrected reconstruction-to-base transform.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "fr3_labels",
         "path": "articulation/fr3_labels.npy",
         "role": "Final native link-ownership vector generated with the corrected registration.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "fr3_robot_ply",
         "path": "articulation/fr3_robot.ply",
         "role": "Final labelled robot Gaussian subset.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       },
       {
         "id": "fr3_label_report",
         "path": "articulation/fr3_labels.report.json",
         "role": "Final original nearest-CAD label audit.",
         "owner": "splataug_3dgs",
-        "status": "not produced (upstream gate blocked)"
+        "status": "derived by module; resumable checkpoint"
       }
     ],
     "evidence": "modules/splataug_3dgs/workflows/fr3_articulation_assets.v1.yaml",
-    "splataugStatus": "module_local_filter_failed_visual_review",
+    "splataugStatus": "local_filter_passed_candidate",
     "blineRuntime": {
       "pipeline": "render_original_bline",
       "sourceAccess": "resolved",
@@ -269,30 +335,32 @@
         {
           "id": "fresh_full_episode_render",
           "label": "Fresh full-episode render",
-          "status": "blocked",
-          "detail": "NOT RUN: exact flat-table background.ply is missing from the shared filesystem (232,347,027 bytes; md5 93a1e2e92c4427a1a36edd5efbcfccd9)."
+          "status": "pass",
+          "detail": "153 rows at 10 Hz; native gripper, black-frame, and wrist-carry visibility gates passed."
         },
         {
           "id": "exact_rgb_action_pairing",
           "label": "Exact RGB/action pairing",
-          "status": "pending",
-          "detail": "Existing reference RGB has 145 frames/view while the available native HDF5 has 153 rows; lineage pairing remains rejected."
+          "status": "pass",
+          "detail": "153 HDF5 rows equal 153 decoded frames/view; checksum attestation and pairing passed."
+        },
+        {
+          "id": "canonical_lerobot_validation",
+          "label": "Canonical LeRobot validation",
+          "status": "pass",
+          "detail": "153 rows, 152 valid action rows, 320\u00d7180, 3 views, pde/eef-delta@v1 at 10 Hz."
         }
       ],
       "freshCudaRuntimeStatus": "pass",
-      "freshFullEpisodeRenderStatus": "blocked_not_run",
-      "promotionAllowed": false,
-      "missingBackground": {
-        "target": "runs/splataug-3dgs-original-r2-assets-20260825/static/background.ply",
-        "expectedSizeBytes": 232347027,
-        "expectedMd5": "93a1e2e92c4427a1a36edd5efbcfccd9",
-        "status": "BLOCKED_NOT_MATERIALIZED_LOCALLY"
-      },
+      "freshFullEpisodeRenderStatus": "pass",
+      "candidateReady": true,
+      "trainingPromotionAllowed": false,
+      "candidateRoot": "runs/splataug-3dgs-original-r2-fresh153-lerobot-20260826",
       "evidence": [
         "components/splataug_3dgs/runtime-upstreams.json",
         "modules/splataug_3dgs/runtime-lock.json",
         "evaluations/splataug_3dgs/original_r2_runtime_smoke_20260826.json",
-        "evaluations/splataug_3dgs/original_r2_bline_pairing_current_20260825.json"
+        "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
       ]
     }
   },
@@ -542,6 +610,7 @@
         "treat C1-C3 as action-coherence only, never task-success evidence",
         "report physics-replay readiness separately from native Neural Trajectory acceptance"
       ],
+      "historicalLineages": [],
       "upstream": {
         "url": "https://github.com/finde30526/neural-trajectory-pipeline.git",
         "commit": "981610c3e079",
@@ -639,6 +708,7 @@
         "reject a moving fixed camera or a frozen wrist transform before complete-output promotion",
         "resolve robot, object, measured SysID, table and camera identity from the common task asset bundle and reject conflicting runtime paths"
       ],
+      "historicalLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -735,6 +805,7 @@
         "preserve identity reconstruction PSNR, SSIM, seam and temporal metrics",
         "record whether any background pixels were generated rather than copied"
       ],
+      "historicalLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "48a42882a9e6",
@@ -849,6 +920,7 @@
         "enforce the OmniReset 50/40/10 visual-profile mixture when validating population-scale exports",
         "resolve generation and render assets from the same task asset bundle; reject a module-local robot, cube, SysID posterior, table or camera substitution"
       ],
+      "historicalLineages": [],
       "upstream": {
         "url": "https://github.com/KIM-JAKE/Data-Engine.git",
         "commit": "394b6c7f6e3e",
@@ -893,8 +965,8 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "final_r2_bline_reference_passed_source_and_runtime_recovered_full_episode_input_and_pairing_gated",
-      "adapterStatus": "complete_adapter_e2e_verified_on_fixture_original_r2_pairing_pending",
+      "integrationStatus": "final_r2_bline_fresh153_native_gates_pairing_and_current_contract_passed",
+      "adapterStatus": "complete_adapter_e2e_verified_on_fresh_original_r2_episode",
       "adapterScope": null,
       "domains": [
         "real",
@@ -913,6 +985,8 @@
         "refine_scene_registration",
         "build_articulation_assets",
         "build_articulation_assets_from_shared_registration",
+        "export_original_bline_assets",
+        "flatten_original_bline_assets",
         "render_articulated_episode",
         "render_original_bline",
         "attest_original_bline",
@@ -934,10 +1008,10 @@
         "MP4 review views, montage, contact sheets and validation JSON"
       ],
       "limitations": [
-        "The original B-line complete adapter has passed an E2E LeRobot validation fixture, including H.264 video decode, 320x180 calibration, wrist extrinsics, native preservation, and canonical action validation; this does not substitute for the missing final-episode pairing.",
-        "The native absolute-joint-target action path and TCP-to-fr3_hand 10 Hz EEF-delta adapter are executable; complete RGB/action promotion still requires one HDF5 whose 145 rows and checksum exactly match the final R-2 reference videos, or a fresh render from a newly generated native episode.",
-        "The final R-2 B-line reference render passed its upstream gripper, black-frame, and wrist-carry visibility gates. Its exact private RoboSplat_custom revision and official RoboSplat base are vendored and integrity-checked; a fresh L40S smoke now passes FR3 FK, 104,792 link Gaussians, and a native 1280x720 CUDA rasterization.",
-        "A fresh full-episode render is still blocked because the exact final flat-table background Gaussian is identified on private Drive but is not materialized in the shared filesystem. No different background is substituted.",
+        "A fresh 153-row original B-line replay now passes the upstream gripper, black-frame, and wrist-carry gates, exact RGB/action attestation, decoded-frame pairing, 320x180 calibration, native preservation, and canonical action validation.",
+        "The historical 145-frame R-2 reference remains separate immutable evidence because its matching source HDF5 is unavailable; it is not paired with the new 153-row source.",
+        "The supplied flat-table background is a checksummed derived reconstruction/segmentation artifact used to resume this historical lineage, not a user-authored input required by a full capture-to-render run.",
+        "The exact private RoboSplat_custom revision and official RoboSplat base are vendored and integrity-checked; the L40S runtime passes FR3 FK, 104,792 link Gaussians, native 1280x720 CUDA rasterization, and the complete 153-frame three-view replay.",
         "The pinned RoboSplat_custom tree has no license file. Keep that source private and do not redistribute it until permission is clarified.",
         "The older A-line SplatSim commit 425e6e5 was local-only; it is not the source claim for the final R-2 B-line reference."
       ],
@@ -954,6 +1028,18 @@
         "enforce rasterizer scale, tilted-table placement and per-part inverse-FK round-trip checks",
         "keep non-commercial third-party attribution and license constraints"
       ],
+      "historicalLineages": [
+        {
+          "id": "recovery_renderer_20260825",
+          "label": "Rejected recovery renderer",
+          "status": "fail",
+          "stage": "module_local_filter",
+          "reason": "At frame 50, a static home-pose robot shell remains while the articulated gripper/hand moves separately, creating the reported floating-head appearance.",
+          "cause": "The recovery labels leave 24,991 AABB Gaussians in the static scene; the exact upstream campaign used separately reviewed/pruned ownership assets that do not match this local checkpoint. Capture qpos exactly matches the surface qpos, so this is not a home-pose mismatch.",
+          "evidence": "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json",
+          "evidenceImage": "./assets/evidence/splataug-3dgs-visual-review-failure-frame50.jpg"
+        }
+      ],
       "upstream": {
         "url": "https://github.com/martian35/splataug-fr3.git",
         "commit": "512e49ffe991",
@@ -967,9 +1053,9 @@
       },
       "runtime": {
         "localFilter": {
-          "status": "numeric_pass_visual_fail",
+          "status": "pass",
           "authority": "native registration, visual, gripper, attachment, and continuity gates",
-          "note": "gripper pass \u00b7 attachment pass \u00b7 object pose continuity pass \u00b7 human motion review fail"
+          "note": "Module-native decision preserved from its current-contract evaluation."
         },
         "canonicalAdapter": {
           "status": "pass",
@@ -978,35 +1064,25 @@
           "frame": "robot_base"
         },
         "output": {
-          "status": "blocked",
-          "episodes": null,
-          "rows": null,
-          "views": [],
-          "nativeArtifacts": null,
-          "root": null
-        },
-        "blocker": {
-          "stage": "module_local_filter",
-          "reason": "The original campaign requires human motion review in addition to numeric gates; frame 50 shows a static home-pose robot shell and a separately moving hand/gripper, so this recovery render is not a release candidate.",
-          "reasonCodes": [
-            "static_robot_ghost",
-            "floating_gripper_visual"
+          "status": "ready",
+          "episodes": 1,
+          "rows": 153,
+          "views": [
+            "third_person_0",
+            "third_person_1",
+            "wrist"
           ],
-          "observed": "At frame 50, a static home-pose robot shell remains while the articulated gripper/hand moves separately, creating the reported floating-head appearance.",
-          "cause": "The recovery labels leave 24,991 AABB Gaussians in the static scene; the exact upstream campaign used separately reviewed/pruned ownership assets that do not match this local checkpoint. Capture qpos exactly matches the surface qpos, so this is not a home-pose mismatch.",
-          "evidence": [
-            "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json",
-            "runs/splataug-3dgs-v2-upstream-registration-relabel-render-20260825/visual_review_failure_frame50.jpg"
-          ],
-          "evidenceImage": "./assets/evidence/splataug-3dgs-visual-review-failure-frame50.jpg"
+          "nativeArtifacts": 11,
+          "root": "runs/splataug-3dgs-original-r2-fresh153-lerobot-20260826"
         },
-        "evidence": "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json"
+        "blocker": null,
+        "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
       }
     }
   ],
   "runs": [
     {
-      "id": "cube-stack-5module-current-contract-d78a-20260825:rl_teacher",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:rl_teacher",
       "component": "rl_teacher",
       "title": "rl_teacher current-contract candidate",
       "status": "succeeded",
@@ -1042,7 +1118,7 @@
       "evidence": "evaluations/rl_teacher/cube_stack_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-current-contract-d78a-20260825:sim_retargeting",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:sim_retargeting",
       "component": "sim_retargeting",
       "title": "sim_retargeting current-contract candidate",
       "status": "succeeded",
@@ -1078,7 +1154,7 @@
       "evidence": "evaluations/sim_retargeting/native_diik_chunk_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-current-contract-d78a-20260825:neural_trajectory",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:neural_trajectory",
       "component": "neural_trajectory",
       "title": "neural_trajectory current-contract candidate",
       "status": "succeeded",
@@ -1114,7 +1190,7 @@
       "evidence": "evaluations/neural_trajectory/full_episode_seed23_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-current-contract-d78a-20260825:robot_3dpc",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:robot_3dpc",
       "component": "robot_3dpc",
       "title": "robot_3dpc current-contract candidate",
       "status": "succeeded",
@@ -1150,9 +1226,45 @@
       "evidence": "evaluations/robot_3dpc/franka_teleop0_orange_plus_x_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-current-contract-d78a-20260825:splataug_3dgs:rejected",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:splataug_3dgs",
       "component": "splataug_3dgs",
-      "title": "splataug_3dgs module-local rejection",
+      "title": "splataug_3dgs current-contract candidate",
+      "status": "succeeded",
+      "recordedAt": "2026-08-26",
+      "process": [
+        [
+          "native augmentation",
+          "passed"
+        ],
+        [
+          "module-local filter",
+          "passed"
+        ],
+        [
+          "canonical adapter",
+          "passed"
+        ],
+        [
+          "LeRobot validation",
+          "pass"
+        ],
+        [
+          "global filter",
+          "not run"
+        ]
+      ],
+      "metrics": {
+        "episodes": 1,
+        "rows": 153,
+        "native artifacts": 11,
+        "views": 3
+      },
+      "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
+    },
+    {
+      "id": "historical:splataug_3dgs:recovery_renderer_20260825",
+      "component": "splataug_3dgs",
+      "title": "splataug_3dgs rejected recovery lineage",
       "status": "blocked",
       "recordedAt": "2026-08-25",
       "process": [
@@ -1170,7 +1282,7 @@
         ],
         [
           "candidate admission",
-          "rejected"
+          "rejected historical lineage"
         ],
         [
           "global filter",
@@ -1181,7 +1293,7 @@
         "rendered frames": 150,
         "valid action rows": 149,
         "review frame": 50,
-        "candidate episodes": 0
+        "current candidate": false
       },
       "evidence": "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json"
     }
@@ -1189,9 +1301,9 @@
   "datasetPreview": {
     "schemaVersion": "physical-data-engine/release-browser-preview@v1",
     "status": "available",
-    "candidatePoolId": "cube-stack-5module-current-contract-d78a-20260825",
+    "candidatePoolId": "cube-stack-5module-complete-current-contract-d78a-20260826",
     "contractDigest": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
-    "source": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/manifest.json",
+    "source": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
     "inventory": [
       {
         "id": "rl_teacher:episode_000000",
@@ -7228,6 +7340,18 @@
         "sourceSeedKind": "source episode index",
         "frames": 421,
         "previewStatus": "available"
+      },
+      {
+        "id": "splataug_3dgs:episode_000503",
+        "module": "splataug_3dgs",
+        "moduleIndex": 4,
+        "episodeIndex": 503,
+        "sourceEpisodeIndex": 0,
+        "task": "task_index_0",
+        "sourceSeed": "episode_000000",
+        "sourceSeedKind": "source episode index",
+        "frames": 153,
+        "previewStatus": "available"
       }
     ],
     "episodes": [
@@ -8647,7 +8771,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-4module-d78a-lossless-20260825",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=0",
           "evaluationSha256": "4ee5c2cdaa6562b658cc9d6cc3738bb6230736ccf46b0f218537f96806a6f3a7",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -12463,7 +12587,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-4module-d78a-lossless-20260825",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=1",
           "evaluationSha256": "0bd9913cecb78f44b2697c5a0aebc2a1dd1255862c21e3eca8290a19e4580bb6",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -17820,7 +17944,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-4module-d78a-lossless-20260825",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=2",
           "evaluationSha256": "76e37d8afcc74a364c26d35510b27a0d158cd9750b57282e6517780df41b49a5",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -27547,9 +27671,3572 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-4module-d78a-lossless-20260825",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=3",
           "evaluationSha256": "a2491622c3259ac8d02f7f04be3cb234af8d7e94df1e46733ec873e023da6c24",
+          "parquet": "unavailable \u2014 not exposed by release preview",
+          "parquetSha256": null,
+          "lineage": "meta/pde_episode_lineage.parquet"
+        }
+      },
+      {
+        "id": "splataug_3dgs:episode_000503",
+        "module": "splataug_3dgs",
+        "moduleIndex": 4,
+        "episodeIndex": 503,
+        "task": "task_index_0",
+        "sourceSeed": "episode_000000",
+        "sourceSeedKind": "source episode index",
+        "frames": 153,
+        "rateHz": 10,
+        "durationSeconds": 15.3,
+        "actionSchema": "pde/eef-delta@v1",
+        "nativeSchema": null,
+        "nativeActionStatus": "unavailable \u2014 release preview contains canonical action only",
+        "validityStatus": "unavailable \u2014 release preview does not package the validity mask",
+        "localGate": {
+          "status": "pass",
+          "authority": "module-local result preserved in meta/pde_modules.json"
+        },
+        "media": [
+          {
+            "view": "three-view composite",
+            "views": [
+              "third_person_0",
+              "third_person_1",
+              "wrist"
+            ],
+            "layout": "horizontal_composite",
+            "src": "./assets/release-preview/media/04_splataug_3dgs_episode_503.mp4",
+            "sha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384",
+            "sourceSha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384"
+          }
+        ],
+        "timeline": [
+          {
+            "frame": 0,
+            "time": 0.0,
+            "canonical": [
+              0.01648802,
+              -0.00307768,
+              0.00157088,
+              0.00643112,
+              0.00015164,
+              0.00161972,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 1,
+            "time": 0.1,
+            "canonical": [
+              0.01676026,
+              -0.00337639,
+              0.00073165,
+              0.00605905,
+              5.406e-05,
+              0.00118597,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 2,
+            "time": 0.2,
+            "canonical": [
+              0.01698413,
+              -0.00367261,
+              -0.0001263,
+              0.00565845,
+              -3.5e-05,
+              0.00078213,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 3,
+            "time": 0.3,
+            "canonical": [
+              0.01715866,
+              -0.00396492,
+              -0.00100058,
+              0.00523157,
+              -0.00011495,
+              0.00041,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 4,
+            "time": 0.4,
+            "canonical": [
+              0.0172832,
+              -0.00425188,
+              -0.00188839,
+              0.00478082,
+              -0.00018523,
+              7.124e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 5,
+            "time": 0.5,
+            "canonical": [
+              0.01735714,
+              -0.00453207,
+              -0.00278705,
+              0.00430867,
+              -0.00024536,
+              -0.00023261,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 6,
+            "time": 0.6,
+            "canonical": [
+              0.01738018,
+              -0.00480405,
+              -0.00369376,
+              0.00381775,
+              -0.00029496,
+              -0.00050022,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 7,
+            "time": 0.7,
+            "canonical": [
+              0.0173521,
+              -0.00506645,
+              -0.00460589,
+              0.00331076,
+              -0.00033368,
+              -0.0007304,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 8,
+            "time": 0.8,
+            "canonical": [
+              0.01727307,
+              -0.00531786,
+              -0.00552076,
+              0.00279047,
+              -0.00036128,
+              -0.00092215,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 9,
+            "time": 0.9,
+            "canonical": [
+              0.01714322,
+              -0.00555696,
+              -0.00643551,
+              0.00225972,
+              -0.0003776,
+              -0.00107464,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 10,
+            "time": 1.0,
+            "canonical": [
+              0.01696303,
+              -0.00578243,
+              -0.00734746,
+              0.00172142,
+              -0.00038253,
+              -0.00118724,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 11,
+            "time": 1.1,
+            "canonical": [
+              0.01673305,
+              -0.00599299,
+              -0.00825393,
+              0.00117852,
+              -0.00037608,
+              -0.00125949,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 12,
+            "time": 1.2,
+            "canonical": [
+              0.01645398,
+              -0.00618744,
+              -0.00915241,
+              0.00063397,
+              -0.00035833,
+              -0.00129114,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 13,
+            "time": 1.3,
+            "canonical": [
+              0.01612687,
+              -0.00636461,
+              -0.01004034,
+              9.072e-05,
+              -0.00032941,
+              -0.00128213,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 14,
+            "time": 1.4,
+            "canonical": [
+              0.01575273,
+              -0.00652341,
+              -0.01091498,
+              -0.00044821,
+              -0.00028959,
+              -0.00123258,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 15,
+            "time": 1.5,
+            "canonical": [
+              0.01533282,
+              -0.00666278,
+              -0.01177424,
+              -0.00097992,
+              -0.00023916,
+              -0.00114282,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 16,
+            "time": 1.6,
+            "canonical": [
+              0.01486844,
+              -0.00678176,
+              -0.01261556,
+              -0.00150148,
+              -0.00017853,
+              -0.00101336,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 17,
+            "time": 1.7,
+            "canonical": [
+              0.01436114,
+              -0.00687945,
+              -0.01343673,
+              -0.00200999,
+              -0.00010816,
+              -0.00084491,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 18,
+            "time": 1.8,
+            "canonical": [
+              0.01381248,
+              -0.00695502,
+              -0.01423559,
+              -0.00250266,
+              -2.86e-05,
+              -0.00063838,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 19,
+            "time": 1.9,
+            "canonical": [
+              0.01322424,
+              -0.00700774,
+              -0.01501012,
+              -0.00297678,
+              5.953e-05,
+              -0.00039482,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 20,
+            "time": 2.0,
+            "canonical": [
+              0.0125981,
+              -0.00703696,
+              -0.01575828,
+              -0.00342967,
+              0.00015556,
+              -0.00011551,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 21,
+            "time": 2.1,
+            "canonical": [
+              0.01193613,
+              -0.00704206,
+              -0.0164783,
+              -0.00385881,
+              0.00025875,
+              0.00019814,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 22,
+            "time": 2.2,
+            "canonical": [
+              0.01124018,
+              -0.00702258,
+              -0.01716834,
+              -0.00426174,
+              0.0003683,
+              0.00054452,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 23,
+            "time": 2.3,
+            "canonical": [
+              0.01051223,
+              -0.00697812,
+              -0.0178268,
+              -0.00463616,
+              0.00048334,
+              0.00092188,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 24,
+            "time": 2.4,
+            "canonical": [
+              0.00975442,
+              -0.00690836,
+              -0.01845217,
+              -0.00497991,
+              0.00060299,
+              0.00132831,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 25,
+            "time": 2.5,
+            "canonical": [
+              0.00896889,
+              -0.00681305,
+              -0.01904291,
+              -0.00529094,
+              0.0007263,
+              0.00176176,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 26,
+            "time": 2.6,
+            "canonical": [
+              0.00815773,
+              -0.00669204,
+              -0.0195978,
+              -0.00556738,
+              0.00085227,
+              0.00222005,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 27,
+            "time": 2.7,
+            "canonical": [
+              0.00732321,
+              -0.00654531,
+              -0.02011552,
+              -0.00580752,
+              0.00097991,
+              0.00270087,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 28,
+            "time": 2.8,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 29,
+            "time": 2.9,
+            "canonical": [
+              0.00242555,
+              -0.00028819,
+              -0.02277562,
+              -6.363e-05,
+              -1.598e-05,
+              0.00052118,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 30,
+            "time": 3.0,
+            "canonical": [
+              0.00161821,
+              -0.00019744,
+              -0.02285135,
+              -2.243e-05,
+              -1.464e-05,
+              0.0003491,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 31,
+            "time": 3.1,
+            "canonical": [
+              0.00080907,
+              -0.00010341,
+              -0.02289793,
+              6.79e-06,
+              -1.1e-05,
+              0.00017538,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 32,
+            "time": 3.2,
+            "canonical": [
+              -7.7e-07,
+              -6.18e-06,
+              -0.02291542,
+              2.4e-05,
+              -4.96e-06,
+              6.7e-07,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 33,
+            "time": 3.3,
+            "canonical": [
+              -0.00081015,
+              9.413e-05,
+              -0.02290371,
+              2.92e-05,
+              3.57e-06,
+              -0.00017437,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 34,
+            "time": 3.4,
+            "canonical": [
+              -0.00161815,
+              0.00019743,
+              -0.0228629,
+              2.241e-05,
+              1.466e-05,
+              -0.0003491,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 35,
+            "time": 3.5,
+            "canonical": [
+              -0.00242376,
+              0.00030369,
+              -0.02279307,
+              3.67e-06,
+              2.84e-05,
+              -0.00052285,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 36,
+            "time": 3.6,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 37,
+            "time": 3.7,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 38,
+            "time": 3.8,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 39,
+            "time": 3.9,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 40,
+            "time": 4.0,
+            "canonical": [
+              0.01025134,
+              0.02530314,
+              0.01307845,
+              0.00192017,
+              -0.00019462,
+              0.00113128,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 41,
+            "time": 4.1,
+            "canonical": [
+              0.00899053,
+              0.02576907,
+              0.01326041,
+              0.00161548,
+              -3.441e-05,
+              0.00101627,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 42,
+            "time": 4.2,
+            "canonical": [
+              0.00770664,
+              0.02616601,
+              0.01343139,
+              0.00130972,
+              9.155e-05,
+              0.00088936,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 43,
+            "time": 4.3,
+            "canonical": [
+              0.00640357,
+              0.0264928,
+              0.01359127,
+              0.0010059,
+              0.00018403,
+              0.00075088,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 44,
+            "time": 4.4,
+            "canonical": [
+              0.00508565,
+              0.02674854,
+              0.0137399,
+              0.00070688,
+              0.00024402,
+              0.00060119,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 45,
+            "time": 4.5,
+            "canonical": [
+              0.00375682,
+              0.02693254,
+              0.0138772,
+              0.00041543,
+              0.00027275,
+              0.00044067,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 46,
+            "time": 4.6,
+            "canonical": [
+              0.0024212,
+              0.02704438,
+              0.01400307,
+              0.00013415,
+              0.00027163,
+              0.00026972,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 47,
+            "time": 4.7,
+            "canonical": [
+              0.0010829,
+              0.02708388,
+              0.01411738,
+              -0.00013452,
+              0.00024228,
+              8.88e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 48,
+            "time": 4.8,
+            "canonical": [
+              -0.00025392,
+              0.02705109,
+              0.01422006,
+              -0.00038831,
+              0.00018651,
+              -0.00010164,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 49,
+            "time": 4.9,
+            "canonical": [
+              -0.00158519,
+              0.02694628,
+              0.01431105,
+              -0.00062513,
+              0.00010626,
+              -0.00030113,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 50,
+            "time": 5.0,
+            "canonical": [
+              -0.0029068,
+              0.02677003,
+              0.01439032,
+              -0.0008431,
+              3.64e-06,
+              -0.00050915,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 51,
+            "time": 5.1,
+            "canonical": [
+              -0.00421464,
+              0.02652308,
+              0.01445776,
+              -0.00104056,
+              -0.00011911,
+              -0.00072519,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 52,
+            "time": 5.2,
+            "canonical": [
+              -0.00550508,
+              0.02620639,
+              0.01451328,
+              -0.00121604,
+              -0.00025967,
+              -0.0009487,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 53,
+            "time": 5.3,
+            "canonical": [
+              -0.00677383,
+              0.02582128,
+              0.01455691,
+              -0.0013683,
+              -0.0004156,
+              -0.00117915,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 54,
+            "time": 5.4,
+            "canonical": [
+              -0.0080173,
+              0.02536911,
+              0.01458865,
+              -0.00149634,
+              -0.0005844,
+              -0.00141597,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 55,
+            "time": 5.5,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 56,
+            "time": 5.6,
+            "canonical": [
+              0.00230438,
+              0.00081076,
+              -0.02293885,
+              0.00011703,
+              3.628e-05,
+              0.00016277,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 57,
+            "time": 5.7,
+            "canonical": [
+              0.00153261,
+              0.00053947,
+              -0.022962,
+              8.416e-05,
+              2.609e-05,
+              0.00010407,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 58,
+            "time": 5.8,
+            "canonical": [
+              0.00076199,
+              0.0002684,
+              -0.02295479,
+              4.747e-05,
+              1.47e-05,
+              4.783e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 59,
+            "time": 5.9,
+            "canonical": [
+              -6.44e-06,
+              -2.07e-06,
+              -0.02291733,
+              7.08e-06,
+              2.18e-06,
+              -5.75e-06,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 60,
+            "time": 6.0,
+            "canonical": [
+              -0.0007717,
+              -0.00027148,
+              -0.02284975,
+              -3.685e-05,
+              -1.143e-05,
+              -5.645e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 61,
+            "time": 6.1,
+            "canonical": [
+              -0.00153267,
+              -0.00053947,
+              -0.02275223,
+              -8.418e-05,
+              -2.608e-05,
+              -0.00010406,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 62,
+            "time": 6.2,
+            "canonical": [
+              -0.00228816,
+              -0.0008056,
+              -0.02262504,
+              -0.00013474,
+              -4.171e-05,
+              -0.0001484,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 63,
+            "time": 6.3,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 64,
+            "time": 6.4,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 65,
+            "time": 6.5,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 66,
+            "time": 6.6,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 67,
+            "time": 6.7,
+            "canonical": [
+              0.00228816,
+              0.0008056,
+              0.02262504,
+              0.00013474,
+              4.171e-05,
+              0.0001484,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 68,
+            "time": 6.8,
+            "canonical": [
+              0.00153267,
+              0.00053947,
+              0.02275223,
+              8.418e-05,
+              2.608e-05,
+              0.00010406,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 69,
+            "time": 6.9,
+            "canonical": [
+              0.0007717,
+              0.00027148,
+              0.02284975,
+              3.685e-05,
+              1.143e-05,
+              5.645e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 70,
+            "time": 7.0,
+            "canonical": [
+              6.44e-06,
+              2.07e-06,
+              0.02291733,
+              -7.08e-06,
+              -2.18e-06,
+              5.75e-06,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 71,
+            "time": 7.1,
+            "canonical": [
+              -0.00076199,
+              -0.0002684,
+              0.02295479,
+              -4.747e-05,
+              -1.47e-05,
+              -4.783e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 72,
+            "time": 7.2,
+            "canonical": [
+              -0.00153261,
+              -0.00053947,
+              0.022962,
+              -8.416e-05,
+              -2.609e-05,
+              -0.00010407,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 73,
+            "time": 7.3,
+            "canonical": [
+              -0.00230438,
+              -0.00081076,
+              0.02293885,
+              -0.00011703,
+              -3.628e-05,
+              -0.00016277,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 74,
+            "time": 7.4,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 75,
+            "time": 7.5,
+            "canonical": [
+              -0.00194335,
+              -0.0107533,
+              -0.00153992,
+              -0.00116461,
+              -0.00039119,
+              0.00029299,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 76,
+            "time": 7.6,
+            "canonical": [
+              -0.00247866,
+              -0.01084629,
+              -0.00163847,
+              -0.00106582,
+              -0.00033134,
+              0.00022753,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 77,
+            "time": 7.7,
+            "canonical": [
+              -0.00301659,
+              -0.01091655,
+              -0.00173795,
+              -0.00096215,
+              -0.00027376,
+              0.00016742,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 78,
+            "time": 7.8,
+            "canonical": [
+              -0.00355637,
+              -0.01096371,
+              -0.00183848,
+              -0.00085378,
+              -0.00021867,
+              0.00011278,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 79,
+            "time": 7.9,
+            "canonical": [
+              -0.00409681,
+              -0.01098748,
+              -0.00193983,
+              -0.00074091,
+              -0.00016628,
+              6.372e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 80,
+            "time": 8.0,
+            "canonical": [
+              -0.00463712,
+              -0.0109877,
+              -0.00204194,
+              -0.00062374,
+              -0.00011681,
+              2.036e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 81,
+            "time": 8.1,
+            "canonical": [
+              -0.0051766,
+              -0.01096416,
+              -0.00214487,
+              -0.00050248,
+              -7.045e-05,
+              -1.722e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 82,
+            "time": 8.2,
+            "canonical": [
+              -0.00571388,
+              -0.0109168,
+              -0.00224847,
+              -0.00037736,
+              -2.74e-05,
+              -4.891e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 83,
+            "time": 8.3,
+            "canonical": [
+              -0.00624835,
+              -0.01084562,
+              -0.0023526,
+              -0.0002486,
+              1.214e-05,
+              -7.463e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 84,
+            "time": 8.4,
+            "canonical": [
+              -0.00677872,
+              -0.01075059,
+              -0.00245729,
+              -0.00011647,
+              4.801e-05,
+              -9.43e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 85,
+            "time": 8.5,
+            "canonical": [
+              -0.00730425,
+              -0.01063188,
+              -0.00256234,
+              1.88e-05,
+              8.002e-05,
+              -0.00010785,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 86,
+            "time": 8.6,
+            "canonical": [
+              -0.00782377,
+              -0.01048963,
+              -0.00266761,
+              0.00015693,
+              0.00010802,
+              -0.00011522,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 87,
+            "time": 8.7,
+            "canonical": [
+              -0.00833642,
+              -0.01032409,
+              -0.00277308,
+              0.00029767,
+              0.00013184,
+              -0.00011634,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 88,
+            "time": 8.8,
+            "canonical": [
+              -0.00884116,
+              -0.01013554,
+              -0.00287849,
+              0.00044074,
+              0.00015136,
+              -0.00011117,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 89,
+            "time": 8.9,
+            "canonical": [
+              -0.00933707,
+              -0.00992438,
+              -0.00298378,
+              0.00058584,
+              0.00016642,
+              -9.966e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 90,
+            "time": 9.0,
+            "canonical": [
+              -0.0098232,
+              -0.00969104,
+              -0.00308877,
+              0.0007327,
+              0.00017692,
+              -8.179e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 91,
+            "time": 9.1,
+            "canonical": [
+              -0.01029849,
+              -0.009436,
+              -0.00319326,
+              0.00088101,
+              0.00018273,
+              -5.753e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 92,
+            "time": 9.2,
+            "canonical": [
+              -0.01076227,
+              -0.00915986,
+              -0.00329706,
+              0.00103047,
+              0.00018375,
+              -2.685e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 93,
+            "time": 9.3,
+            "canonical": [
+              -0.01121342,
+              -0.00886322,
+              -0.00340012,
+              0.00118077,
+              0.0001799,
+              1.025e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 94,
+            "time": 9.4,
+            "canonical": [
+              -0.01165128,
+              -0.00854679,
+              -0.00350207,
+              0.00133161,
+              0.00017109,
+              5.377e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 95,
+            "time": 9.5,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 96,
+            "time": 9.6,
+            "canonical": [
+              0.00275302,
+              0.00047927,
+              -0.01986042,
+              0.00015884,
+              -5.46e-05,
+              0.00071543,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 97,
+            "time": 9.7,
+            "canonical": [
+              0.00197214,
+              0.00033177,
+              -0.01996478,
+              0.00014533,
+              -3.74e-05,
+              0.00050594,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 98,
+            "time": 9.8,
+            "canonical": [
+              0.00118679,
+              0.00018916,
+              -0.02003695,
+              0.00011572,
+              -2.127e-05,
+              0.00029779,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 99,
+            "time": 9.9,
+            "canonical": [
+              0.00039822,
+              5.178e-05,
+              -0.02007689,
+              7.01e-05,
+              -6e-06,
+              9.195e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 100,
+            "time": 10.0,
+            "canonical": [
+              -0.0003922,
+              -8.008e-05,
+              -0.0200845,
+              8.61e-06,
+              8.63e-06,
+              -0.00011063,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 101,
+            "time": 10.1,
+            "canonical": [
+              -0.00118315,
+              -0.00020613,
+              -0.02005982,
+              -6.856e-05,
+              2.286e-05,
+              -0.00030898,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 102,
+            "time": 10.2,
+            "canonical": [
+              -0.00197333,
+              -0.00032608,
+              -0.02000287,
+              -0.00016116,
+              3.69e-05,
+              -0.00050218,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 103,
+            "time": 10.3,
+            "canonical": [
+              -0.00276154,
+              -0.00043969,
+              -0.01991376,
+              -0.00026889,
+              5.099e-05,
+              -0.00068929,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 104,
+            "time": 10.4,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 105,
+            "time": 10.5,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 106,
+            "time": 10.6,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 107,
+            "time": 10.7,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 108,
+            "time": 10.8,
+            "canonical": [
+              0.01320189,
+              0.00825698,
+              0.00814244,
+              0.00186365,
+              0.00011904,
+              0.00117487,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 109,
+            "time": 10.9,
+            "canonical": [
+              0.01264137,
+              0.00848635,
+              0.00857283,
+              0.00165306,
+              0.00015236,
+              0.00115187,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 110,
+            "time": 11.0,
+            "canonical": [
+              0.01206118,
+              0.00869393,
+              0.0089861,
+              0.00144466,
+              0.00017751,
+              0.0011153,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 111,
+            "time": 11.1,
+            "canonical": [
+              0.01146251,
+              0.0088791,
+              0.00938162,
+              0.0012393,
+              0.00019471,
+              0.00106538,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 112,
+            "time": 11.2,
+            "canonical": [
+              0.01084673,
+              0.00904128,
+              0.0097587,
+              0.00103782,
+              0.00020424,
+              0.00100234,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 113,
+            "time": 11.3,
+            "canonical": [
+              0.01021528,
+              0.00917999,
+              0.01011677,
+              0.00084103,
+              0.00020642,
+              0.00092645,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 114,
+            "time": 11.4,
+            "canonical": [
+              0.00956935,
+              0.00929481,
+              0.01045527,
+              0.00064971,
+              0.0002016,
+              0.000838,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 115,
+            "time": 11.5,
+            "canonical": [
+              0.00891054,
+              0.00938538,
+              0.0107736,
+              0.00046459,
+              0.00019018,
+              0.00073733,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 116,
+            "time": 11.6,
+            "canonical": [
+              0.00824016,
+              0.00945146,
+              0.01107126,
+              0.00028639,
+              0.00017258,
+              0.00062479,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 117,
+            "time": 11.7,
+            "canonical": [
+              0.0075596,
+              0.00949284,
+              0.01134779,
+              0.00011579,
+              0.00014926,
+              0.00050079,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 118,
+            "time": 11.8,
+            "canonical": [
+              0.00687051,
+              0.0095094,
+              0.0116027,
+              -4.658e-05,
+              0.00012072,
+              0.00036573,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 119,
+            "time": 11.9,
+            "canonical": [
+              0.00617409,
+              0.0095011,
+              0.01183558,
+              -0.00020013,
+              8.747e-05,
+              0.00022006,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 120,
+            "time": 12.0,
+            "canonical": [
+              0.00547194,
+              0.00946797,
+              0.01204607,
+              -0.00034429,
+              5.005e-05,
+              6.425e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 121,
+            "time": 12.1,
+            "canonical": [
+              0.00476557,
+              0.00941013,
+              0.01223376,
+              -0.00047857,
+              9.04e-06,
+              -0.00010122,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 122,
+            "time": 12.2,
+            "canonical": [
+              0.00405616,
+              0.00932772,
+              0.01239836,
+              -0.00060251,
+              -3.5e-05,
+              -0.00027582,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 123,
+            "time": 12.3,
+            "canonical": [
+              0.00334543,
+              0.00922103,
+              0.01253957,
+              -0.00071568,
+              -8.145e-05,
+              -0.00045901,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 124,
+            "time": 12.4,
+            "canonical": [
+              0.00263464,
+              0.00909038,
+              0.01265717,
+              -0.00081773,
+              -0.00012971,
+              -0.00065025,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 125,
+            "time": 12.5,
+            "canonical": [
+              0.00192535,
+              0.00893614,
+              0.01275089,
+              -0.00090834,
+              -0.00017915,
+              -0.00084895,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 126,
+            "time": 12.6,
+            "canonical": [
+              0.00121874,
+              0.00875881,
+              0.01282063,
+              -0.00098724,
+              -0.00022914,
+              -0.00105453,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 127,
+            "time": 12.7,
+            "canonical": [
+              0.0005163,
+              0.00855887,
+              0.01286617,
+              -0.00105422,
+              -0.00027905,
+              -0.00126638,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 128,
+            "time": 12.8,
+            "canonical": [
+              -0.00018054,
+              0.00833696,
+              0.01288742,
+              -0.00110911,
+              -0.00032825,
+              -0.00148388,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 129,
+            "time": 12.9,
+            "canonical": [
+              -0.00087082,
+              0.00809371,
+              0.01288432,
+              -0.0011518,
+              -0.00037611,
+              -0.0017064,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 130,
+            "time": 13.0,
+            "canonical": [
+              -0.00155282,
+              0.00782986,
+              0.01285687,
+              -0.00118222,
+              -0.00042199,
+              -0.00193329,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 131,
+            "time": 13.1,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 132,
+            "time": 13.2,
+            "canonical": [
+              0.00247353,
+              0.00081122,
+              -0.02007958,
+              0.00011671,
+              3.718e-05,
+              6.859e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 133,
+            "time": 13.3,
+            "canonical": [
+              0.00176406,
+              0.0005796,
+              -0.02011734,
+              8.611e-05,
+              2.742e-05,
+              4.537e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 134,
+            "time": 13.4,
+            "canonical": [
+              0.00105453,
+              0.00034741,
+              -0.02012482,
+              5.403e-05,
+              1.721e-05,
+              2.386e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 135,
+            "time": 13.5,
+            "canonical": [
+              0.00034606,
+              0.00011502,
+              -0.02010188,
+              2.056e-05,
+              6.56e-06,
+              4.14e-06,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 136,
+            "time": 13.6,
+            "canonical": [
+              -0.00036007,
+              -0.00011712,
+              -0.02004874,
+              -1.423e-05,
+              -4.5e-06,
+              -1.371e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 137,
+            "time": 13.7,
+            "canonical": [
+              -0.00106275,
+              -0.0003486,
+              -0.0199655,
+              -5.024e-05,
+              -1.593e-05,
+              -2.96e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 138,
+            "time": 13.8,
+            "canonical": [
+              -0.00176078,
+              -0.00057903,
+              -0.01985231,
+              -8.739e-05,
+              -2.772e-05,
+              -4.345e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 139,
+            "time": 13.9,
+            "canonical": [
+              -0.00245297,
+              -0.00080799,
+              -0.01970938,
+              -0.00012557,
+              -3.982e-05,
+              -5.52e-05,
+              1.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 140,
+            "time": 14.0,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 141,
+            "time": 14.1,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 142,
+            "time": 14.2,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 143,
+            "time": 14.3,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 144,
+            "time": 14.4,
+            "canonical": [
+              0.00245297,
+              0.00080799,
+              0.01970938,
+              0.00012557,
+              3.982e-05,
+              5.52e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 145,
+            "time": 14.5,
+            "canonical": [
+              0.00176078,
+              0.00057903,
+              0.01985231,
+              8.739e-05,
+              2.772e-05,
+              4.345e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 146,
+            "time": 14.6,
+            "canonical": [
+              0.00106275,
+              0.0003486,
+              0.0199655,
+              5.024e-05,
+              1.593e-05,
+              2.96e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 147,
+            "time": 14.7,
+            "canonical": [
+              0.00036007,
+              0.00011712,
+              0.02004874,
+              1.423e-05,
+              4.5e-06,
+              1.371e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 148,
+            "time": 14.8,
+            "canonical": [
+              -0.00034606,
+              -0.00011502,
+              0.02010188,
+              -2.056e-05,
+              -6.56e-06,
+              -4.14e-06,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 149,
+            "time": 14.9,
+            "canonical": [
+              -0.00105453,
+              -0.00034741,
+              0.02012482,
+              -5.403e-05,
+              -1.721e-05,
+              -2.386e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 150,
+            "time": 15.0,
+            "canonical": [
+              -0.00176406,
+              -0.0005796,
+              0.02011734,
+              -8.611e-05,
+              -2.742e-05,
+              -4.537e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 151,
+            "time": 15.1,
+            "canonical": [
+              -0.00247353,
+              -0.00081122,
+              0.02007958,
+              -0.00011671,
+              -3.718e-05,
+              -6.859e-05,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          },
+          {
+            "frame": 152,
+            "time": 15.2,
+            "canonical": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "valid": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "native": null
+          }
+        ],
+        "provenance": {
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
+          "evaluation": "meta/pde_modules.json#module_index=4",
+          "evaluationSha256": "d57f00d7b2d606331df7ac3a5786f38fdeec6bc7fd1e80b224b28b09d660f448",
           "parquet": "unavailable \u2014 not exposed by release preview",
           "parquetSha256": null,
           "lineage": "meta/pde_episode_lineage.parquet"
@@ -27584,28 +31271,35 @@
         "episodes": 1,
         "frames": 421,
         "localFilter": "pass"
+      },
+      {
+        "module": "splataug_3dgs",
+        "moduleIndex": 4,
+        "episodes": 1,
+        "frames": 153,
+        "localFilter": "pass"
       }
     ],
     "dataset": {
-      "candidateEpisodes": 503,
-      "candidateFrames": 72075,
+      "candidateEpisodes": 504,
+      "candidateFrames": 72228,
       "rateHz": 10
     },
     "coverage": {
-      "candidateEpisodes": 503,
-      "browserPackagedEpisodes": 4,
+      "candidateEpisodes": 504,
+      "browserPackagedEpisodes": 5,
       "policy": "one representative release episode per module; all other lineage rows remain explicit unavailable states"
     },
     "surfaces": {
-      "release_build_manifest": "runs/pde-cube-stack-4module-d78a-lossless-20260825/release_build_manifest.local.json",
-      "release_manifest": "runs/pde-cube-stack-4module-d78a-lossless-20260825/release_manifest.json",
-      "info": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/info.json",
-      "modules": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_modules.json",
-      "lineage": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_episode_lineage.parquet",
-      "stats": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/stats.json",
-      "output_validation": "runs/pde-cube-stack-4module-d78a-lossless-20260825/output_validation.json",
-      "preview_manifest": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/manifest.json",
-      "preview_index": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/index.html"
+      "release_build_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_build_manifest.local.json",
+      "release_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_manifest.json",
+      "info": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/info.json",
+      "modules": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json",
+      "lineage": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
+      "stats": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/stats.json",
+      "output_validation": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/output_validation.json",
+      "preview_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
+      "preview_index": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
     }
   },
   "filtering": {
@@ -27653,12 +31347,12 @@
       {
         "component": "splataug_3dgs",
         "label": "native registration, visual, gripper, attachment, and continuity gates",
-        "status": "numeric_pass_visual_fail",
-        "input": null,
-        "accepted": null,
+        "status": "pass",
+        "input": 1,
+        "accepted": 1,
         "dropped": null,
-        "note": "gripper pass \u00b7 attachment pass \u00b7 object pose continuity pass \u00b7 human motion review fail",
-        "evidence": "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json"
+        "note": "Module-native decision preserved from its current-contract evaluation.",
+        "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
       }
     ],
     "global": {
@@ -27671,16 +31365,16 @@
     }
   },
   "candidatePool": {
-    "id": "cube-stack-5module-current-contract-d78a-20260825",
+    "id": "cube-stack-5module-complete-current-contract-d78a-20260826",
     "status": "candidate_not_global_filtered",
-    "createdAt": "2026-08-25T16:45:00Z",
+    "createdAt": "2026-08-26T04:20:00Z",
     "contractDigest": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
     "summary": {
-      "candidate_modules": 4,
+      "candidate_modules": 5,
       "module_accepted_pending_contract_modules": 0,
-      "rejected_modules": 1,
-      "candidate_episodes": 503,
-      "candidate_rows": 72075,
+      "rejected_modules": 0,
+      "candidate_episodes": 504,
+      "candidate_rows": 72228,
       "pending_contract_episodes": 0,
       "pending_contract_action_rows": 0
     },
@@ -27748,29 +31442,31 @@
         "root": "runs/real-cube-drive-20260824/canonical/orange_plus_x-lerobot-contract-d78a-hand-wrist-v2",
         "evaluation": "evaluations/robot_3dpc/franka_teleop0_orange_plus_x_current_contract_d78a_20260825.json",
         "evaluationSha256": "a2491622c3259ac8d02f7f04be3cb234af8d7e94df1e46733ec873e023da6c24"
-      }
-    ],
-    "rejections": [
+      },
       {
         "module": "splataug_3dgs",
-        "stage": "module_local_filter",
-        "reasonCodes": [
-          "static_robot_ghost",
-          "floating_gripper_visual"
+        "episodes": 1,
+        "rows": 153,
+        "localFilter": "pass",
+        "validation": "pass",
+        "views": [
+          "third_person_0",
+          "third_person_1",
+          "wrist"
         ],
-        "detail": "The original campaign requires human motion review in addition to numeric gates; frame 50 shows a static home-pose robot shell and a separately moving hand/gripper, so this recovery render is not a release candidate.",
-        "evidence": [
-          "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json",
-          "runs/splataug-3dgs-v2-upstream-registration-relabel-render-20260825/visual_review_failure_frame50.jpg"
-        ]
+        "nativeArtifacts": 11,
+        "root": "runs/splataug-3dgs-original-r2-fresh153-lerobot-20260826",
+        "evaluation": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json",
+        "evaluationSha256": "d57f00d7b2d606331df7ac3a5786f38fdeec6bc7fd1e80b224b28b09d660f448"
       }
     ],
+    "rejections": [],
     "globalFilter": {
       "status": "not_implemented_not_run",
       "executed": false,
       "training_promotion_allowed": false
     },
-    "provenance": "evaluations/candidate_pool/cube_stack_5module_current_contract_d78a_20260825.json"
+    "provenance": "evaluations/candidate_pool/cube_stack_5module_complete_current_contract_d78a_20260826.json"
   },
   "release": {
     "status": "candidate_not_promoted",
@@ -27778,52 +31474,52 @@
     "materialized": {
       "status": "available",
       "reason": "All required release metadata is available.",
-      "root": "runs/pde-cube-stack-4module-d78a-lossless-20260825",
-      "episodes": 503,
-      "rows": 72075,
-      "modules": 4,
-      "moduleLookup": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_modules.json",
-      "episodeLineage": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_episode_lineage.parquet",
+      "root": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
+      "episodes": 504,
+      "rows": 72228,
+      "modules": 5,
+      "moduleLookup": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json",
+      "episodeLineage": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
       "surfaces": {
         "release_build_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/release_build_manifest.local.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_build_manifest.local.json"
         },
         "release_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/release_manifest.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_manifest.json"
         },
         "info": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/info.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/info.json"
         },
         "module_lookup": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_modules.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json"
         },
         "episode_lineage": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/pde_episode_lineage.parquet"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet"
         },
         "stats": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/meta/stats.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/stats.json"
         },
         "output_validation": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/output_validation.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/output_validation.json"
         },
         "preview_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/manifest.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json"
         },
         "preview_index": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/index.html"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
         },
         "hf_publish_plan": {
           "status": "available",
-          "path": "runs/pde-cube-stack-4module-d78a-lossless-20260825/hf_publish_plan.local.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/hf_publish_plan.local.json"
         }
       },
       "missing": []
@@ -27831,12 +31527,12 @@
     "preview": {
       "status": "available",
       "reason": "Self-contained release preview is available.",
-      "samples": 4,
-      "manifest": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/manifest.json",
-      "index": "runs/pde-cube-stack-4module-d78a-lossless-20260825/preview/index.html"
+      "samples": 5,
+      "manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
+      "index": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
     },
     "hf": {
-      "repoId": "jaeikkim/pde-cube-stack-4module-dry-run-only",
+      "repoId": "KIM-JAKE/data-engine-cube-stack-5module-v1",
       "repoStatus": "ready",
       "uploadDryRun": true,
       "uploadObserved": false,
@@ -27846,7 +31542,7 @@
         "license": "Apache-2.0"
       },
       "candidateLaunchUrl": null,
-      "plan": "runs/pde-cube-stack-4module-d78a-lossless-20260825/hf_publish_plan.local.json",
+      "plan": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/hf_publish_plan.local.json",
       "credentialPolicy": "Authenticate in Hugging Face or server-side tooling; never place tokens or private paths in browser URLs."
     }
   },
