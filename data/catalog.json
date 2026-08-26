@@ -134,6 +134,49 @@
         "owner": "operator / external source"
       }
     ],
+    "moduleSetup": [
+      {
+        "id": "latest_handoff_machine_config",
+        "kind": "credential-free machine-local YAML",
+        "role": "Machine-local YAML binding for the pinned ed92 six-stage handoff. It contains absolute paths and an rclone remote name, never credentials or scientific parameters.",
+        "status": "required only for latest handoff preflight/export",
+        "artifactClass": "setup_input",
+        "fields": [
+          "schema_version",
+          "state_root",
+          "campaign_root",
+          "splatsim_python",
+          "rclone_remote",
+          "release_folder",
+          "runtime_image",
+          "container_name",
+          "gpu_index",
+          "table_origin",
+          "table_normal"
+        ],
+        "requiredFields": [
+          "schema_version",
+          "state_root",
+          "campaign_root",
+          "splatsim_python",
+          "rclone_remote",
+          "runtime_image",
+          "container_name",
+          "gpu_index",
+          "table_origin",
+          "table_normal"
+        ],
+        "pipelines": [
+          "latest_handoff_preflight",
+          "export_latest_handoff_lerobot"
+        ],
+        "schema": "schemas/splataug-handoff-machine.v1.schema.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-handoff-machine.v1.schema.json",
+        "example": "modules/splataug_3dgs/runtime/latest-handoff-machine.example.yaml",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/runtime/latest-handoff-machine.example.yaml",
+        "credentialPolicy": "OAuth tokens and rclone credentials stay in the machine-local rclone configuration. Never paste or store them in this YAML, the browser, or the repository."
+      }
+    ],
     "repairOnly": [
       {
         "id": "scene_gaussian",
@@ -1931,14 +1974,17 @@
         "attest_original_bline",
         "audit_original_bline_pairing",
         "export_original_bline_lerobot",
+        "export_latest_handoff_lerobot",
         "native_passthrough"
       ],
       "pipelineDetails": [
         {
           "id": "latest_handoff_preflight",
           "description": "Read-only source, GPU, image, rclone, machine-path, and release-manifest preflight for the pinned six-stage upstream reproduction.",
-          "entrypoint": "python ../../modules/splataug_3dgs/tools/preflight_latest_handoff.py",
-          "requiredInputs": []
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/preflight_latest_handoff_module.py",
+          "requiredInputs": [
+            "latest_handoff_machine_config"
+          ]
         },
         {
           "id": "capture_preflight",
@@ -2085,6 +2131,14 @@
             "robot_geometry",
             "object_definitions",
             "task_contract"
+          ]
+        },
+        {
+          "id": "export_latest_handoff_lerobot",
+          "description": "After all six pinned ed92 native stages pass, attest the release, assets, source/render pairing, and native gates, then emit and independently validate complete 10 Hz three-view LeRobot without overwriting outputs.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/export_latest_handoff_lerobot.py",
+          "requiredInputs": [
+            "latest_handoff_machine_config"
           ]
         },
         {
@@ -2270,7 +2324,8 @@
               "review_original_bline",
               "attest_original_bline",
               "audit_original_bline_pairing",
-              "export_original_bline_lerobot"
+              "export_original_bline_lerobot",
+              "export_latest_handoff_lerobot"
             ],
             "runbook": "modules/splataug_3dgs/augmentation/RUNBOOK.md",
             "runbookUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/augmentation/RUNBOOK.md",
@@ -2339,6 +2394,41 @@
           "detail": "NVIDIA L40S sm_89 \u00b7 CUDA Gaussian and SAPIEN Vulkan finite \u00b7 campaign container started",
           "evidence": "evaluations/splataug_3dgs/latest_handoff_runtime_smoke_20260826.json"
         },
+        "lineages": [
+          {
+            "id": "latest_ed92_handoff",
+            "label": "Latest ed92 handoff",
+            "status": "runtime_pass_release_pending",
+            "role": "active reproduction lineage",
+            "pins": [
+              {
+                "label": "SplatAug",
+                "revision": "ed92e3d"
+              },
+              {
+                "label": "RoboSplat handoff",
+                "revision": "019a030"
+              },
+              {
+                "label": "Recovery",
+                "revision": "a19692f"
+              },
+              {
+                "label": "RoboSplat base",
+                "revision": "372c9c7"
+              }
+            ],
+            "runtimeImage": "robosplat-fr3:cuda124-sm89",
+            "runtimeDigest": "sha256:d0a0461d05dc974a9f73bc2a1a327c7c1d227a8888bd0be789fd2c754cb9f9a7"
+          },
+          {
+            "id": "certified_exact_r2",
+            "label": "Certified Exact-R2",
+            "status": "pass",
+            "role": "current five-module candidate lineage",
+            "summary": "5 modules \u00b7 504 episodes \u00b7 72228 rows"
+          }
+        ],
         "preflight": {
           "status": "blocked",
           "readOnly": true,
@@ -2357,7 +2447,7 @@
             {
               "id": "runtime_image",
               "status": "pass",
-              "message": "Use the exact upstream image name; never relabel the older recovery image as equivalent."
+              "message": "Use the exact locked image digest and size; never relabel the older recovery image as equivalent."
             },
             {
               "id": "release_remote",
@@ -2385,7 +2475,15 @@
               "message": "SplatSim is materialized only from the published git bundle for this reproduction."
             }
           ],
-          "evidence": "evaluations/splataug_3dgs/latest_handoff_preflight_20260826.json"
+          "evidence": "evaluations/splataug_3dgs/latest_handoff_preflight_20260826.json",
+          "fetchIntegrity": {
+            "status": "pending",
+            "targetCount": 11,
+            "policy": "rclone check --one-way",
+            "zeroDifferenceRequired": true,
+            "manifestVerificationRequired": true,
+            "detail": "All 11 native fetch targets must report zero differences and the published MANIFEST.json must verify before native execution."
+          }
         },
         "reproduction": {
           "status": "pending",
@@ -2427,7 +2525,19 @@
               "gate": "Native free-view videos materialized",
               "result": "Awaiting views stage"
             }
-          ]
+          ],
+          "exportGate": {
+            "pipeline": "export_latest_handoff_lerobot",
+            "status": "pending",
+            "requiresAllNativeStagesPass": true,
+            "requirements": [
+              "release and asset attestation",
+              "source/render pairing",
+              "native gate preservation",
+              "numeric reference comparison",
+              "complete LeRobot validation"
+            ]
+          }
         },
         "numericReference": [
           {
