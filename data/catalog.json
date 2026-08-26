@@ -129,7 +129,7 @@
       {
         "id": "splataug_raw_capture",
         "kind": "immutable capture boundary",
-        "role": "Raw multiview capture, camera/ChArUco observations, pinned trainer checkout and vocabulary, robot geometry, qpos, object/task definitions.",
+        "role": "Raw multiview capture, camera/ChArUco observations, pinned reconstruction trainer and vocabulary, robot geometry, qpos, object/task definitions. Original B-line renderer sources are resolved internally.",
         "status": "required for full 3DGS run",
         "owner": "operator / external source"
       }
@@ -229,7 +229,56 @@
       }
     ],
     "evidence": "modules/splataug_3dgs/workflows/fr3_articulation_assets.v1.yaml",
-    "splataugStatus": "module_local_filter_failed_visual_review"
+    "splataugStatus": "module_local_filter_failed_visual_review",
+    "blineRuntime": {
+      "pipeline": "render_original_bline",
+      "sourceAccess": "resolved",
+      "sources": [
+        {
+          "name": "robosplat_custom",
+          "role": "final_r2_bline_fr3_renderer",
+          "path": "vendor/splataug_3dgs_runtime/robosplat_custom",
+          "commit": "a19692fc8c4c",
+          "tree": "38e2c034c0e9",
+          "status": "resolved",
+          "provenanceStatus": "exact_documented_revision_verified"
+        },
+        {
+          "name": "robosplat",
+          "role": "official_base_runtime_and_cuda_rasterizer",
+          "path": "vendor/splataug_3dgs_runtime/robosplat",
+          "commit": "372c9c735555",
+          "tree": "3ee6523256bd",
+          "status": "resolved",
+          "provenanceStatus": "pinned_recoverable_dependency_as_run_commit_not_recorded_by_custom_upstream"
+        }
+      ],
+      "externalOverride": {
+        "field": "bline_renderer_checkout",
+        "required": false,
+        "artifactClass": "advanced_external_override",
+        "description": "Optional externally materialized override of the internally vendored RoboSplat_custom runtime. The normal Data Engine path uses the exact pinned source under vendor/splataug_3dgs_runtime."
+      },
+      "gates": [
+        {
+          "id": "fresh_cuda_runtime_execution",
+          "label": "Fresh CUDA runtime execution",
+          "status": "not_passed",
+          "detail": "The exact pinned runtime is available, but no fresh host CUDA render has passed yet."
+        },
+        {
+          "id": "exact_rgb_action_pairing",
+          "label": "Exact RGB/action pairing",
+          "status": "pending",
+          "detail": "153 action rows versus 145 frames across the required views; exact pairing remains unresolved."
+        }
+      ],
+      "freshRenderStatus": "not_passed",
+      "evidence": [
+        "components/splataug_3dgs/runtime-upstreams.json",
+        "evaluations/splataug_3dgs/original_r2_bline_pairing_current_20260825.json"
+      ]
+    }
   },
   "stages": [
     {
@@ -828,8 +877,8 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "supplied_static_scene_30k_and_canonical_action_path_passed_render_pipeline_parity_gated",
-      "adapterStatus": "action_contract_verified_render_pending",
+      "integrationStatus": "final_r2_bline_reference_passed_source_recovered_runtime_execution_and_pairing_gated",
+      "adapterStatus": "complete_adapter_e2e_verified_on_fixture_original_r2_pairing_pending",
       "adapterScope": null,
       "domains": [
         "real",
@@ -849,6 +898,10 @@
         "build_articulation_assets",
         "build_articulation_assets_from_shared_registration",
         "render_articulated_episode",
+        "render_original_bline",
+        "attest_original_bline",
+        "audit_original_bline_pairing",
+        "export_original_bline_lerobot",
         "export_rendered_lerobot",
         "native_passthrough"
       ],
@@ -856,7 +909,7 @@
         "immutable multi-view camera video",
         "ChArUco and camera calibration bundle",
         "robot URDF/CAD surface and task object definitions",
-        "external 3DGS, 2DGS, RoboSplat and SplatSim repositories"
+        "repository-pinned 3DGS, 2DGS, RoboSplat and SplatSim runtimes (engine-owned)"
       ],
       "nativeOutputs": [
         "COLMAP reconstruction and 3D Gaussian models",
@@ -865,9 +918,11 @@
         "MP4 review views, montage, contact sheets and validation JSON"
       ],
       "limitations": [
-        "The native absolute-joint-target action path and the TCP-to-fr3_hand 10 Hz EEF-delta adapter are implemented and executable, but the current verified export is action-only until native RGB rendering is restored.",
-        "The supplied raw MOV payloads are locally materialized, checksummed, media-probed, and the FR3 static-scene 30k reconstruction passed; articulated cube fusion and final demo rendering remain unproven.",
-        "The documented as-run SplatSim and RoboSplat commits were local-only and are not present in the supplied source tree."
+        "The original B-line complete adapter has passed an E2E LeRobot validation fixture, including H.264 video decode, 320x180 calibration, wrist extrinsics, native preservation, and canonical action validation; this does not substitute for the missing final-episode pairing.",
+        "The native absolute-joint-target action path and TCP-to-fr3_hand 10 Hz EEF-delta adapter are executable; complete RGB/action promotion still requires one HDF5 whose 145 rows and checksum exactly match the final R-2 reference videos, or a fresh render from a newly generated native episode.",
+        "The final R-2 B-line reference render passed its upstream gripper, black-frame, and wrist-carry visibility gates. Its exact private RoboSplat_custom revision and official RoboSplat base are now vendored and integrity-checked; a fresh CUDA runtime render has not yet passed on this host.",
+        "The pinned RoboSplat_custom tree has no license file. Keep that source private and do not redistribute it until permission is clarified.",
+        "The older A-line SplatSim commit 425e6e5 was local-only; it is not the source claim for the final R-2 B-line reference."
       ],
       "goldenRequirements": [
         "one immutable raw capture campaign and calibration bundle",
@@ -884,8 +939,8 @@
       ],
       "upstream": {
         "url": "https://github.com/martian35/splataug-fr3.git",
-        "commit": "2ab06267bd1b",
-        "tree": "011639870527",
+        "commit": "512e49ffe991",
+        "tree": "cbeb0ab643c0",
         "path": "vendor/splataug_3dgs"
       },
       "code": {
