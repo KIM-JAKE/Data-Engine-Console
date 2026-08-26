@@ -301,7 +301,7 @@
       }
     ],
     "evidence": "modules/splataug_3dgs/workflows/fr3_articulation_assets.v1.yaml",
-    "splataugStatus": "module_local_filter_failed",
+    "splataugStatus": "local_filter_passed_candidate",
     "blineRuntime": {
       "pipeline": "render_original_bline",
       "sourceAccess": "resolved",
@@ -341,8 +341,8 @@
         {
           "id": "fresh_full_episode_render",
           "label": "Fresh full-episode render",
-          "status": "blocked",
-          "detail": "No gate-passed fresh full-episode render is recorded."
+          "status": "pass",
+          "detail": "153 rows at 10 Hz; native gripper, black-frame, and wrist-carry visibility gates passed."
         },
         {
           "id": "exact_rgb_action_pairing",
@@ -355,10 +355,16 @@
           "label": "Canonical LeRobot validation",
           "status": "pass",
           "detail": "153 rows, 152 valid action rows, 320\u00d7180, 3 views, pde/eef-delta@v1 at 10 Hz."
+        },
+        {
+          "id": "required_visual_review",
+          "label": "Required owner visual review",
+          "status": "fail",
+          "detail": "capture-pose FR3 residual remains in the static background and overlaps the articulated robot; large stretched or translucent surfels corrupt the table and background; robot silhouette and photometric quality are materially below the upstream reference"
         }
       ],
       "freshCudaRuntimeStatus": "pass",
-      "freshFullEpisodeRenderStatus": "blocked",
+      "freshFullEpisodeRenderStatus": "pass",
       "candidateReady": false,
       "trainingPromotionAllowed": false,
       "candidateRoot": "runs/splataug-2dgs-full-repair-fresh153-lerobot-20260826",
@@ -1637,7 +1643,7 @@
         {
           "id": "reconstruct_2dgs_full_repair",
           "label": "Pinned public 2DGS-full repair",
-          "status": "validation_pending",
+          "status": "fail",
           "passClaimed": false,
           "description": "Reconstruct a surfel scene from an internal COLMAP dataset using the pinned public 2DGS-full repair runtime. This lineage is explicitly distinct from the unavailable historical local depth-prior fork.",
           "entrypoint": "python ../../modules/splataug_3dgs/tools/run_2dgs_full_repair.py",
@@ -1719,6 +1725,63 @@
             "video": "./assets/evidence/splataug-2dgs-full-repair-review.mp4",
             "evidence": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json"
           },
+          "requiredVisualReview": {
+            "status": "fail",
+            "authority": "upstream-required owner motion/appearance review",
+            "failedViews": [
+              "left_standing_cam",
+              "wrist_cam"
+            ],
+            "observedFailures": [
+              "capture-pose FR3 residual remains in the static background and overlaps the articulated robot",
+              "large stretched or translucent surfels corrupt the table and background",
+              "robot silhouette and photometric quality are materially below the upstream reference"
+            ],
+            "diagnosis": {
+              "numeric_review_gap": "review_bline_episode.py checks gripper state, black frames, and carried-cube color occupancy; it does not detect robot ghosts or background deformation",
+              "reference_robot_gaussians": 104792,
+              "automatic_robot_gaussians": 60113,
+              "automatic_to_reference_ratio": 0.5736411176425681,
+              "reference_robot_gaussians_per_link_0_to_9": [
+                15300,
+                6325,
+                7236,
+                8820,
+                10430,
+                12520,
+                20279,
+                18862,
+                2386,
+                2634
+              ],
+              "automatic_robot_gaussians_per_link_0_to_9": [
+                5901,
+                5239,
+                7249,
+                6674,
+                334,
+                7473,
+                4212,
+                17383,
+                2298,
+                3350
+              ],
+              "known_recipe_deviations": [
+                "viewer thickness was 0.5 mm instead of the upstream 2dgs_full 0.1 mm convention",
+                "the required assemble_2dgsfull_scene.py K=3.4 near-cull frame was not used",
+                "the required 8-60 mm skirt cull and large-surfel split assembly was not used",
+                "the public 2DGS repair is not the original corrected 2dgs_full per-link asset lineage"
+              ]
+            }
+          },
+          "withdrawal": {
+            "status": "withdrawn",
+            "reason": "Owner visual review found severe static-robot ghosting and background deformation in the automatic public-2DGS render.",
+            "promotionAllowed": false,
+            "hfPublicationAllowed": false,
+            "supersededCandidate": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
+            "evidence": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/WITHDRAWN.json"
+          },
           "canonicalOutput": {
             "status": "pass",
             "rows": 153,
@@ -1777,16 +1840,16 @@
             "wrist"
           ],
           "nativeArtifacts": 11,
-          "root": "runs/splataug-2dgs-full-repair-fresh153-lerobot-20260826"
+          "root": "runs/splataug-3dgs-original-r2-fresh153-lerobot-20260826"
         },
         "blocker": null,
-        "evidence": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json"
+        "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
       }
     }
   ],
   "runs": [
     {
-      "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826:rl_teacher",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:rl_teacher",
       "component": "rl_teacher",
       "title": "rl_teacher current-contract candidate",
       "status": "succeeded",
@@ -1822,7 +1885,7 @@
       "evidence": "evaluations/rl_teacher/cube_stack_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826:sim_retargeting",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:sim_retargeting",
       "component": "sim_retargeting",
       "title": "sim_retargeting current-contract candidate",
       "status": "succeeded",
@@ -1858,7 +1921,7 @@
       "evidence": "evaluations/sim_retargeting/native_diik_chunk_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826:neural_trajectory",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:neural_trajectory",
       "component": "neural_trajectory",
       "title": "neural_trajectory current-contract candidate",
       "status": "succeeded",
@@ -1894,7 +1957,7 @@
       "evidence": "evaluations/neural_trajectory/full_episode_seed23_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826:robot_3dpc",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:robot_3dpc",
       "component": "robot_3dpc",
       "title": "robot_3dpc current-contract candidate",
       "status": "succeeded",
@@ -1930,7 +1993,7 @@
       "evidence": "evaluations/robot_3dpc/franka_teleop0_orange_plus_x_current_contract_d78a_20260825.json"
     },
     {
-      "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826:splataug_3dgs",
+      "id": "cube-stack-5module-complete-current-contract-d78a-20260826:splataug_3dgs",
       "component": "splataug_3dgs",
       "title": "splataug_3dgs current-contract candidate",
       "status": "succeeded",
@@ -1963,7 +2026,7 @@
         "native artifacts": 11,
         "views": 3
       },
-      "evidence": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json"
+      "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
     },
     {
       "id": "historical:splataug_3dgs:recovery_renderer_20260825",
@@ -2005,9 +2068,9 @@
   "datasetPreview": {
     "schemaVersion": "physical-data-engine/release-browser-preview@v1",
     "status": "available",
-    "candidatePoolId": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826",
+    "candidatePoolId": "cube-stack-5module-complete-current-contract-d78a-20260826",
     "contractDigest": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
-    "source": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json",
+    "source": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
     "inventory": [
       {
         "id": "rl_teacher:episode_000000",
@@ -9475,7 +9538,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=0",
           "evaluationSha256": "4ee5c2cdaa6562b658cc9d6cc3738bb6230736ccf46b0f218537f96806a6f3a7",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -13291,7 +13354,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=1",
           "evaluationSha256": "0bd9913cecb78f44b2697c5a0aebc2a1dd1255862c21e3eca8290a19e4580bb6",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -18648,7 +18711,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=2",
           "evaluationSha256": "76e37d8afcc74a364c26d35510b27a0d158cd9750b57282e6517780df41b49a5",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -28375,7 +28438,7 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=3",
           "evaluationSha256": "a2491622c3259ac8d02f7f04be3cb234af8d7e94df1e46733ec873e023da6c24",
           "parquet": "unavailable \u2014 not exposed by release preview",
@@ -28412,8 +28475,8 @@
             ],
             "layout": "horizontal_composite",
             "src": "./assets/release-preview/media/04_splataug_3dgs_episode_503.mp4",
-            "sha256": "ce88ae844fd8db767e251fd668bff73ccbabe7d021f8ef77da347f6448385fd9",
-            "sourceSha256": "ce88ae844fd8db767e251fd668bff73ccbabe7d021f8ef77da347f6448385fd9"
+            "sha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384",
+            "sourceSha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384"
           }
         ],
         "timeline": [
@@ -31938,9 +32001,9 @@
           }
         ],
         "provenance": {
-          "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+          "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
           "evaluation": "meta/pde_modules.json#module_index=4",
-          "evaluationSha256": "fd841b1242ff8e8a9eaca7dcc67e47aa7e3a82135789c483116e605b011d1215",
+          "evaluationSha256": "d57f00d7b2d606331df7ac3a5786f38fdeec6bc7fd1e80b224b28b09d660f448",
           "parquet": "unavailable \u2014 not exposed by release preview",
           "parquetSha256": null,
           "lineage": "meta/pde_episode_lineage.parquet"
@@ -31995,15 +32058,15 @@
       "policy": "one representative release episode per module; all other lineage rows remain explicit unavailable states"
     },
     "surfaces": {
-      "release_build_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_build_manifest.local.json",
-      "release_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_manifest.json",
-      "info": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/info.json",
-      "modules": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_modules.json",
-      "lineage": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
-      "stats": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/stats.json",
-      "output_validation": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/output_validation.json",
-      "preview_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json",
-      "preview_index": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/index.html"
+      "release_build_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_build_manifest.local.json",
+      "release_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_manifest.json",
+      "info": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/info.json",
+      "modules": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json",
+      "lineage": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
+      "stats": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/stats.json",
+      "output_validation": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/output_validation.json",
+      "preview_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
+      "preview_index": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
     }
   },
   "filtering": {
@@ -32056,7 +32119,7 @@
         "accepted": 1,
         "dropped": null,
         "note": "Module-native decision preserved from its current-contract evaluation.",
-        "evidence": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json"
+        "evidence": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json"
       }
     ],
     "global": {
@@ -32069,9 +32132,9 @@
     }
   },
   "candidatePool": {
-    "id": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826",
+    "id": "cube-stack-5module-complete-current-contract-d78a-20260826",
     "status": "candidate_not_global_filtered",
-    "createdAt": "2026-08-26T06:20:26Z",
+    "createdAt": "2026-08-26T04:20:00Z",
     "contractDigest": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
     "summary": {
       "candidate_modules": 5,
@@ -32159,9 +32222,9 @@
           "wrist"
         ],
         "nativeArtifacts": 11,
-        "root": "runs/splataug-2dgs-full-repair-fresh153-lerobot-20260826",
-        "evaluation": "evaluations/splataug_3dgs/auto_2dgs_full_repair_fresh153_current_contract_d78a_20260826.json",
-        "evaluationSha256": "fd841b1242ff8e8a9eaca7dcc67e47aa7e3a82135789c483116e605b011d1215"
+        "root": "runs/splataug-3dgs-original-r2-fresh153-lerobot-20260826",
+        "evaluation": "evaluations/splataug_3dgs/original_r2_fresh153_current_contract_d78a_20260826.json",
+        "evaluationSha256": "d57f00d7b2d606331df7ac3a5786f38fdeec6bc7fd1e80b224b28b09d660f448"
       }
     ],
     "rejections": [],
@@ -32170,7 +32233,11 @@
       "executed": false,
       "training_promotion_allowed": false
     },
-    "provenance": "evaluations/candidate_pool/cube_stack_5module_auto2dgs_current_contract_d78a_20260826.json"
+    "sourceManifestAudit": {
+      "status": "consistent",
+      "stale_modules": []
+    },
+    "provenance": "evaluations/candidate_pool/cube_stack_5module_complete_current_contract_d78a_20260826.json"
   },
   "release": {
     "status": "candidate_not_promoted",
@@ -32178,52 +32245,52 @@
     "materialized": {
       "status": "available",
       "reason": "All required release metadata is available.",
-      "root": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+      "root": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
       "episodes": 504,
       "rows": 72228,
       "modules": 5,
-      "moduleLookup": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_modules.json",
-      "episodeLineage": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
+      "moduleLookup": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json",
+      "episodeLineage": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
       "surfaces": {
         "release_build_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_build_manifest.local.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_build_manifest.local.json"
         },
         "release_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_manifest.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_manifest.json"
         },
         "info": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/info.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/info.json"
         },
         "module_lookup": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_modules.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json"
         },
         "episode_lineage": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_episode_lineage.parquet"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet"
         },
         "stats": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/stats.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/stats.json"
         },
         "output_validation": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/output_validation.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/output_validation.json"
         },
         "preview_manifest": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json"
         },
         "preview_index": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/index.html"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
         },
         "hf_publish_plan": {
           "status": "available",
-          "path": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/hf_publish_plan.local.json"
+          "path": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/hf_publish_plan.local.json"
         }
       },
       "missing": []
@@ -32232,8 +32299,8 @@
       "status": "available",
       "reason": "Self-contained release preview is available.",
       "samples": 5,
-      "manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json",
-      "index": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/index.html"
+      "manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
+      "index": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
     },
     "hf": {
       "repoId": "KIM-JAKE/data-engine-cube-stack-5module-v1",
@@ -32246,7 +32313,7 @@
         "license": "Apache-2.0"
       },
       "candidateLaunchUrl": null,
-      "plan": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/hf_publish_plan.local.json",
+      "plan": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/hf_publish_plan.local.json",
       "credentialPolicy": "Authenticate in Hugging Face or server-side tooling; never place tokens or private paths in browser URLs."
     }
   },

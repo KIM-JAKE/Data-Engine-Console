@@ -1,9 +1,9 @@
 {
   "schemaVersion": "physical-data-engine/release-browser-preview@v1",
   "status": "available",
-  "candidatePoolId": "cube-stack-5module-auto2dgs-current-contract-d78a-20260826",
+  "candidatePoolId": "cube-stack-5module-complete-current-contract-d78a-20260826",
   "contractDigest": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
-  "source": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json",
+  "source": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
   "inventory": [
     {
       "id": "rl_teacher:episode_000000",
@@ -7471,7 +7471,7 @@
         }
       ],
       "provenance": {
-        "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+        "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
         "evaluation": "meta/pde_modules.json#module_index=0",
         "evaluationSha256": "4ee5c2cdaa6562b658cc9d6cc3738bb6230736ccf46b0f218537f96806a6f3a7",
         "parquet": "unavailable \u2014 not exposed by release preview",
@@ -11287,7 +11287,7 @@
         }
       ],
       "provenance": {
-        "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+        "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
         "evaluation": "meta/pde_modules.json#module_index=1",
         "evaluationSha256": "0bd9913cecb78f44b2697c5a0aebc2a1dd1255862c21e3eca8290a19e4580bb6",
         "parquet": "unavailable \u2014 not exposed by release preview",
@@ -16644,7 +16644,7 @@
         }
       ],
       "provenance": {
-        "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+        "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
         "evaluation": "meta/pde_modules.json#module_index=2",
         "evaluationSha256": "76e37d8afcc74a364c26d35510b27a0d158cd9750b57282e6517780df41b49a5",
         "parquet": "unavailable \u2014 not exposed by release preview",
@@ -26371,7 +26371,7 @@
         }
       ],
       "provenance": {
-        "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+        "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
         "evaluation": "meta/pde_modules.json#module_index=3",
         "evaluationSha256": "a2491622c3259ac8d02f7f04be3cb234af8d7e94df1e46733ec873e023da6c24",
         "parquet": "unavailable \u2014 not exposed by release preview",
@@ -26408,8 +26408,8 @@
           ],
           "layout": "horizontal_composite",
           "src": "./assets/release-preview/media/04_splataug_3dgs_episode_503.mp4",
-          "sha256": "ce88ae844fd8db767e251fd668bff73ccbabe7d021f8ef77da347f6448385fd9",
-          "sourceSha256": "ce88ae844fd8db767e251fd668bff73ccbabe7d021f8ef77da347f6448385fd9"
+          "sha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384",
+          "sourceSha256": "76998f9b30100060a94aa74e5df87d858c0bc311274c689a0407074c5ab02384"
         }
       ],
       "timeline": [
@@ -29934,9 +29934,9 @@
         }
       ],
       "provenance": {
-        "candidateRoot": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826",
+        "candidateRoot": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826",
         "evaluation": "meta/pde_modules.json#module_index=4",
-        "evaluationSha256": "fd841b1242ff8e8a9eaca7dcc67e47aa7e3a82135789c483116e605b011d1215",
+        "evaluationSha256": "d57f00d7b2d606331df7ac3a5786f38fdeec6bc7fd1e80b224b28b09d660f448",
         "parquet": "unavailable \u2014 not exposed by release preview",
         "parquetSha256": null,
         "lineage": "meta/pde_episode_lineage.parquet"
@@ -29991,14 +29991,14 @@
     "policy": "one representative release episode per module; all other lineage rows remain explicit unavailable states"
   },
   "surfaces": {
-    "release_build_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_build_manifest.local.json",
-    "release_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/release_manifest.json",
-    "info": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/info.json",
-    "modules": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_modules.json",
-    "lineage": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
-    "stats": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/meta/stats.json",
-    "output_validation": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/output_validation.json",
-    "preview_manifest": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/manifest.json",
-    "preview_index": "runs/pde-cube-stack-5module-auto2dgs-d78a-lossless-20260826/preview/index.html"
+    "release_build_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_build_manifest.local.json",
+    "release_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/release_manifest.json",
+    "info": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/info.json",
+    "modules": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_modules.json",
+    "lineage": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/pde_episode_lineage.parquet",
+    "stats": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/meta/stats.json",
+    "output_validation": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/output_validation.json",
+    "preview_manifest": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/manifest.json",
+    "preview_index": "runs/pde-cube-stack-5module-complete-d78a-lossless-20260826/preview/index.html"
   }
 }
