@@ -358,6 +358,60 @@
         "credentialPolicy": "OAuth tokens and rclone credentials stay in the machine-local rclone configuration. Never paste or store them in this YAML, the browser, or the repository."
       }
     ],
+    "forgeBindings": [
+      {
+        "component": "neural_trajectory",
+        "label": "Neural Trajectory Pipeline",
+        "field": "forge_binding",
+        "mechanism": "extension.forge_binding",
+        "status": "verified_from_publication",
+        "description": "Machine-local binding of the verified Cosmos/LoRA/T5/IDM capability set and its independent native evaluation reports to the fixed NT Forge profile.",
+        "missingRoles": [],
+        "artifactUri": "runs/forge-current-20260826/neural_trajectory/forge_artifact.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/binding.example.yaml",
+        "publisher": "publish_forge_artifact"
+      },
+      {
+        "component": "rl_teacher",
+        "label": "RL-Teacher / OmniReset FR3",
+        "field": "forge_binding",
+        "mechanism": "extension.forge_binding",
+        "status": "verified_from_publication",
+        "description": "Machine-local binding of a passed reset pool, teacher checkpoint, and native evaluation evidence to the fixed RL-Teacher Forge profile.",
+        "missingRoles": [],
+        "artifactUri": "runs/forge-current-20260826/rl_teacher/forge_artifact.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/binding.example.yaml",
+        "publisher": "publish_forge_artifact"
+      },
+      {
+        "component": "robot_3dpc",
+        "label": "Robot 3DPC / demogen-rgbd",
+        "field": "forge_binding",
+        "mechanism": "extension.forge_binding",
+        "status": "verified_from_publication",
+        "description": "Machine-local binding of pretrained perception/runtime, calibration, EEF identity, and desired-twist evidence to the fixed Robot 3DPC Forge profile.",
+        "missingRoles": [],
+        "artifactUri": "runs/forge-current-20260826/robot_3dpc/forge_artifact.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/binding.example.yaml",
+        "publisher": "publish_forge_artifact"
+      },
+      {
+        "component": "sim_retargeting",
+        "label": "Sim Retargeting / MimicGen + SART",
+        "field": "forge_binding",
+        "mechanism": "extension.forge_binding",
+        "status": "verified_from_publication",
+        "description": "Machine-local binding of the native-DIIK simulator, camera capability, annotated seed, and native preflight evidence to the fixed MimicGen Forge profile.",
+        "missingRoles": [],
+        "artifactUri": "runs/forge-current-20260826/sim_retargeting/forge_artifact.json",
+        "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+        "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/binding.example.yaml",
+        "publisher": "publish_forge_artifact"
+      }
+    ],
     "repairOnly": [
       {
         "id": "scene_gaussian",
@@ -1152,6 +1206,255 @@
           }
         ]
       },
+      "forgePublication": {
+        "status": "pass",
+        "binding": {
+          "field": "forge_binding",
+          "mechanism": "extension.forge_binding",
+          "status": "verified_from_publication",
+          "description": "Machine-local binding of the verified Cosmos/LoRA/T5/IDM capability set and its independent native evaluation reports to the fixed NT Forge profile.",
+          "schema": "schemas/module-forge-binding.v1.schema.json",
+          "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+          "example": "modules/neural_trajectory/forge/binding.example.yaml",
+          "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/binding.example.yaml"
+        },
+        "profile": {
+          "kind": "cosmos_lora_and_idm",
+          "uri": "modules/neural_trajectory/forge/profile.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/profile.yaml",
+          "sha256": "234dd736b7a3213b7be752adc396965010896dcd85bd71cc4e1e9e5e6f95a02d",
+          "authority": "module-owned fixed profile"
+        },
+        "publisher": {
+          "pipeline": "publish_forge_artifact",
+          "stage": "validate",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/publish_forge_artifact.py"
+        },
+        "requiredRoles": [
+          {
+            "role": "checkpoint_asset_lock",
+            "class": "input"
+          },
+          {
+            "role": "cosmos_base_checkpoint",
+            "class": "input"
+          },
+          {
+            "role": "cosmos_lora",
+            "class": "input"
+          },
+          {
+            "role": "t5_checkpoint",
+            "class": "input"
+          },
+          {
+            "role": "merged_world_model",
+            "class": "output"
+          },
+          {
+            "role": "prompt_embeddings",
+            "class": "output"
+          },
+          {
+            "role": "idm_checkpoint",
+            "class": "output"
+          },
+          {
+            "role": "idm_stats",
+            "class": "output"
+          },
+          {
+            "role": "asset_verification",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "world_model_merge",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "prompt_embedding_evaluation",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "idm_evaluation",
+            "class": "native_gate_report"
+          }
+        ],
+        "missingRoles": [],
+        "nativeGates": [
+          {
+            "role": "asset_verification",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "world_model_merge",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "prompt_embedding_evaluation",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "idm_evaluation",
+            "jsonPointer": "/status",
+            "actual": "pass_runtime_and_action_adapter_smoke",
+            "acceptedValues": [
+              "pass",
+              "pass_runtime_and_action_adapter_smoke"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          }
+        ],
+        "checksumAssertions": [
+          {
+            "artifactRole": "cosmos_base_checkpoint",
+            "reportRole": "world_model_merge",
+            "jsonPointer": "/base/sha256",
+            "status": "pass",
+            "actualSha256": "156b9e9f62ee2bb8ce57fc5dbef96ca220d9386f5893051be55b613c3bc36399",
+            "reportedSha256": "156b9e9f62ee2bb8ce57fc5dbef96ca220d9386f5893051be55b613c3bc36399"
+          },
+          {
+            "artifactRole": "cosmos_lora",
+            "reportRole": "world_model_merge",
+            "jsonPointer": "/adapter/sha256",
+            "status": "pass",
+            "actualSha256": "10098002b88885e3074a9848502114568971fcc4ccf11b8c28e6d031bd8afc77",
+            "reportedSha256": "10098002b88885e3074a9848502114568971fcc4ccf11b8c28e6d031bd8afc77"
+          },
+          {
+            "artifactRole": "merged_world_model",
+            "reportRole": "world_model_merge",
+            "jsonPointer": "/merged/sha256",
+            "status": "pass",
+            "actualSha256": "03ced158a6c251e491ff9104bcbc9914e442be046a469a75aee965cc0f689e45",
+            "reportedSha256": "03ced158a6c251e491ff9104bcbc9914e442be046a469a75aee965cc0f689e45"
+          },
+          {
+            "artifactRole": "idm_checkpoint",
+            "reportRole": "idm_evaluation",
+            "jsonPointer": "/checkpoint/idm_sha256",
+            "status": "pass",
+            "actualSha256": "051cafd10305fff101b4f18f6d050e9d0f38b3739899d58a77b6588325a24870",
+            "reportedSha256": "051cafd10305fff101b4f18f6d050e9d0f38b3739899d58a77b6588325a24870"
+          }
+        ],
+        "artifact": {
+          "status": "available",
+          "uri": "runs/forge-current-20260826/neural_trajectory/forge_artifact.json",
+          "artifactId": "cube_stack.neural-trajectory.current",
+          "schema": "physical-data-engine/forge-artifact@v1",
+          "createdAt": "2026-08-26T18:58:43.860682+00:00",
+          "runtime": "cosmos-predict2-plus-groot-idm-pinned"
+        },
+        "roleRecords": [
+          {
+            "role": "checkpoint_asset_lock",
+            "class": "input",
+            "status": "bound",
+            "sha256": "57a1ffcf5112fc26008083983f1dc1747570bdcb66b13a39c624212e29547913",
+            "sizeBytes": 6399
+          },
+          {
+            "role": "cosmos_base_checkpoint",
+            "class": "input",
+            "status": "bound",
+            "sha256": "156b9e9f62ee2bb8ce57fc5dbef96ca220d9386f5893051be55b613c3bc36399",
+            "sizeBytes": 28530863997
+          },
+          {
+            "role": "cosmos_lora",
+            "class": "input",
+            "status": "bound",
+            "sha256": "10098002b88885e3074a9848502114568971fcc4ccf11b8c28e6d031bd8afc77",
+            "sizeBytes": 287925136
+          },
+          {
+            "role": "t5_checkpoint",
+            "class": "input",
+            "status": "bound",
+            "sha256": "5fdc64177b14b0f72437fea171a752c626733f67755842528c75b90cacd1c807",
+            "sizeBytes": 45229452544
+          },
+          {
+            "role": "merged_world_model",
+            "class": "output",
+            "status": "bound",
+            "sha256": "03ced158a6c251e491ff9104bcbc9914e442be046a469a75aee965cc0f689e45",
+            "sizeBytes": 28818974646
+          },
+          {
+            "role": "prompt_embeddings",
+            "class": "output",
+            "status": "bound",
+            "sha256": "05302adfa85ada330ef98235ad52e63967d4689806002c691d6c2c317d71167f",
+            "sizeBytes": 1307370
+          },
+          {
+            "role": "idm_checkpoint",
+            "class": "output",
+            "status": "bound",
+            "sha256": "051cafd10305fff101b4f18f6d050e9d0f38b3739899d58a77b6588325a24870",
+            "sizeBytes": 2549650952
+          },
+          {
+            "role": "idm_stats",
+            "class": "output",
+            "status": "bound",
+            "sha256": "c4aed542f571f65755301d81680a09c28aa9429cf97e80fd81ffc658f65fe924",
+            "sizeBytes": 6072
+          },
+          {
+            "role": "asset_verification",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "6eec9d5e39a92a8bbed6a37acf1eb28a7a240ba66564cd655784243ea63cd931",
+            "sizeBytes": 4613
+          },
+          {
+            "role": "world_model_merge",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "2f8c405980aa404840c38defb5eee8ac2a4a1a9a31e8226b7b35e433b349b231",
+            "sizeBytes": 1382
+          },
+          {
+            "role": "prompt_embedding_evaluation",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "039284077afb1ec293cb7e28c90502b7ab0be32727cf8c01aecf58582deb70b6",
+            "sizeBytes": 1878
+          },
+          {
+            "role": "idm_evaluation",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "2b0c6a92a7fc16266e1f964c73f02c4f0dfdd6d2cf8e8e5e6deb4b8b96d210ff",
+            "sizeBytes": 3778
+          }
+        ],
+        "thresholdEditingAllowed": false,
+        "globalFilter": "not_implemented_not_run"
+      },
       "rawForge": null,
       "latestHandoff": null,
       "upstream": {
@@ -1484,6 +1787,165 @@
           }
         ]
       },
+      "forgePublication": {
+        "status": "pass",
+        "binding": {
+          "field": "forge_binding",
+          "mechanism": "extension.forge_binding",
+          "status": "verified_from_publication",
+          "description": "Machine-local binding of a passed reset pool, teacher checkpoint, and native evaluation evidence to the fixed RL-Teacher Forge profile.",
+          "schema": "schemas/module-forge-binding.v1.schema.json",
+          "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+          "example": "modules/rl_teacher/forge/binding.example.yaml",
+          "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/binding.example.yaml"
+        },
+        "profile": {
+          "kind": "omnireset_teacher_policy",
+          "uri": "modules/rl_teacher/forge/profile.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/profile.yaml",
+          "sha256": "4141db5298f4449709ad61ef69ce0964d29e75cccfc93a79e0a3df98d1267564",
+          "authority": "module-owned fixed profile"
+        },
+        "publisher": {
+          "pipeline": "publish_forge_artifact",
+          "stage": "validate",
+          "entrypoint": "python ../../modules/rl_teacher/tools/publish_forge_artifact.py"
+        },
+        "requiredRoles": [
+          {
+            "role": "task_asset_bundle",
+            "class": "input"
+          },
+          {
+            "role": "task_contract",
+            "class": "input"
+          },
+          {
+            "role": "controller_profile",
+            "class": "input"
+          },
+          {
+            "role": "reset_pool",
+            "class": "output"
+          },
+          {
+            "role": "policy_checkpoint",
+            "class": "output"
+          },
+          {
+            "role": "training_parity",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "teacher_evaluation",
+            "class": "native_gate_report"
+          }
+        ],
+        "missingRoles": [],
+        "nativeGates": [
+          {
+            "role": "training_parity",
+            "jsonPointer": "/tests/verdict",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "teacher_evaluation",
+            "jsonPointer": "/status",
+            "actual": "local_filter_passed_candidate",
+            "acceptedValues": [
+              "pass",
+              "passed",
+              "local_filter_passed_candidate"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          }
+        ],
+        "checksumAssertions": [
+          {
+            "artifactRole": "policy_checkpoint",
+            "reportRole": "teacher_evaluation",
+            "jsonPointer": "/native_checks/policy_checkpoint_sha256",
+            "status": "pass",
+            "actualSha256": "de5f7564eccb84924b55c0ca19229d28c0028ae8471eee061f1dd4ae3f028484",
+            "reportedSha256": "de5f7564eccb84924b55c0ca19229d28c0028ae8471eee061f1dd4ae3f028484"
+          },
+          {
+            "artifactRole": "reset_pool",
+            "reportRole": "teacher_evaluation",
+            "jsonPointer": "/native_checks/reset_pool_sha256",
+            "status": "pass",
+            "actualSha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14",
+            "reportedSha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14"
+          }
+        ],
+        "artifact": {
+          "status": "available",
+          "uri": "runs/forge-current-20260826/rl_teacher/forge_artifact.json",
+          "artifactId": "cube_stack.rl-teacher.current",
+          "schema": "physical-data-engine/forge-artifact@v1",
+          "createdAt": "2026-08-26T18:42:34.877951+00:00",
+          "runtime": "isaac-sim-rsl-rl-pinned"
+        },
+        "roleRecords": [
+          {
+            "role": "task_asset_bundle",
+            "class": "input",
+            "status": "bound",
+            "sha256": "bea57ab26851b82af23e66c74bee96c877d5ebe79556e0431e268d94ee2d3b4c",
+            "sizeBytes": 27255
+          },
+          {
+            "role": "task_contract",
+            "class": "input",
+            "status": "bound",
+            "sha256": "f5937e802452f7b1c0f1c5937144f631cbde1fc61c65de2cc62a0e9abc1faabb",
+            "sizeBytes": 469629
+          },
+          {
+            "role": "controller_profile",
+            "class": "input",
+            "status": "bound",
+            "sha256": "b1f5f22a6da974b97db984ac6d6757abc22cf14ed9c4378295781e0d35057345",
+            "sizeBytes": 1042
+          },
+          {
+            "role": "reset_pool",
+            "class": "output",
+            "status": "bound",
+            "sha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14",
+            "sizeBytes": 1468549
+          },
+          {
+            "role": "policy_checkpoint",
+            "class": "output",
+            "status": "bound",
+            "sha256": "de5f7564eccb84924b55c0ca19229d28c0028ae8471eee061f1dd4ae3f028484",
+            "sizeBytes": 1251182
+          },
+          {
+            "role": "training_parity",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "a483db2600dfbbebb981c17957b8a4a8549593ca9edcb0442ce4a8b74119c064",
+            "sizeBytes": 1547
+          },
+          {
+            "role": "teacher_evaluation",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "396b8dd450b0cf7b7d8e42170f5fc8bdb777912c40becac1ee8b9a1824c6c402",
+            "sizeBytes": 3280
+          }
+        ],
+        "thresholdEditingAllowed": false,
+        "globalFilter": "not_implemented_not_run"
+      },
       "rawForge": null,
       "latestHandoff": null,
       "upstream": {
@@ -1542,6 +2004,7 @@
         "robot_state"
       ],
       "pipelines": [
+        "verify_dependencies",
         "publish_forge_artifact",
         "all",
         "augment",
@@ -1554,6 +2017,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "verify_dependencies",
+          "description": "Verify the exact UniDepth and SAM2 source revisions and hash the bound pretrained model snapshots before any native RGB-D processing.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/verify_dependencies.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "publish_forge_artifact",
           "description": "Fail-closed publication of the verified perception/runtime, camera, EEF-body, and desired-twist substrate; no task model training is invented.",
@@ -1696,6 +2167,7 @@
             "artifactContract": "schemas/forge-artifact.v1.schema.json",
             "outputContract": null,
             "pipelines": [
+              "verify_dependencies",
               "build_canonical_calibration",
               "audit_eef_body",
               "audit_recorded_twist",
@@ -1816,6 +2288,290 @@
           }
         ]
       },
+      "forgePublication": {
+        "status": "pass",
+        "binding": {
+          "field": "forge_binding",
+          "mechanism": "extension.forge_binding",
+          "status": "verified_from_publication",
+          "description": "Machine-local binding of pretrained perception/runtime, calibration, EEF identity, and desired-twist evidence to the fixed Robot 3DPC Forge profile.",
+          "schema": "schemas/module-forge-binding.v1.schema.json",
+          "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+          "example": "modules/robot_3dpc/forge/binding.example.yaml",
+          "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/binding.example.yaml"
+        },
+        "profile": {
+          "kind": "rgbd_spatial_augmentation_substrate",
+          "uri": "modules/robot_3dpc/forge/profile.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/profile.yaml",
+          "sha256": "0699f4adf746264b42fd5ac785da52f23906d44d14c7a2959fbac451794a3e83",
+          "authority": "module-owned fixed profile"
+        },
+        "publisher": {
+          "pipeline": "publish_forge_artifact",
+          "stage": "validate",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/publish_forge_artifact.py"
+        },
+        "requiredRoles": [
+          {
+            "role": "source_episode",
+            "class": "input"
+          },
+          {
+            "role": "task_asset_bundle",
+            "class": "input"
+          },
+          {
+            "role": "depth_source",
+            "class": "input"
+          },
+          {
+            "role": "depth_model",
+            "class": "input"
+          },
+          {
+            "role": "segmentation_source",
+            "class": "input"
+          },
+          {
+            "role": "segmentation_model",
+            "class": "input"
+          },
+          {
+            "role": "runtime_profile",
+            "class": "output"
+          },
+          {
+            "role": "canonical_camera_calibration",
+            "class": "output"
+          },
+          {
+            "role": "eef_body_contract",
+            "class": "output"
+          },
+          {
+            "role": "desired_twist_contract",
+            "class": "output"
+          },
+          {
+            "role": "dependency_verification",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "eef_body_audit",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "desired_twist_audit",
+            "class": "native_gate_report"
+          }
+        ],
+        "missingRoles": [],
+        "nativeGates": [
+          {
+            "role": "dependency_verification",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass",
+              "ready"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "eef_body_audit",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "desired_twist_audit",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass",
+              "local_filter_passed_candidate"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          }
+        ],
+        "checksumAssertions": [
+          {
+            "artifactRole": "depth_source",
+            "reportRole": "dependency_verification",
+            "jsonPointer": "/sources/unidepth/sha256",
+            "status": "pass",
+            "actualSha256": "4db99de979c1af52543daf0a5fc6f9b5aa224336076cb6465c2772a171a5cd7e",
+            "reportedSha256": "4db99de979c1af52543daf0a5fc6f9b5aa224336076cb6465c2772a171a5cd7e"
+          },
+          {
+            "artifactRole": "depth_model",
+            "reportRole": "dependency_verification",
+            "jsonPointer": "/models/unidepth/sha256",
+            "status": "pass",
+            "actualSha256": "09064cf6fa3bf96f4212a8f03539d8f5cf0b82f06505bb34c715d6ff57be1973",
+            "reportedSha256": "09064cf6fa3bf96f4212a8f03539d8f5cf0b82f06505bb34c715d6ff57be1973"
+          },
+          {
+            "artifactRole": "segmentation_source",
+            "reportRole": "dependency_verification",
+            "jsonPointer": "/sources/sam2/sha256",
+            "status": "pass",
+            "actualSha256": "11f3bad1b45f5e35a485f7f02ed055fc844f1c1877c038de7a2816071a7d63e0",
+            "reportedSha256": "11f3bad1b45f5e35a485f7f02ed055fc844f1c1877c038de7a2816071a7d63e0"
+          },
+          {
+            "artifactRole": "segmentation_model",
+            "reportRole": "dependency_verification",
+            "jsonPointer": "/models/sam2/sha256",
+            "status": "pass",
+            "actualSha256": "f4edcefd32ec94e861b4a8eb14a110a2bbfe2c64cff5ea8a4078c253c9fa47e0",
+            "reportedSha256": "f4edcefd32ec94e861b4a8eb14a110a2bbfe2c64cff5ea8a4078c253c9fa47e0"
+          }
+        ],
+        "artifact": {
+          "status": "available",
+          "uri": "runs/forge-current-20260826/robot_3dpc/forge_artifact.json",
+          "artifactId": "cube_stack.robot-3dpc.current",
+          "schema": "physical-data-engine/forge-artifact@v1",
+          "createdAt": "2026-08-26T18:44:51.154095+00:00",
+          "runtime": "demogen-rgbd-pinned"
+        },
+        "roleRecords": [
+          {
+            "role": "source_episode",
+            "class": "input",
+            "status": "bound",
+            "sha256": "d7bf1fb3304ca28a5928d489e957e2ca84c8793be5b2bb262c5f7f6f82f6fd33",
+            "sizeBytes": 219233195
+          },
+          {
+            "role": "task_asset_bundle",
+            "class": "input",
+            "status": "bound",
+            "sha256": "bea57ab26851b82af23e66c74bee96c877d5ebe79556e0431e268d94ee2d3b4c",
+            "sizeBytes": 27255
+          },
+          {
+            "role": "depth_source",
+            "class": "input",
+            "status": "bound",
+            "sha256": "4db99de979c1af52543daf0a5fc6f9b5aa224336076cb6465c2772a171a5cd7e",
+            "sizeBytes": 46357544
+          },
+          {
+            "role": "depth_model",
+            "class": "input",
+            "status": "bound",
+            "sha256": "09064cf6fa3bf96f4212a8f03539d8f5cf0b82f06505bb34c715d6ff57be1973",
+            "sizeBytes": 273562166
+          },
+          {
+            "role": "segmentation_source",
+            "class": "input",
+            "status": "bound",
+            "sha256": "11f3bad1b45f5e35a485f7f02ed055fc844f1c1877c038de7a2816071a7d63e0",
+            "sizeBytes": 121250997
+          },
+          {
+            "role": "segmentation_model",
+            "class": "input",
+            "status": "bound",
+            "sha256": "f4edcefd32ec94e861b4a8eb14a110a2bbfe2c64cff5ea8a4078c253c9fa47e0",
+            "sizeBytes": 368832610
+          },
+          {
+            "role": "runtime_profile",
+            "class": "output",
+            "status": "bound",
+            "sha256": "1c73335044c40a6940f814eadb5b11fdbdcbf6aab908afe39147a680f579e24e",
+            "sizeBytes": 742
+          },
+          {
+            "role": "canonical_camera_calibration",
+            "class": "output",
+            "status": "bound",
+            "sha256": "8ea497bd478c9616419389aa2a66d5a08607043fb31125861db2d5099a2fe54c",
+            "sizeBytes": 107652
+          },
+          {
+            "role": "eef_body_contract",
+            "class": "output",
+            "status": "bound",
+            "sha256": "496db568debe018920239ae3505aecdc8fc290d6bfd3760e8db65a1c56a71dd3",
+            "sizeBytes": 3912
+          },
+          {
+            "role": "desired_twist_contract",
+            "class": "output",
+            "status": "bound",
+            "sha256": "bcbc630b2813a15a029c3ef7ad6ca3fff324cb5cc00b5302c3bdd3c0e8aa9a7f",
+            "sizeBytes": 4162
+          },
+          {
+            "role": "dependency_verification",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "a54b494fd9d2ebec80919d77b8937265490269ef659c4752418d53b41e39a53d",
+            "sizeBytes": 1664
+          },
+          {
+            "role": "eef_body_audit",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "496db568debe018920239ae3505aecdc8fc290d6bfd3760e8db65a1c56a71dd3",
+            "sizeBytes": 3912
+          },
+          {
+            "role": "desired_twist_audit",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "bcbc630b2813a15a029c3ef7ad6ca3fff324cb5cc00b5302c3bdd3c0e8aa9a7f",
+            "sizeBytes": 4162
+          }
+        ],
+        "thresholdEditingAllowed": false,
+        "globalFilter": "not_implemented_not_run",
+        "dependencyVerification": {
+          "status": "pass",
+          "uri": "runs/forge-current-20260826/robot_3dpc/dependencies/dependency_verification.json",
+          "pipeline": "verify_dependencies",
+          "sources": [
+            {
+              "name": "sam2",
+              "commit": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+              "sha256": "11f3bad1b45f5e35a485f7f02ed055fc844f1c1877c038de7a2816071a7d63e0",
+              "status": "pass"
+            },
+            {
+              "name": "unidepth",
+              "commit": "8d8cfe4c7ee15297099983607febf0d4f32eb3d6",
+              "sha256": "4db99de979c1af52543daf0a5fc6f9b5aa224336076cb6465c2772a171a5cd7e",
+              "status": "pass"
+            }
+          ],
+          "models": [
+            {
+              "name": "sam2",
+              "modelId": "facebook/sam2.1-hiera-small",
+              "sha256": "f4edcefd32ec94e861b4a8eb14a110a2bbfe2c64cff5ea8a4078c253c9fa47e0",
+              "status": "pass"
+            },
+            {
+              "name": "unidepth",
+              "modelId": "lpiccinelli/unidepth-v2-vits14",
+              "sha256": "09064cf6fa3bf96f4212a8f03539d8f5cf0b82f06505bb34c715d6ff57be1973",
+              "status": "pass"
+            }
+          ]
+        }
+      },
       "rawForge": null,
       "latestHandoff": null,
       "upstream": {
@@ -1908,8 +2664,8 @@
         },
         {
           "id": "hf80k_preflight",
-          "description": "Execute the clean human28 source, runtime, asset, native-DIIK, and canonical-output preflight gates only.",
-          "entrypoint": "python hf80k/src/preflight.py",
+          "description": "Execute the unchanged clean human28 source, runtime, asset, native-DIIK, and canonical-output preflight gates and materialize their exact rows as Forge evidence.",
+          "entrypoint": "python ../../modules/sim_retargeting/tools/run_preflight_report.py",
           "requiredInputs": [
             "annotated_hdf5",
             "annotated_hdf5.sha256",
@@ -2126,6 +2882,164 @@
             ]
           }
         ]
+      },
+      "forgePublication": {
+        "status": "pass",
+        "binding": {
+          "field": "forge_binding",
+          "mechanism": "extension.forge_binding",
+          "status": "verified_from_publication",
+          "description": "Machine-local binding of the native-DIIK simulator, camera capability, annotated seed, and native preflight evidence to the fixed MimicGen Forge profile.",
+          "schema": "schemas/module-forge-binding.v1.schema.json",
+          "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
+          "example": "modules/sim_retargeting/forge/binding.example.yaml",
+          "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/binding.example.yaml"
+        },
+        "profile": {
+          "kind": "mimicgen_native_diik_substrate",
+          "uri": "modules/sim_retargeting/forge/profile.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/profile.yaml",
+          "sha256": "4c507e204718e83867a8fb3caac71d5b25df9e68e43ae563b6fad485bfd6d86f",
+          "authority": "module-owned fixed profile"
+        },
+        "publisher": {
+          "pipeline": "publish_forge_artifact",
+          "stage": "validate",
+          "entrypoint": "python ../../modules/sim_retargeting/tools/publish_forge_artifact.py"
+        },
+        "requiredRoles": [
+          {
+            "role": "annotated_seed",
+            "class": "input"
+          },
+          {
+            "role": "task_asset_bundle",
+            "class": "input"
+          },
+          {
+            "role": "controller_profile",
+            "class": "input"
+          },
+          {
+            "role": "runtime_profile",
+            "class": "output"
+          },
+          {
+            "role": "canonical_camera_calibration",
+            "class": "output"
+          },
+          {
+            "role": "native_preflight",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "render_parity",
+            "class": "native_gate_report"
+          }
+        ],
+        "missingRoles": [],
+        "nativeGates": [
+          {
+            "role": "native_preflight",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass",
+              "ready"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          },
+          {
+            "role": "render_parity",
+            "jsonPointer": "/status",
+            "actual": "pass",
+            "acceptedValues": [
+              "pass"
+            ],
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
+          }
+        ],
+        "checksumAssertions": [
+          {
+            "artifactRole": "annotated_seed",
+            "reportRole": "native_preflight",
+            "jsonPointer": "/source_hdf5_sha256",
+            "status": "pass",
+            "actualSha256": "02328118df19f40294094525a51d88e9a122f592df1c0ddbfd404443217b5627",
+            "reportedSha256": "02328118df19f40294094525a51d88e9a122f592df1c0ddbfd404443217b5627"
+          },
+          {
+            "artifactRole": "task_asset_bundle",
+            "reportRole": "render_parity",
+            "jsonPointer": "/inputs/task_bundle/sha256",
+            "status": "pass",
+            "actualSha256": "98cd8f4214068c504d904d2e0d8a5e2539d5372ebb6094698ebeed54814d507a",
+            "reportedSha256": "98cd8f4214068c504d904d2e0d8a5e2539d5372ebb6094698ebeed54814d507a"
+          }
+        ],
+        "artifact": {
+          "status": "available",
+          "uri": "runs/forge-current-20260826/sim_retargeting/forge_artifact.json",
+          "artifactId": "cube_stack.sim-retargeting.current",
+          "schema": "physical-data-engine/forge-artifact@v1",
+          "createdAt": "2026-08-26T18:53:05.379600+00:00",
+          "runtime": "hf80k-native-diik-pinned"
+        },
+        "roleRecords": [
+          {
+            "role": "annotated_seed",
+            "class": "input",
+            "status": "bound",
+            "sha256": "02328118df19f40294094525a51d88e9a122f592df1c0ddbfd404443217b5627",
+            "sizeBytes": 8875608
+          },
+          {
+            "role": "task_asset_bundle",
+            "class": "input",
+            "status": "bound",
+            "sha256": "98cd8f4214068c504d904d2e0d8a5e2539d5372ebb6094698ebeed54814d507a",
+            "sizeBytes": 26942
+          },
+          {
+            "role": "controller_profile",
+            "class": "input",
+            "status": "bound",
+            "sha256": "ee2b4d78644fb6ed0631055b0818a8bb52c69c5dbcb4068a0bed7a42a4ba779c",
+            "sizeBytes": 2281
+          },
+          {
+            "role": "runtime_profile",
+            "class": "output",
+            "status": "bound",
+            "sha256": "9bd69c529b1f79bf54e23e7c9e349344fea9e3c888f0740677f900c521b28a89",
+            "sizeBytes": 585
+          },
+          {
+            "role": "canonical_camera_calibration",
+            "class": "output",
+            "status": "bound",
+            "sha256": "77654c85c011d2cb3be0e007e568fb9772f1f1d821e1f11c2b3dcaeb66d04089",
+            "sizeBytes": 113994
+          },
+          {
+            "role": "native_preflight",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "ed7e9b150f967eb1c4185e53f6e149d3d500dfa0c4ece8dd5dba890b0a026eba",
+            "sizeBytes": 3783
+          },
+          {
+            "role": "render_parity",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "a37838a51d0bdfa385bad1c5d54ef96ae5514914788f5eda6deef4be810e1f61",
+            "sizeBytes": 7644
+          }
+        ],
+        "thresholdEditingAllowed": false,
+        "globalFilter": "not_implemented_not_run"
       },
       "rawForge": null,
       "latestHandoff": null,
@@ -2620,6 +3534,195 @@
             ]
           }
         ]
+      },
+      "forgePublication": {
+        "status": "registered_not_run",
+        "binding": {
+          "field": "raw_forge_config",
+          "mechanism": "raw_rgb_forge workflow input",
+          "status": "not_bound_in_current_evidence",
+          "description": "One raw Forge config starts the workflow; no separate flat forge_binding is accepted for SplatAug 3DGS.",
+          "schema": "schemas/splataug-raw-forge.v1.schema.json",
+          "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-raw-forge.v1.schema.json",
+          "example": "modules/splataug_3dgs/runtime/raw-forge.example.yaml",
+          "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/runtime/raw-forge.example.yaml"
+        },
+        "profile": {
+          "kind": "aligned_scene_and_object_gaussians",
+          "uri": "modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+          "authority": "raw_rgb_forge.attest"
+        },
+        "publisher": {
+          "pipeline": "raw_rgb_forge",
+          "stage": "attest",
+          "entrypoint": "modules/splataug_3dgs/tools/raw_forge_runtime.py"
+        },
+        "requiredRoles": [
+          {
+            "role": "raw_capture_inventory",
+            "class": "input"
+          },
+          {
+            "role": "camera_and_board_calibration",
+            "class": "input"
+          },
+          {
+            "role": "robot_urdf",
+            "class": "input"
+          },
+          {
+            "role": "colmap_vocabulary_tree",
+            "class": "input"
+          },
+          {
+            "role": "scene_gaussian",
+            "class": "output"
+          },
+          {
+            "role": "scene_registration",
+            "class": "output"
+          },
+          {
+            "role": "robot_link_labels",
+            "class": "output"
+          },
+          {
+            "role": "fr3_capture_surface",
+            "class": "output"
+          },
+          {
+            "role": "canonical_cube_gaussians",
+            "class": "output"
+          }
+        ],
+        "missingRoles": [
+          "raw_capture_inventory",
+          "camera_and_board_calibration",
+          "robot_urdf",
+          "colmap_vocabulary_tree",
+          "scene_gaussian",
+          "scene_registration",
+          "robot_link_labels",
+          "fr3_capture_surface",
+          "canonical_cube_gaussians"
+        ],
+        "nativeGates": [
+          {
+            "role": "scene_registration",
+            "jsonPointer": "/status",
+            "actual": null,
+            "acceptedValues": [
+              "PASS"
+            ],
+            "status": "not_run",
+            "authority": "raw_rgb_forge attest stage"
+          },
+          {
+            "role": "robot_ruler_gate",
+            "jsonPointer": "/gate",
+            "actual": null,
+            "acceptedValues": [
+              "PASS"
+            ],
+            "status": "not_run",
+            "authority": "raw_rgb_forge attest stage"
+          },
+          {
+            "role": "cube_asset_gate",
+            "jsonPointer": "/status",
+            "actual": null,
+            "acceptedValues": [
+              "PASS"
+            ],
+            "status": "not_run",
+            "authority": "raw_rgb_forge attest stage"
+          }
+        ],
+        "checksumAssertions": [
+          {
+            "artifactRole": "native_contract",
+            "reportRole": "raw_forge_materialization",
+            "jsonPointer": "/scientific_contract_sha256",
+            "status": "not_run",
+            "actualSha256": null,
+            "reportedSha256": null
+          }
+        ],
+        "artifact": {
+          "status": "unavailable",
+          "uri": null,
+          "artifactId": null,
+          "schema": "physical-data-engine/forge-artifact@v1",
+          "createdAt": null
+        },
+        "roleRecords": [
+          {
+            "role": "raw_capture_inventory",
+            "class": "input",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "camera_and_board_calibration",
+            "class": "input",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "robot_urdf",
+            "class": "input",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "colmap_vocabulary_tree",
+            "class": "input",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "scene_gaussian",
+            "class": "output",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "scene_registration",
+            "class": "output",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "robot_link_labels",
+            "class": "output",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "fr3_capture_surface",
+            "class": "output",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          },
+          {
+            "role": "canonical_cube_gaussians",
+            "class": "output",
+            "status": "missing",
+            "sha256": null,
+            "sizeBytes": null
+          }
+        ],
+        "thresholdEditingAllowed": false,
+        "globalFilter": "not_implemented_not_run"
       },
       "rawForge": {
         "status": "registered_not_run",
