@@ -573,6 +573,155 @@
         "export_canonical_lerobot",
         "native_passthrough"
       ],
+      "pipelineDetails": [
+        {
+          "id": "verify_assets",
+          "description": "Verify the pinned base, LoRA, T5, IDM, tensor headers, and packaged training statistics without loading model tensors.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/verify_assets.py",
+          "requiredInputs": [
+            "checkpoint_asset_lock",
+            "cosmos_base_checkpoint",
+            "cosmos_lora",
+            "t5_checkpoint",
+            "idm_checkpoint",
+            "idm_stats"
+          ]
+        },
+        {
+          "id": "merge_world_model",
+          "description": "Reconstruct the exact 1,599-key PEFT runtime checkpoint by structurally remapping immutable base keys and adding the complete LoRA state dictionary.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/merge_lora.py",
+          "requiredInputs": [
+            "checkpoint_asset_lock",
+            "cosmos_base_checkpoint",
+            "cosmos_lora"
+          ]
+        },
+        {
+          "id": "prepare_prompt_embeddings",
+          "description": "Encode the exact four native prompts and negative prompt with the pinned float32 T5-11B model.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/prepare_t5_embeddings.py",
+          "requiredInputs": [
+            "checkpoint_asset_lock",
+            "t5_checkpoint",
+            "prompt"
+          ]
+        },
+        {
+          "id": "prepare_world_input",
+          "description": "Assemble a role-audited native 768x432 conditioning mosaic from an extracted episode.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/prepare_world_input.py",
+          "requiredInputs": [
+            "source_camera_layout"
+          ]
+        },
+        {
+          "id": "assemble_inputs",
+          "description": "Assemble the calibrated four-tile 768x432 conditioning image.",
+          "entrypoint": "python pipeline/1_assemble_inputs.py",
+          "requiredInputs": [
+            "source_camera_layout"
+          ]
+        },
+        {
+          "id": "generate_tree",
+          "description": "Generate and stitch the native 93-frame branch tree.",
+          "entrypoint": "python pipeline/2_generate_tree.py",
+          "requiredInputs": [
+            "conditioning_image",
+            "cosmos_checkpoint",
+            "cosmos_lora",
+            "tokenizer",
+            "prompt_embedding_manifest",
+            "checkpoint_asset_lock",
+            "prompt"
+          ]
+        },
+        {
+          "id": "generate_smoke_clip",
+          "description": "Run one verified native 93-frame clip through the patched pinned Cosmos LoRA runtime.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/run_world_model.py",
+          "requiredInputs": [
+            "conditioning_image",
+            "cosmos_checkpoint",
+            "cosmos_lora",
+            "tokenizer",
+            "prompt_embedding_manifest",
+            "checkpoint_asset_lock",
+            "prompt"
+          ]
+        },
+        {
+          "id": "prepare_idm",
+          "description": "Convert stitched videos to the native three-camera IDM dataset layout.",
+          "entrypoint": "python pipeline/3_prepare_idm_dataset.py",
+          "requiredInputs": [
+            "source_camera_layout"
+          ]
+        },
+        {
+          "id": "infer_actions",
+          "description": "Apply the native GR00T-Dreams IDM action dumper and postprocessing patch.",
+          "entrypoint": "bash pipeline/3b_dump_pseudo_actions.sh",
+          "requiredInputs": [
+            "idm_checkpoint",
+            "idm_stats",
+            "checkpoint_asset_lock"
+          ]
+        },
+        {
+          "id": "filter",
+          "description": "Apply the native C1-C3 action-coherence filters.",
+          "entrypoint": "python pipeline/4_filter_trajectories.py",
+          "requiredInputs": [
+            "idm_stats",
+            "checkpoint_asset_lock"
+          ]
+        },
+        {
+          "id": "review",
+          "description": "Build the self-contained native trajectory review report.",
+          "entrypoint": "python pipeline/5_build_review.py",
+          "requiredInputs": []
+        },
+        {
+          "id": "canonicalize_actions",
+          "description": "Convert fixed-orientation 15 Hz IDM pseudo-actions into the 10 Hz pde/eef-delta@v1 action bundle without altering native artifacts.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/canonicalize_actions.py",
+          "requiredInputs": [
+            "dataset_to_robot_base_transform"
+          ]
+        },
+        {
+          "id": "generate_full_episode",
+          "description": "Generate four chained native 93-frame subtask clips and stitch the 369-frame IDM episode without duplicated boundaries.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/run_full_episode.py",
+          "requiredInputs": [
+            "conditioning_image",
+            "cosmos_checkpoint",
+            "cosmos_lora",
+            "tokenizer",
+            "prompt_embedding_manifest",
+            "checkpoint_asset_lock",
+            "prompt"
+          ]
+        },
+        {
+          "id": "export_canonical_lerobot",
+          "description": "Package generated three-view video and accepted IDM actions as the complete module-owned LeRobot output contract.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/export_lerobot.py",
+          "requiredInputs": [
+            "dataset_to_robot_base_transform",
+            "eef_body_audit"
+          ]
+        },
+        {
+          "id": "native_passthrough",
+          "description": "Execute any pinned upstream argv, including IDM training and scene-variant utilities.",
+          "entrypoint": "",
+          "requiredInputs": []
+        }
+      ],
       "nativeInputs": [
         "shared task asset bundle for robot, object and scene lineage",
         "768x432 four-tile conditioning image",
@@ -675,6 +824,73 @@
         "build_canonical_calibration",
         "native_passthrough"
       ],
+      "pipelineDetails": [
+        {
+          "id": "reset_generation",
+          "description": "Run the maintained task-profile-driven OmniReset generation loop.",
+          "entrypoint": "python scripts_v2/tools/omnireset_loop_driver.py",
+          "requiredInputs": [
+            "task_contract"
+          ]
+        },
+        {
+          "id": "teacher_training",
+          "description": "Train the native RSL-RL state teacher without changing its CLI or controller contract.",
+          "entrypoint": "python scripts/reinforcement_learning/rsl_rl/train.py",
+          "requiredInputs": [
+            "task_contract",
+            "reset_pool"
+          ]
+        },
+        {
+          "id": "teacher_evaluation",
+          "description": "Evaluate a native state teacher with fixed seeds and reset identifiers.",
+          "entrypoint": "python scripts/reinforcement_learning/rsl_rl/play.py",
+          "requiredInputs": [
+            "task_contract",
+            "reset_pool",
+            "policy_checkpoint",
+            "success_contract"
+          ]
+        },
+        {
+          "id": "rgb_collection",
+          "description": "Collect successful teacher rollouts in the native LeRobot v3 layout.",
+          "entrypoint": "python scripts_v2/tools/collect_demos_lerobot.py",
+          "requiredInputs": [
+            "task_contract",
+            "reset_pool",
+            "policy_checkpoint",
+            "camera_contract",
+            "success_contract"
+          ]
+        },
+        {
+          "id": "mimicgen_collection",
+          "description": "Collect genuine MimicGen p=1 rollouts after the state/RGB equivalence gate.",
+          "entrypoint": "python scripts_v2/tools/collect_mimicgen_p1_lerobot.py",
+          "requiredInputs": [
+            "task_contract",
+            "reset_pool",
+            "camera_contract",
+            "success_contract"
+          ]
+        },
+        {
+          "id": "build_canonical_calibration",
+          "description": "Build and validate the RL-Teacher-owned per-frame camera bundle without changing native rollout artifacts.",
+          "entrypoint": "python ../../modules/rl_teacher/tools/build_calibration.py",
+          "requiredInputs": [
+            "camera_contract"
+          ]
+        },
+        {
+          "id": "native_passthrough",
+          "description": "Execute any pinned upstream argv for compatibility with historical and experiment-specific launchers.",
+          "entrypoint": "",
+          "requiredInputs": []
+        }
+      ],
       "nativeInputs": [
         "shared task asset bundle",
         "task and embodiment contract",
@@ -774,6 +990,85 @@
         "canonicalize",
         "native_passthrough"
       ],
+      "pipelineDetails": [
+        {
+          "id": "all",
+          "description": "Run the complete native inspect-to-export pipeline from one YAML configuration.",
+          "entrypoint": "python -m demogen_rgbd.cli",
+          "requiredInputs": [
+            "episode_root",
+            "steps_jsonl",
+            "task_profile",
+            "object_prompts",
+            "contact_intervals"
+          ]
+        },
+        {
+          "id": "augment",
+          "description": "Run only configured native spatial augmentation outputs.",
+          "entrypoint": "python -m demogen_rgbd.cli",
+          "requiredInputs": [
+            "episode_root",
+            "task_profile"
+          ]
+        },
+        {
+          "id": "validate",
+          "description": "Run the native output and action-contract validators.",
+          "entrypoint": "python -m demogen_rgbd.cli",
+          "requiredInputs": [
+            "episode_root",
+            "task_profile"
+          ]
+        },
+        {
+          "id": "build_canonical_calibration",
+          "description": "Build checksummed 10 Hz intrinsic/extrinsic and frame-graph artifacts from full-rate native view outputs.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/build_calibration.py",
+          "requiredInputs": [
+            "episode_root",
+            "steps_jsonl",
+            "native_view_outputs",
+            "augmentation_name",
+            "output_contract"
+          ]
+        },
+        {
+          "id": "audit_eef_body",
+          "description": "Identify the recorder pose body and quaternion order against authoritative FR3 forward kinematics.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/audit_eef_body.py",
+          "requiredInputs": [
+            "episode_root",
+            "steps_jsonl"
+          ]
+        },
+        {
+          "id": "build_corrected_native_trajectory",
+          "description": "Materialize a new native trajectory from immutable JSONL after a passing FK body/order audit.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/build_corrected_native_trajectory.py",
+          "requiredInputs": [
+            "episode_root",
+            "steps_jsonl"
+          ]
+        },
+        {
+          "id": "canonicalize",
+          "description": "Export one synchronized native augmentation as the complete unified LeRobot V3 output contract.",
+          "entrypoint": "python ../../modules/robot_3dpc/tools/export_lerobot.py",
+          "requiredInputs": [
+            "native_view_outputs",
+            "augmentation_name",
+            "canonical_calibration_bundle",
+            "output_contract"
+          ]
+        },
+        {
+          "id": "native_passthrough",
+          "description": "Execute any pinned upstream argv and retain access to every native CLI stage.",
+          "entrypoint": "",
+          "requiredInputs": []
+        }
+      ],
       "nativeInputs": [
         "shared task asset bundle for robot, object and scene lineage",
         "steps.jsonl with end-effector pose, gripper state and timestamps",
@@ -872,6 +1167,56 @@
         "hf80k_legacy_multitask",
         "build_canonical_calibration",
         "native_passthrough"
+      ],
+      "pipelineDetails": [
+        {
+          "id": "hf80k",
+          "description": "Run reviewed human28 native-DIIK MimicGen, canonical desired-delta conversion, exact OmniReset RGB replay, and LeRobot export.",
+          "entrypoint": "python hf80k/src/orchestrate.py",
+          "requiredInputs": [
+            "annotated_hdf5",
+            "annotated_hdf5.sha256",
+            "shard_id",
+            "seed_base"
+          ]
+        },
+        {
+          "id": "hf80k_preflight",
+          "description": "Execute the clean human28 source, runtime, asset, native-DIIK, and canonical-output preflight gates only.",
+          "entrypoint": "python hf80k/src/preflight.py",
+          "requiredInputs": [
+            "annotated_hdf5",
+            "annotated_hdf5.sha256",
+            "shard_id",
+            "seed_base"
+          ]
+        },
+        {
+          "id": "hf80k_legacy_multitask",
+          "description": "Preserve the pre-clean task-profile, optional SART, Stage-1 compatibility, and generic multitask orchestrator explicitly as legacy.",
+          "entrypoint": "python hf80k/src/orchestrate_legacy_multitask.py",
+          "requiredInputs": [
+            "annotated_hdf5",
+            "task_profile",
+            "camera_contract",
+            "shard_id",
+            "seed_base"
+          ]
+        },
+        {
+          "id": "build_canonical_calibration",
+          "description": "Build and validate the Sim Retargeting-owned live-camera calibration bundle from exact OmniReset replay.",
+          "entrypoint": "python ../../modules/sim_retargeting/tools/build_calibration.py",
+          "requiredInputs": [
+            "camera_contract"
+          ]
+        },
+        {
+          "id": "native_passthrough",
+          "description": "Execute any pinned upstream argv, preserving every native conversion, render, SART, and upload utility.",
+          "entrypoint": "",
+          "requiredInputs": []
+        }
       ],
       "nativeInputs": [
         "shared task asset bundle",
@@ -989,11 +1334,216 @@
         "flatten_original_bline_assets",
         "render_articulated_episode",
         "render_original_bline",
+        "review_original_bline",
         "attest_original_bline",
         "audit_original_bline_pairing",
         "export_original_bline_lerobot",
         "export_rendered_lerobot",
         "native_passthrough"
+      ],
+      "pipelineDetails": [
+        {
+          "id": "capture_preflight",
+          "description": "Verify every capture payload, calibration checksum, COLMAP vocabulary tree, executable, and exact external trainer revision before reconstruction.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/preflight.py",
+          "requiredInputs": [
+            "capture_root",
+            "camera_calibration",
+            "trainer_checkout",
+            "vocabulary_tree",
+            "external_repositories",
+            "capture_campaign_id",
+            "expected_cameras"
+          ]
+        },
+        {
+          "id": "reconstruct",
+          "description": "Run the native immutable-lineage COLMAP-to-3DGS reconstruction entrypoint.",
+          "entrypoint": "bash scripts/reconstruct_lineage.sh",
+          "requiredInputs": [
+            "capture_root",
+            "camera_calibration",
+            "trainer_checkout",
+            "vocabulary_tree",
+            "external_repositories",
+            "capture_campaign_id",
+            "expected_cameras",
+            "registration_threshold",
+            "scene_iterations"
+          ]
+        },
+        {
+          "id": "campaign_postprocess",
+          "description": "Derive base/board and scene registration from measured calibration or a verified shared-image reference bridge, build assets, and produce the native five-view demo deliverables.",
+          "entrypoint": "bash scripts/run_campaign_postprocess.sh",
+          "requiredInputs": [
+            "capture_root",
+            "camera_calibration",
+            "robot_geometry",
+            "object_definitions",
+            "external_repositories"
+          ]
+        },
+        {
+          "id": "demo_batch",
+          "description": "Generate, validate, and export the native reproducible three-cube episode batch.",
+          "entrypoint": "python scripts/run_three_cube_batch.py",
+          "requiredInputs": [
+            "camera_calibration",
+            "robot_geometry",
+            "object_definitions",
+            "task_contract"
+          ]
+        },
+        {
+          "id": "build_fr3_surface_reference",
+          "description": "Build a deterministic FR3 visual-surface reference from the pinned task URDF and capture configuration without changing native scene Gaussians.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/build_fr3_surface_reference.py",
+          "requiredInputs": [
+            "robot_geometry",
+            "task_contract"
+          ]
+        },
+        {
+          "id": "refine_scene_registration",
+          "description": "Preserve the metric camera/ChArUco Sim(3) and recover a moved board-to-base rigid offset against the FR3 surface under the upstream 30 mm / 0.50 gate.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/refine_scene_registration_from_fr3_surface.py",
+          "requiredInputs": [
+            "camera_calibration",
+            "robot_geometry"
+          ]
+        },
+        {
+          "id": "build_articulation_assets",
+          "description": "Resume the immutable FR3 surface-to-final-label artifact DAG from an internally produced registration checkpoint; surface NPZ, refined/axis-corrected registration, and label arrays are produced inside the module.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py",
+          "requiredInputs": [
+            "scene_gaussian",
+            "initial_scene_registration",
+            "robot_geometry",
+            "robot_mesh_root",
+            "capture_qpos_csv"
+          ]
+        },
+        {
+          "id": "build_articulation_assets_from_shared_registration",
+          "description": "Run the original v3 plain-label, joint-1 axis-correction, and final faithful-label DAG from a shared-image registration produced earlier in the same campaign.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/run_artifact_workflow.py --registration-mode shared_image",
+          "requiredInputs": [
+            "scene_gaussian",
+            "initial_scene_registration",
+            "robot_geometry",
+            "robot_mesh_root",
+            "capture_qpos_csv"
+          ]
+        },
+        {
+          "id": "export_original_bline_assets",
+          "description": "Run the native SH-aware campaign exporter to partition the registered full-scene Gaussian into canonical FR3 links, table_top.ply, background.ply, and origin-centred object checkpoints. All required PLYs and labels are upstream intermediates from reconstruction, registration, articulation, and object segmentation.",
+          "entrypoint": "python scripts/export_campaign_robosplat_assets.py",
+          "requiredInputs": [
+            "scene_gaussian",
+            "initial_scene_registration",
+            "robot_labels",
+            "robot_geometry",
+            "canonical_object_gaussians",
+            "table_geometry",
+            "capture_qpos_csv"
+          ]
+        },
+        {
+          "id": "flatten_original_bline_assets",
+          "description": "Run the reviewed native flat-table postprocess on a derived B-line asset root, producing a new table_top.ply and background.ply plus complete checksum provenance without modifying the source root.",
+          "entrypoint": "python scripts/flatten_table_asset.py",
+          "requiredInputs": [
+            "bline_asset_root",
+            "table_geometry"
+          ]
+        },
+        {
+          "id": "render_articulated_episode",
+          "description": "Recovery-only renderer for repairing an articulation stage when the pinned original B-line runtime is unavailable. Its output must pass the native gates and must not replace an original B-line parity claim.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/render_articulated_episode.py",
+          "requiredInputs": [
+            "camera_calibration",
+            "robot_geometry",
+            "object_definitions",
+            "task_contract"
+          ]
+        },
+        {
+          "id": "render_original_bline",
+          "description": "Resume at the renderer and replay the native SplatSim HDF5 through the pinned original RoboSplat B-line using derived per-link FR3, static, and cube Gaussian checkpoints without assembly or visual-semantic changes. A normal full campaign produces these checkpoints; they are not user-authored inputs.",
+          "entrypoint": "python scripts/render_bline_replay_from_h5.py",
+          "requiredInputs": [
+            "source_episode_hdf5",
+            "bline_asset_root",
+            "bline_cube_asset_root",
+            "bline_camera_candidates"
+          ]
+        },
+        {
+          "id": "review_original_bline",
+          "description": "Run the original B-line module-local gripper, black-frame, and wrist carry-visibility gates and emit the review videos plus validation_bline.json. A failed review cannot be exported or admitted to the candidate pool.",
+          "entrypoint": "python scripts/review_bline_episode.py",
+          "requiredInputs": [
+            "bline_render_root"
+          ]
+        },
+        {
+          "id": "attest_original_bline",
+          "description": "Bind original B-line metadata to the exact source HDF5 checksum before any RGB/action pairing is permitted.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/attest_bline_render.py",
+          "requiredInputs": [
+            "source_episode_hdf5",
+            "bline_render_metadata"
+          ]
+        },
+        {
+          "id": "audit_original_bline_pairing",
+          "description": "Diagnose B-line video rate, geometry, decoded frame count, native HDF5 row count, and original module-local validation before export.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/audit_bline_pairing.py",
+          "requiredInputs": [
+            "source_episode_hdf5",
+            "bline_render_root",
+            "bline_render_metadata",
+            "bline_render_validation"
+          ]
+        },
+        {
+          "id": "export_original_bline_lerobot",
+          "description": "Preserve the native B-line lineage, enforce exact row/checksum/view alignment, convert 1280x720 images uniformly to 320x180, derive calibrated per-row camera transforms and canonical delta-EEF actions, and emit complete LeRobot V3.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/export_bline_lerobot.py",
+          "requiredInputs": [
+            "source_episode_hdf5",
+            "bline_render_root",
+            "bline_render_metadata",
+            "bline_render_validation",
+            "bline_source_attestation",
+            "bline_camera_candidates",
+            "camera_calibration",
+            "robot_geometry",
+            "object_definitions",
+            "task_contract"
+          ]
+        },
+        {
+          "id": "export_rendered_lerobot",
+          "description": "Export a gate-passed recovery-renderer episode and canonical delta-EEF action stream as a complete LeRobot V3 lineage while preserving native artifacts.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/export_rendered_lerobot.py",
+          "requiredInputs": [
+            "camera_calibration",
+            "robot_geometry",
+            "object_definitions",
+            "task_contract"
+          ]
+        },
+        {
+          "id": "native_passthrough",
+          "description": "Execute any pinned upstream argv across the documented external runtime profiles.",
+          "entrypoint": "",
+          "requiredInputs": []
+        }
       ],
       "nativeInputs": [
         "immutable multi-view camera video",
@@ -1038,6 +1588,16 @@
           "cause": "The recovery labels leave 24,991 AABB Gaussians in the static scene; the exact upstream campaign used separately reviewed/pruned ownership assets that do not match this local checkpoint. Capture qpos exactly matches the surface qpos, so this is not a home-pose mismatch.",
           "evidence": "evaluations/splataug_3dgs/fr3_three_cube_rendered_current_contract_d78a_20260825.json",
           "evidenceImage": "./assets/evidence/splataug-3dgs-visual-review-failure-frame50.jpg"
+        },
+        {
+          "id": "auto_derived_bline_assets_20260826",
+          "label": "Auto-derived B-line asset attempt",
+          "status": "fail",
+          "stage": "review_original_bline",
+          "reason": "The module-local wrist carry-visibility gate failed after a fresh 153-row render; red failed frames [37, 38, 39, 40, 41] and black failed frames [105, 106, 107, 108, 109, 110, 111, 112, 113, 114].",
+          "cause": "The exporter roundtrip proves only that each selected Gaussian can be unposed and reposed. It does not prove correct link ownership. The large count mismatch, missing distal geometry, and rendered floating/occluding surfaces identify the registration/link-label lineage as the failed stage; the generated background is not silently promoted.",
+          "evidence": "evaluations/splataug_3dgs/auto_derived_bline_assets_native_review_20260826.json",
+          "evidenceImage": null
         }
       ],
       "upstream": {
