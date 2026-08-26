@@ -166,6 +166,12 @@
           "table_origin",
           "table_normal"
         ],
+        "googleDriveSharedFolderOption": {
+          "field": "rclone_shared_with_me",
+          "type": "boolean",
+          "default": false,
+          "description": "Resolve the release through Google Drive's Shared with me namespace. Leave false when the authenticated account owns the release folder."
+        },
         "pipelines": [
           "latest_handoff_preflight",
           "export_latest_handoff_lerobot"
@@ -2455,6 +2461,11 @@
               "message": "The release is fetched through a configured rclone remote; credentials are never stored in the repo."
             },
             {
+              "id": "release_path_access",
+              "status": "unavailable",
+              "message": "The exact <release_folder>/MANIFEST.json must be visible; a configured remote alone is not release readiness."
+            },
+            {
               "id": "machine_paths",
               "status": "pass",
               "message": "A gitignored machine-local paths.sh must bind CAMP, PY, SplatSim, RoboSplat, and table calibration."
@@ -2482,6 +2493,11 @@
             "policy": "rclone check --one-way",
             "zeroDifferenceRequired": true,
             "manifestVerificationRequired": true,
+            "prerequisiteGates": [
+              "release_remote",
+              "release_path_access"
+            ],
+            "remoteConfigurationIsSufficient": false,
             "detail": "All 11 native fetch targets must report zero differences and the published MANIFEST.json must verify before native execution."
           }
         },
