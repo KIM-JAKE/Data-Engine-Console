@@ -263,19 +263,35 @@
         {
           "id": "fresh_cuda_runtime_execution",
           "label": "Fresh CUDA runtime execution",
-          "status": "not_passed",
-          "detail": "The exact pinned runtime is available, but no fresh host CUDA render has passed yet."
+          "status": "pass",
+          "detail": "NVIDIA L40S sm_89; FR3 FK 26 links; 104,792 articulated Gaussians; finite 1280\u00d7720 CUDA rasterization."
+        },
+        {
+          "id": "fresh_full_episode_render",
+          "label": "Fresh full-episode render",
+          "status": "blocked",
+          "detail": "NOT RUN: exact flat-table background.ply is missing from the shared filesystem (232,347,027 bytes; md5 93a1e2e92c4427a1a36edd5efbcfccd9)."
         },
         {
           "id": "exact_rgb_action_pairing",
           "label": "Exact RGB/action pairing",
           "status": "pending",
-          "detail": "153 action rows versus 145 frames across the required views; exact pairing remains unresolved."
+          "detail": "Existing reference RGB has 145 frames/view while the available native HDF5 has 153 rows; lineage pairing remains rejected."
         }
       ],
-      "freshRenderStatus": "not_passed",
+      "freshCudaRuntimeStatus": "pass",
+      "freshFullEpisodeRenderStatus": "blocked_not_run",
+      "promotionAllowed": false,
+      "missingBackground": {
+        "target": "runs/splataug-3dgs-original-r2-assets-20260825/static/background.ply",
+        "expectedSizeBytes": 232347027,
+        "expectedMd5": "93a1e2e92c4427a1a36edd5efbcfccd9",
+        "status": "BLOCKED_NOT_MATERIALIZED_LOCALLY"
+      },
       "evidence": [
         "components/splataug_3dgs/runtime-upstreams.json",
+        "modules/splataug_3dgs/runtime-lock.json",
+        "evaluations/splataug_3dgs/original_r2_runtime_smoke_20260826.json",
         "evaluations/splataug_3dgs/original_r2_bline_pairing_current_20260825.json"
       ]
     }
@@ -877,7 +893,7 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "final_r2_bline_reference_passed_source_recovered_runtime_execution_and_pairing_gated",
+      "integrationStatus": "final_r2_bline_reference_passed_source_and_runtime_recovered_full_episode_input_and_pairing_gated",
       "adapterStatus": "complete_adapter_e2e_verified_on_fixture_original_r2_pairing_pending",
       "adapterScope": null,
       "domains": [
@@ -920,7 +936,8 @@
       "limitations": [
         "The original B-line complete adapter has passed an E2E LeRobot validation fixture, including H.264 video decode, 320x180 calibration, wrist extrinsics, native preservation, and canonical action validation; this does not substitute for the missing final-episode pairing.",
         "The native absolute-joint-target action path and TCP-to-fr3_hand 10 Hz EEF-delta adapter are executable; complete RGB/action promotion still requires one HDF5 whose 145 rows and checksum exactly match the final R-2 reference videos, or a fresh render from a newly generated native episode.",
-        "The final R-2 B-line reference render passed its upstream gripper, black-frame, and wrist-carry visibility gates. Its exact private RoboSplat_custom revision and official RoboSplat base are now vendored and integrity-checked; a fresh CUDA runtime render has not yet passed on this host.",
+        "The final R-2 B-line reference render passed its upstream gripper, black-frame, and wrist-carry visibility gates. Its exact private RoboSplat_custom revision and official RoboSplat base are vendored and integrity-checked; a fresh L40S smoke now passes FR3 FK, 104,792 link Gaussians, and a native 1280x720 CUDA rasterization.",
+        "A fresh full-episode render is still blocked because the exact final flat-table background Gaussian is identified on private Drive but is not materialized in the shared filesystem. No different background is substituted.",
         "The pinned RoboSplat_custom tree has no license file. Keep that source private and do not redistribute it until permission is clarified.",
         "The older A-line SplatSim commit 425e6e5 was local-only; it is not the source claim for the final R-2 B-line reference."
       ],
