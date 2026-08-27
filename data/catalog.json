@@ -108,6 +108,22 @@
       "record_canonical_body_transform": true,
       "record_checksums": true
     },
+    "commonFields": [
+      "action.eef_delta_metric",
+      "action.eef_delta_metric_valid",
+      "timestamp",
+      "frame_index",
+      "episode_index",
+      "index",
+      "task_index",
+      "observation.images.third_person_0",
+      "observation.images.third_person_1",
+      "observation.images.wrist",
+      "pde.module_index",
+      "pde.source_episode_index",
+      "pde.source_index",
+      "pde.local_filter_pass"
+    ],
     "source": "blueprints/v1.yaml"
   },
   "inputs": {
@@ -253,6 +269,55 @@
             ],
             "produces": [
               "attest_record",
+              "reconstruction_forge_artifact"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "materialize_capability_outputs",
+            "needs": [
+              "attest"
+            ],
+            "produces": [
+              "scene_gaussian",
+              "scene_registration",
+              "robot_link_labels",
+              "capture_surface",
+              "resolved_robot_urdf",
+              "cube_assets",
+              "camera_calibration_bundle",
+              "table_plane",
+              "renderer_lineage"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "build_articulated_assets",
+            "needs": [
+              "materialize_capability_outputs"
+            ],
+            "produces": [
+              "renderer_asset_root"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "build_camera_candidates",
+            "needs": [
+              "materialize_capability_outputs"
+            ],
+            "produces": [
+              "camera_candidates"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "publish_renderer_capability",
+            "needs": [
+              "build_articulated_assets",
+              "build_camera_candidates"
+            ],
+            "produces": [
               "forge_artifact"
             ],
             "status": "not_run"
@@ -367,7 +432,7 @@
         "status": "verified_from_publication",
         "description": "Machine-local binding of the verified Cosmos/LoRA/T5/IDM capability set and its independent native evaluation reports to the fixed NT Forge profile.",
         "missingRoles": [],
-        "artifactUri": "runs/forge-current-20260826/neural_trajectory/forge_artifact.json",
+        "artifactUri": "runs/native-e2e-smoke-20260827/neural_trajectory/forge/forge_artifact.json",
         "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
         "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/forge/binding.example.yaml",
         "publisher": "publish_forge_artifact"
@@ -380,7 +445,7 @@
         "status": "verified_from_publication",
         "description": "Machine-local binding of a passed reset pool, teacher checkpoint, and native evaluation evidence to the fixed RL-Teacher Forge profile.",
         "missingRoles": [],
-        "artifactUri": "runs/forge-current-20260826/rl_teacher/forge_artifact.json",
+        "artifactUri": "runs/native-e2e-smoke-20260827/rl_teacher/forge/forge_artifact.json",
         "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
         "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/forge/binding.example.yaml",
         "publisher": "publish_forge_artifact"
@@ -393,7 +458,7 @@
         "status": "verified_from_publication",
         "description": "Machine-local binding of pretrained perception/runtime, calibration, EEF identity, and desired-twist evidence to the fixed Robot 3DPC Forge profile.",
         "missingRoles": [],
-        "artifactUri": "runs/forge-current-20260826/robot_3dpc/forge_artifact.json",
+        "artifactUri": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json",
         "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
         "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/forge/binding.example.yaml",
         "publisher": "publish_forge_artifact"
@@ -406,7 +471,7 @@
         "status": "verified_from_publication",
         "description": "Machine-local binding of the native-DIIK simulator, camera capability, annotated seed, and native preflight evidence to the fixed MimicGen Forge profile.",
         "missingRoles": [],
-        "artifactUri": "runs/forge-current-20260826/sim_retargeting/forge_artifact.json",
+        "artifactUri": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json",
         "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/module-forge-binding.v1.schema.json",
         "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/forge/binding.example.yaml",
         "publisher": "publish_forge_artifact"
@@ -681,6 +746,674 @@
       ]
     }
   },
+  "campaignInputs": {
+    "status": "not_ready",
+    "schema": "physical-data-engine/campaign-requirements@v1",
+    "campaignId": "fr3-cube-stack.fresh-e2e.template",
+    "profile": "profiles/campaigns/fr3_cube_stack.fresh_e2e.template.yaml",
+    "profileUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/profiles/campaigns/fr3_cube_stack.fresh_e2e.template.yaml",
+    "command": "pde campaign inputs profiles/campaigns/fr3_cube_stack.fresh_e2e.template.yaml",
+    "summary": {
+      "bindings": 49,
+      "materialized": 0,
+      "forge_outputs": 7,
+      "missing": 42,
+      "configuration_errors": 0
+    },
+    "errors": [],
+    "groups": {
+      "user": [
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "source_episode_hdf5",
+          "bindingType": "local",
+          "artifactClass": "user_input",
+          "binding": "machine://splataug_3dgs/augmentation/source_episode.hdf5",
+          "status": "missing"
+        }
+      ],
+      "setup": [
+        {
+          "component": "rl_teacher",
+          "plane": "forge",
+          "name": "reset_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://rl_teacher/forge/reset.json",
+          "status": "missing"
+        },
+        {
+          "component": "rl_teacher",
+          "plane": "forge",
+          "name": "training_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://rl_teacher/forge/train.json",
+          "status": "missing"
+        },
+        {
+          "component": "rl_teacher",
+          "plane": "forge",
+          "name": "evaluation_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://rl_teacher/forge/evaluate.json",
+          "status": "missing"
+        },
+        {
+          "component": "rl_teacher",
+          "plane": "forge",
+          "name": "publish_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://rl_teacher/forge/publish.json",
+          "status": "missing"
+        },
+        {
+          "component": "rl_teacher",
+          "plane": "augmentation",
+          "name": "request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://rl_teacher/augmentation/collect.json",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "forge",
+          "name": "preflight_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://sim_retargeting/forge/preflight.json",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "forge",
+          "name": "calibration_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://sim_retargeting/forge/calibrate.json",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "forge",
+          "name": "publish_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://sim_retargeting/forge/publish.json",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "augmentation",
+          "name": "request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://sim_retargeting/augmentation/generate.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "base_verify_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/base_verify.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "world_train_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/world_train.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "idm_train_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/idm_train.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "merge_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/merge.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "prompt_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/prompts.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "capability_verify_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/capability_verify.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "publish_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/forge/publish.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "generate_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/generate.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "prepare_idm_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/prepare_idm.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "infer_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/infer.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "filter_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/filter.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "canonicalize_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/canonicalize.json",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "export_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://neural_trajectory/augmentation/export.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "dependency_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/forge/dependencies.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "calibration_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/forge/calibration.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "eef_audit_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/forge/eef_audit.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "twist_audit_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/forge/twist_audit.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "publish_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/forge/publish.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "augmentation",
+          "name": "native_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/augmentation/native.json",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "augmentation",
+          "name": "canonical_request_template",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://robot_3dpc/augmentation/canonicalize.json",
+          "status": "missing"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "forge",
+          "name": "raw_forge_config",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://splataug_3dgs/forge/raw-forge.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "source_episode_manifest",
+          "bindingType": "local",
+          "artifactClass": "setup_input",
+          "binding": "machine://splataug_3dgs/augmentation/source_episode_manifest.json",
+          "status": "missing"
+        }
+      ],
+      "runtime": [
+        {
+          "component": "rl_teacher",
+          "plane": "forge",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "rl_teacher",
+          "plane": "augmentation",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "forge",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "sim_retargeting",
+          "plane": "augmentation",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "forge",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "neural_trajectory",
+          "plane": "augmentation",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "forge",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "robot_3dpc",
+          "plane": "augmentation",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "forge",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "runtime_bindings",
+          "bindingType": "runtime_bindings",
+          "artifactClass": "runtime_bindings",
+          "binding": "machine://runtime-bindings.yaml",
+          "status": "missing"
+        }
+      ],
+      "deferred": [
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "capture_surface",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://fr3_capture_surface",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "robot_urdf",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://resolved_robot_urdf",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "cube_assets",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://canonical_cube_gaussians",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "table_plane",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://table_plane",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "renderer_lineage",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://renderer_lineage",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "renderer_asset_root",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://renderer_asset_root",
+          "status": "deferred_to_verified_forge_artifact"
+        },
+        {
+          "component": "splataug_3dgs",
+          "plane": "augmentation",
+          "name": "camera_candidates",
+          "bindingType": "forge_output",
+          "artifactClass": "forge_output",
+          "binding": "forge-output://camera_candidates",
+          "status": "deferred_to_verified_forge_artifact"
+        }
+      ]
+    }
+  },
+  "nativeE2E": {
+    "status": "augmentation_e2e_passed_forge_training_incomplete",
+    "freshForgeToAugmentation": false,
+    "source": "evaluations/e2e/native_forge_to_augmentation_smoke_20260827.json",
+    "sourceUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/evaluations/e2e/native_forge_to_augmentation_smoke_20260827.json",
+    "document": "docs/NATIVE_FORGE_TO_AUGMENTATION_SMOKE_20260827.md",
+    "documentUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/docs/NATIVE_FORGE_TO_AUGMENTATION_SMOKE_20260827.md",
+    "modules": [
+      {
+        "component": "rl_teacher",
+        "forgeStatus": "pass_smoke_only",
+        "forgeKind": "learned",
+        "forgeArtifact": null,
+        "capabilities": [
+          {
+            "id": "teacher",
+            "label": "Teacher policy",
+            "status": "pass_executable_train_load_eval_smoke",
+            "claim": "one-step train/load/rollout smoke",
+            "promotionAllowed": false,
+            "detail": "1 step \u00b7 16 rollout frames \u00b7 smoke checkpoint not promoted",
+            "evidence": "runs/native-e2e-smoke-20260827/rl_teacher/forge_train_smoke.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass",
+          "localFilter": "pass",
+          "commonValidator": "pass",
+          "rows": 219,
+          "capabilitySource": "production_teacher_not_one_step_smoke",
+          "evidence": "evaluations/rl_teacher/native_e2e_smoke_20260827.json"
+        }
+      },
+      {
+        "component": "sim_retargeting",
+        "forgeStatus": "pass_training_free",
+        "forgeKind": "training_free_runtime",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "training_free_capability",
+            "label": "Training-free capability",
+            "status": "pass",
+            "claim": "pinned native capability verification",
+            "promotionAllowed": true,
+            "detail": "native DIIK simulator, task assets, controller contract, and calibration",
+            "evidence": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_after_22_attempts",
+          "localFilter": "pass",
+          "commonValidator": "pass",
+          "rows": 161,
+          "capabilitySource": null,
+          "evidence": "evaluations/sim_retargeting/native_e2e_smoke_20260827.json"
+        }
+      },
+      {
+        "component": "neural_trajectory",
+        "forgeStatus": "partial_smoke_world_model_blocked",
+        "forgeKind": "two_learned_capabilities",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/neural_trajectory/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "idm",
+            "label": "IDM",
+            "status": "pass_executable_train_and_native_load_smoke",
+            "claim": "one-step native train/load smoke",
+            "promotionAllowed": false,
+            "detail": "1 step \u00b7 64 rows \u00b7 28D native action",
+            "evidence": "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/idm_train_load_smoke.json"
+          },
+          {
+            "id": "world_model_lora",
+            "label": "World Model LoRA",
+            "status": "blocked_resource_before_optimizer_step",
+            "claim": "base load and dataset decode only",
+            "promotionAllowed": false,
+            "detail": "Four ranks reached approximately 338 GiB of 372 GiB host RAM before an optimizer step; the run was stopped to avoid host OOM.",
+            "boundary": "The supplied checkpoint documents LoRA architecture but not the exact task dataset, optimizer, scheduler, or distributed training recipe.",
+            "evidence": [
+              "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/world_model_lora_one_step.console.log",
+              "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/world_model_lora_one_step_v2.console.log"
+            ]
+          },
+          {
+            "id": "production_capability",
+            "label": "Supplied production capability",
+            "status": "pass",
+            "claim": "used by the passing Augmentation episode",
+            "promotionAllowed": true,
+            "detail": "Production LoRA and IDM were loaded without substituting the smoke checkpoints."
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_369_frames_and_346_idm_rows",
+          "localFilter": "pass_C1_C2_C3_all_four_stages",
+          "commonValidator": "pass",
+          "rows": 231,
+          "capabilitySource": "supplied_production_lora_and_idm",
+          "evidence": "evaluations/neural_trajectory/native_e2e_smoke_seed41_20260827.json"
+        }
+      },
+      {
+        "component": "robot_3dpc",
+        "forgeStatus": "pass_training_free",
+        "forgeKind": "training_free_pretrained_runtime",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "training_free_capability",
+            "label": "Training-free capability",
+            "status": "pass",
+            "claim": "pinned native capability verification",
+            "promotionAllowed": true,
+            "detail": "pinned UniDepth/SAM2 dependencies, three-view calibration, EEF identity, and desired-twist semantics",
+            "evidence": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_all_three_views_1742_source_frames_each",
+          "localFilter": "pass_original_benchmark_and_action_validation",
+          "commonValidator": "pass",
+          "rows": 421,
+          "capabilitySource": null,
+          "evidence": "evaluations/robot_3dpc/native_e2e_smoke_20260827.json"
+        }
+      },
+      {
+        "component": "splataug_3dgs",
+        "forgeStatus": "pass_exact_r2_fresh_raw_not_run",
+        "forgeKind": "reconstruction_capability",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/splataug_3dgs/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "exact_r2",
+            "label": "Certified Exact-R2",
+            "status": "pass_exact_certified_asset_load_and_native_gates",
+            "claim": "production reconstruction capability and replay",
+            "promotionAllowed": true,
+            "detail": "Exact released reconstruction inputs passed native capability and replay gates.",
+            "evidence": "evaluations/splataug_3dgs/native_e2e_exact_5f616b3_runtime_smoke_20260827.json"
+          },
+          {
+            "id": "fresh_raw_reconstruction",
+            "label": "Fresh raw-capture reconstruction",
+            "status": "not_run_by_upstream_instruction",
+            "claim": "separate future Forge campaign",
+            "promotionAllowed": false,
+            "detail": "The latest authoritative handoff explicitly requires the released reconstruction inputs and says not to start 3DGS retraining."
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_exact_A_line_and_original_B_line_render",
+          "localFilter": "pass_original_visual_review",
+          "commonValidator": "pass",
+          "rows": 153,
+          "capabilitySource": null,
+          "evidence": "evaluations/splataug_3dgs/native_e2e_exact_5f616b3_current_contract_20260827.json"
+        }
+      }
+    ],
+    "canonicalBoundary": {
+      "status": "pass_all_five_modules",
+      "candidate_modules": 5,
+      "candidate_episodes": 5,
+      "candidate_rows": 1185,
+      "rate_hz": 10,
+      "views": [
+        "third_person_0",
+        "third_person_1",
+        "wrist"
+      ],
+      "action_schema": "pde/eef-delta@v1",
+      "output_contract_sha256": "d78a6c52a8a9dd1969dd24a915efb7d99f2d883751b76a6bcdd6a513702729f6",
+      "candidate_pool": "evaluations/candidate_pool/native_e2e_smoke_20260827.json"
+    },
+    "campaign": {
+      "status": "pass_plan_run_and_resume",
+      "profile": "profiles/campaigns/fr3_cube_stack.native_e2e_smoke.v1.yaml",
+      "forgeMode": "reuse_verified",
+      "augmentationMode": "reuse_verified",
+      "forgeGenerationFresh": false,
+      "augmentationGenerationFresh": false,
+      "modules": 5,
+      "episodes": 5,
+      "rows": 1185,
+      "interpretation": "The runner revalidated immutable production Forge capabilities and completed Augmentation outputs. It proves orchestration, isolation, contract validation, candidate assembly, and resume; it is not a fresh native generation or training run."
+    },
+    "globalFilter": {
+      "status": "not_implemented_not_run",
+      "trainingPromotionAllowed": false
+    },
+    "remainingGates": [
+      "Obtain the exact Neural Trajectory task World Model training recipe and enough host/distributed memory, then emit and native-load a fresh LoRA checkpoint.",
+      "Run long training and upstream quantitative parity evaluations for RL-Teacher and both Neural Trajectory learned capabilities before any smoke checkpoint can be promoted.",
+      "Run fresh 3DGS reconstruction training only if the upstream owner changes the current no-retraining reproduction instruction and supplies its authoritative recipe/gates.",
+      "Implement and execute the future global cross-module filter before producing a promoted training dataset."
+    ]
+  },
   "stages": [
     {
       "id": "ingest",
@@ -878,6 +1611,8 @@
         "verify_assets",
         "merge_world_model",
         "prepare_prompt_embeddings",
+        "train_world_model_lora",
+        "train_idm",
         "prepare_world_input",
         "assemble_inputs",
         "generate_tree",
@@ -931,6 +1666,29 @@
             "checkpoint_asset_lock",
             "t5_checkpoint",
             "prompt"
+          ]
+        },
+        {
+          "id": "train_world_model_lora",
+          "description": "Launch the pinned upstream Cosmos trainer from a typed, provenance-labeled recipe without reimplementing its model, optimizer, EMA, or checkpoint code.",
+          "entrypoint": "python ../../modules/neural_trajectory/tools/train_world_model_lora.py",
+          "requiredInputs": [
+            "cosmos_source_checkout",
+            "world_model_training_recipe",
+            "world_model_training_dataset",
+            "cosmos_base_checkpoint",
+            "tokenizer"
+          ]
+        },
+        {
+          "id": "train_idm",
+          "description": "Train the pinned GR00T-Dreams IDM and package the exact experiment config required by the native action dumper into every checkpoint.",
+          "entrypoint": "bash idm_training/train.sh",
+          "requiredInputs": [
+            "groot_source_checkout",
+            "groot_environment",
+            "idm_training_dataset",
+            "idm_experiment_config"
           ]
         },
         {
@@ -1096,15 +1854,16 @@
         "planes": [
           {
             "id": "forge",
-            "summary": "Verify and materialize the Cosmos base, task LoRA, prompt embeddings, and tuned IDM capability artifacts.",
+            "summary": "Train, verify, and materialize the Cosmos task LoRA and tuned IDM capability artifacts without replacing their native scientific implementations.",
             "executionPolicy": "independent_idempotent_stages",
             "artifactContract": "schemas/forge-artifact.v1.schema.json",
             "outputContract": null,
             "pipelines": [
+              "train_world_model_lora",
+              "train_idm",
               "verify_assets",
               "merge_world_model",
               "prepare_prompt_embeddings",
-              "prepare_idm",
               "publish_forge_artifact"
             ],
             "runbook": "modules/neural_trajectory/forge/RUNBOOK.md",
@@ -1151,11 +1910,12 @@
               "assemble_inputs",
               "generate_tree",
               "generate_smoke_clip",
+              "generate_full_episode",
+              "prepare_idm",
               "infer_actions",
               "filter",
               "review",
               "canonicalize_actions",
-              "generate_full_episode",
               "export_canonical_lerobot"
             ],
             "runbook": "modules/neural_trajectory/augmentation/RUNBOOK.md",
@@ -1205,6 +1965,97 @@
             ]
           }
         ]
+      },
+      "workflowRegistry": {
+        "completeKinds": [
+          "forge_e2e",
+          "augmentation_e2e"
+        ],
+        "repairOnlyKinds": [
+          "stage_graph",
+          "augmentation_handoff"
+        ],
+        "workflows": [
+          {
+            "name": "augmentation_e2e.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 22,
+            "summary": "Generate a full native episode, prepare and run IDM, execute original C1-C3 filtering, canonicalize actions, export LeRobot, and validate the complete contract.",
+            "source": "modules/neural_trajectory/workflows/augmentation_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/workflows/augmentation_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_e2e.v1",
+            "kind": "forge_e2e",
+            "plane": "forge",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 22,
+            "summary": "Verify immutable bases, train World Model LoRA and IDM natively, materialize merged/runtime capabilities, re-verify them, and publish a profile-gated Forge artifact.",
+            "source": "modules/neural_trajectory/workflows/forge_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/workflows/forge_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_to_augmentation.v1",
+            "kind": "augmentation_handoff",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 3,
+            "summary": "Bind one passed Neural Trajectory Forge capability to one Augmentation Plane request, preflight it fail-closed, and execute the registered native pipeline.",
+            "source": "modules/neural_trajectory/workflows/forge_to_augmentation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/neural_trajectory/workflows/forge_to_augmentation.v1.yaml"
+          }
+        ]
+      },
+      "nativeE2E": {
+        "component": "neural_trajectory",
+        "forgeStatus": "partial_smoke_world_model_blocked",
+        "forgeKind": "two_learned_capabilities",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/neural_trajectory/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "idm",
+            "label": "IDM",
+            "status": "pass_executable_train_and_native_load_smoke",
+            "claim": "one-step native train/load smoke",
+            "promotionAllowed": false,
+            "detail": "1 step \u00b7 64 rows \u00b7 28D native action",
+            "evidence": "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/idm_train_load_smoke.json"
+          },
+          {
+            "id": "world_model_lora",
+            "label": "World Model LoRA",
+            "status": "blocked_resource_before_optimizer_step",
+            "claim": "base load and dataset decode only",
+            "promotionAllowed": false,
+            "detail": "Four ranks reached approximately 338 GiB of 372 GiB host RAM before an optimizer step; the run was stopped to avoid host OOM.",
+            "boundary": "The supplied checkpoint documents LoRA architecture but not the exact task dataset, optimizer, scheduler, or distributed training recipe.",
+            "evidence": [
+              "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/world_model_lora_one_step.console.log",
+              "runs/native-e2e-smoke-20260827/neural_trajectory/forge_train/world_model_lora_one_step_v2.console.log"
+            ]
+          },
+          {
+            "id": "production_capability",
+            "label": "Supplied production capability",
+            "status": "pass",
+            "claim": "used by the passing Augmentation episode",
+            "promotionAllowed": true,
+            "detail": "Production LoRA and IDM were loaded without substituting the smoke checkpoints."
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_369_frames_and_346_idm_rows",
+          "localFilter": "pass_C1_C2_C3_all_four_stages",
+          "commonValidator": "pass",
+          "rows": 231,
+          "capabilitySource": "supplied_production_lora_and_idm",
+          "evidence": "evaluations/neural_trajectory/native_e2e_smoke_seed41_20260827.json"
+        }
       },
       "forgePublication": {
         "status": "pass",
@@ -1360,10 +2211,10 @@
         ],
         "artifact": {
           "status": "available",
-          "uri": "runs/forge-current-20260826/neural_trajectory/forge_artifact.json",
-          "artifactId": "cube_stack.neural-trajectory.current",
+          "uri": "runs/native-e2e-smoke-20260827/neural_trajectory/forge/forge_artifact.json",
+          "artifactId": "cube_stack.neural-trajectory.native-e2e-smoke-20260827",
           "schema": "physical-data-engine/forge-artifact@v1",
-          "createdAt": "2026-08-26T18:58:43.860682+00:00",
+          "createdAt": "2026-08-27T07:12:40.832064+00:00",
           "runtime": "cosmos-predict2-plus-groot-idm-pinned"
         },
         "roleRecords": [
@@ -1427,8 +2278,8 @@
             "role": "asset_verification",
             "class": "native_gate_report",
             "status": "bound",
-            "sha256": "6eec9d5e39a92a8bbed6a37acf1eb28a7a240ba66564cd655784243ea63cd931",
-            "sizeBytes": 4613
+            "sha256": "1d8ff9d6d9aaeebbb8e370fef8a858cf7196a74011413b34fb37c1cc8efc4da2",
+            "sizeBytes": 4742
           },
           {
             "role": "world_model_merge",
@@ -1787,6 +2638,65 @@
           }
         ]
       },
+      "workflowRegistry": {
+        "completeKinds": [
+          "forge_e2e",
+          "augmentation_e2e"
+        ],
+        "repairOnlyKinds": [
+          "stage_graph",
+          "augmentation_handoff"
+        ],
+        "workflows": [
+          {
+            "name": "forge_e2e.v1",
+            "kind": "forge_e2e",
+            "plane": "forge",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 13,
+            "summary": "Generate resets, train the native teacher, run its unchanged evaluation, and publish only a profile-gated Forge capability.",
+            "source": "modules/rl_teacher/workflows/forge_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/workflows/forge_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_to_augmentation.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 7,
+            "summary": "Bind one passed RL-Teacher Forge capability to one Augmentation Plane request, preflight it fail-closed, and execute the registered native pipeline.",
+            "source": "modules/rl_teacher/workflows/forge_to_augmentation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/rl_teacher/workflows/forge_to_augmentation.v1.yaml"
+          }
+        ]
+      },
+      "nativeE2E": {
+        "component": "rl_teacher",
+        "forgeStatus": "pass_smoke_only",
+        "forgeKind": "learned",
+        "forgeArtifact": null,
+        "capabilities": [
+          {
+            "id": "teacher",
+            "label": "Teacher policy",
+            "status": "pass_executable_train_load_eval_smoke",
+            "claim": "one-step train/load/rollout smoke",
+            "promotionAllowed": false,
+            "detail": "1 step \u00b7 16 rollout frames \u00b7 smoke checkpoint not promoted",
+            "evidence": "runs/native-e2e-smoke-20260827/rl_teacher/forge_train_smoke.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass",
+          "localFilter": "pass",
+          "commonValidator": "pass",
+          "rows": 219,
+          "capabilitySource": "production_teacher_not_one_step_smoke",
+          "evidence": "evaluations/rl_teacher/native_e2e_smoke_20260827.json"
+        }
+      },
       "forgePublication": {
         "status": "pass",
         "binding": {
@@ -1856,7 +2766,7 @@
           {
             "role": "teacher_evaluation",
             "jsonPointer": "/status",
-            "actual": "local_filter_passed_candidate",
+            "actual": "pass",
             "acceptedValues": [
               "pass",
               "passed",
@@ -1880,17 +2790,17 @@
             "reportRole": "teacher_evaluation",
             "jsonPointer": "/native_checks/reset_pool_sha256",
             "status": "pass",
-            "actualSha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14",
-            "reportedSha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14"
+            "actualSha256": "f2c503e580407b4ef2b5795fbbb6bf43e0e225bb60a2303178c8f36de7ef1940",
+            "reportedSha256": "f2c503e580407b4ef2b5795fbbb6bf43e0e225bb60a2303178c8f36de7ef1940"
           }
         ],
         "artifact": {
           "status": "available",
-          "uri": "runs/forge-current-20260826/rl_teacher/forge_artifact.json",
-          "artifactId": "cube_stack.rl-teacher.current",
+          "uri": "runs/native-e2e-smoke-20260827/rl_teacher/forge/forge_artifact.json",
+          "artifactId": "cube_stack.rl-teacher.native-e2e-smoke-20260827",
           "schema": "physical-data-engine/forge-artifact@v1",
-          "createdAt": "2026-08-26T18:42:34.877951+00:00",
-          "runtime": "isaac-sim-rsl-rl-pinned"
+          "createdAt": "2026-08-27T06:50:23.844166+00:00",
+          "runtime": "isaac-sim-5.1-rsl-rl-pinned"
         },
         "roleRecords": [
           {
@@ -1904,8 +2814,8 @@
             "role": "task_contract",
             "class": "input",
             "status": "bound",
-            "sha256": "f5937e802452f7b1c0f1c5937144f631cbde1fc61c65de2cc62a0e9abc1faabb",
-            "sizeBytes": 469629
+            "sha256": "9447f487fd8d58aa1db9815773d284857f85acb86fe81cdc0867d1e901cd9b68",
+            "sizeBytes": 1519
           },
           {
             "role": "controller_profile",
@@ -1918,8 +2828,8 @@
             "role": "reset_pool",
             "class": "output",
             "status": "bound",
-            "sha256": "9bbd2f4d62170d6526c91fb481a623576a23c05055aad23dd230a310a101dc14",
-            "sizeBytes": 1468549
+            "sha256": "f2c503e580407b4ef2b5795fbbb6bf43e0e225bb60a2303178c8f36de7ef1940",
+            "sizeBytes": 10101368
           },
           {
             "role": "policy_checkpoint",
@@ -1932,15 +2842,15 @@
             "role": "training_parity",
             "class": "native_gate_report",
             "status": "bound",
-            "sha256": "a483db2600dfbbebb981c17957b8a4a8549593ca9edcb0442ce4a8b74119c064",
-            "sizeBytes": 1547
+            "sha256": "544a1b600f49b5386ee65ac95d95dbc42ffd35e84479e9250ce1d90eaa63db45",
+            "sizeBytes": 718
           },
           {
             "role": "teacher_evaluation",
             "class": "native_gate_report",
             "status": "bound",
-            "sha256": "396b8dd450b0cf7b7d8e42170f5fc8bdb777912c40becac1ee8b9a1824c6c402",
-            "sizeBytes": 3280
+            "sha256": "7e38a84baec6fe9d7f50ca67add3eefdb32cdab1a418ad6def01d71bb7cd546d",
+            "sizeBytes": 1050
           }
         ],
         "thresholdEditingAllowed": false,
@@ -2288,6 +3198,76 @@
           }
         ]
       },
+      "workflowRegistry": {
+        "completeKinds": [
+          "forge_e2e",
+          "augmentation_e2e"
+        ],
+        "repairOnlyKinds": [
+          "stage_graph",
+          "augmentation_handoff"
+        ],
+        "workflows": [
+          {
+            "name": "augmentation_e2e.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 10,
+            "summary": "Run native Robot 3DPC augmentation and original validation, then execute the reviewed canonical exporter and independently validate complete LeRobot.",
+            "source": "modules/robot_3dpc/workflows/augmentation_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/workflows/augmentation_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_e2e.v1",
+            "kind": "forge_e2e",
+            "plane": "forge",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 16,
+            "summary": "Verify dependencies, build calibration, audit EEF and recorded twist semantics, then publish a profile-gated Robot 3DPC capability.",
+            "source": "modules/robot_3dpc/workflows/forge_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/workflows/forge_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_to_augmentation.v1",
+            "kind": "augmentation_handoff",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 3,
+            "summary": "Bind one passed Robot 3DPC Forge capability to one Augmentation Plane request, preflight it fail-closed, and execute the registered native pipeline.",
+            "source": "modules/robot_3dpc/workflows/forge_to_augmentation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/robot_3dpc/workflows/forge_to_augmentation.v1.yaml"
+          }
+        ]
+      },
+      "nativeE2E": {
+        "component": "robot_3dpc",
+        "forgeStatus": "pass_training_free",
+        "forgeKind": "training_free_pretrained_runtime",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "training_free_capability",
+            "label": "Training-free capability",
+            "status": "pass",
+            "claim": "pinned native capability verification",
+            "promotionAllowed": true,
+            "detail": "pinned UniDepth/SAM2 dependencies, three-view calibration, EEF identity, and desired-twist semantics",
+            "evidence": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_all_three_views_1742_source_frames_each",
+          "localFilter": "pass_original_benchmark_and_action_validation",
+          "commonValidator": "pass",
+          "rows": 421,
+          "capabilitySource": null,
+          "evidence": "evaluations/robot_3dpc/native_e2e_smoke_20260827.json"
+        }
+      },
       "forgePublication": {
         "status": "pass",
         "binding": {
@@ -2437,10 +3417,10 @@
         ],
         "artifact": {
           "status": "available",
-          "uri": "runs/forge-current-20260826/robot_3dpc/forge_artifact.json",
-          "artifactId": "cube_stack.robot-3dpc.current",
+          "uri": "runs/native-e2e-smoke-20260827/robot_3dpc/forge/forge_artifact.json",
+          "artifactId": "cube_stack.robot-3dpc.native-e2e-smoke-20260827",
           "schema": "physical-data-engine/forge-artifact@v1",
-          "createdAt": "2026-08-26T18:44:51.154095+00:00",
+          "createdAt": "2026-08-27T07:17:34.945168+00:00",
           "runtime": "demogen-rgbd-pinned"
         },
         "roleRecords": [
@@ -2490,15 +3470,15 @@
             "role": "runtime_profile",
             "class": "output",
             "status": "bound",
-            "sha256": "1c73335044c40a6940f814eadb5b11fdbdcbf6aab908afe39147a680f579e24e",
+            "sha256": "17e4930d0f8abf191f60f676dc773da43389f1eef79dd2f1d1db14972fbf1f85",
             "sizeBytes": 742
           },
           {
             "role": "canonical_camera_calibration",
             "class": "output",
             "status": "bound",
-            "sha256": "8ea497bd478c9616419389aa2a66d5a08607043fb31125861db2d5099a2fe54c",
-            "sizeBytes": 107652
+            "sha256": "028337b0dca9c4ca76564cc266c48de8739b3826e38532ed662afd065027c3f1",
+            "sizeBytes": 107389
           },
           {
             "role": "eef_body_contract",
@@ -2518,7 +3498,7 @@
             "role": "dependency_verification",
             "class": "native_gate_report",
             "status": "bound",
-            "sha256": "a54b494fd9d2ebec80919d77b8937265490269ef659c4752418d53b41e39a53d",
+            "sha256": "2a7f3ada0c27cfe2f70a634d400e6db2dc21e3565ce3d08c1e29998be469a13b",
             "sizeBytes": 1664
           },
           {
@@ -2540,7 +3520,7 @@
         "globalFilter": "not_implemented_not_run",
         "dependencyVerification": {
           "status": "pass",
-          "uri": "runs/forge-current-20260826/robot_3dpc/dependencies/dependency_verification.json",
+          "uri": "runs/native-e2e-smoke-20260827/robot_3dpc/dependencies/dependency_verification.json",
           "pipeline": "verify_dependencies",
           "sources": [
             {
@@ -2883,6 +3863,65 @@
           }
         ]
       },
+      "workflowRegistry": {
+        "completeKinds": [
+          "forge_e2e",
+          "augmentation_e2e"
+        ],
+        "repairOnlyKinds": [
+          "stage_graph",
+          "augmentation_handoff"
+        ],
+        "workflows": [
+          {
+            "name": "forge_e2e.v1",
+            "kind": "forge_e2e",
+            "plane": "forge",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 10,
+            "summary": "Verify the native MimicGen substrate, build canonical calibration, attest both Forge results, and publish a profile-gated generation capability.",
+            "source": "modules/sim_retargeting/workflows/forge_e2e.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/workflows/forge_e2e.v1.yaml"
+          },
+          {
+            "name": "forge_to_augmentation.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 7,
+            "summary": "Bind one passed Sim Retargeting Forge capability to one Augmentation Plane request, preflight it fail-closed, and execute the registered native pipeline.",
+            "source": "modules/sim_retargeting/workflows/forge_to_augmentation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/sim_retargeting/workflows/forge_to_augmentation.v1.yaml"
+          }
+        ]
+      },
+      "nativeE2E": {
+        "component": "sim_retargeting",
+        "forgeStatus": "pass_training_free",
+        "forgeKind": "training_free_runtime",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "training_free_capability",
+            "label": "Training-free capability",
+            "status": "pass",
+            "claim": "pinned native capability verification",
+            "promotionAllowed": true,
+            "detail": "native DIIK simulator, task assets, controller contract, and calibration",
+            "evidence": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json"
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_after_22_attempts",
+          "localFilter": "pass",
+          "commonValidator": "pass",
+          "rows": 161,
+          "capabilitySource": null,
+          "evidence": "evaluations/sim_retargeting/native_e2e_smoke_20260827.json"
+        }
+      },
       "forgePublication": {
         "status": "pass",
         "binding": {
@@ -2981,10 +4020,10 @@
         ],
         "artifact": {
           "status": "available",
-          "uri": "runs/forge-current-20260826/sim_retargeting/forge_artifact.json",
-          "artifactId": "cube_stack.sim-retargeting.current",
+          "uri": "runs/native-e2e-smoke-20260827/sim_retargeting/forge/forge_artifact.json",
+          "artifactId": "cube_stack.sim-retargeting.native-e2e-smoke-20260827",
           "schema": "physical-data-engine/forge-artifact@v1",
-          "createdAt": "2026-08-26T18:53:05.379600+00:00",
+          "createdAt": "2026-08-27T06:12:02.478282+00:00",
           "runtime": "hf80k-native-diik-pinned"
         },
         "roleRecords": [
@@ -3013,22 +4052,22 @@
             "role": "runtime_profile",
             "class": "output",
             "status": "bound",
-            "sha256": "9bd69c529b1f79bf54e23e7c9e349344fea9e3c888f0740677f900c521b28a89",
-            "sizeBytes": 585
+            "sha256": "f67568c5a0222afe657ca3d8fd960f14a5f352571c33d2362468708fbeb31ebd",
+            "sizeBytes": 528
           },
           {
             "role": "canonical_camera_calibration",
             "class": "output",
             "status": "bound",
-            "sha256": "77654c85c011d2cb3be0e007e568fb9772f1f1d821e1f11c2b3dcaeb66d04089",
-            "sizeBytes": 113994
+            "sha256": "30e446193b4d18d8c94c2b64a0eb07c4dd4f63d1199e14064de5b1c5a1c6dd69",
+            "sizeBytes": 105022
           },
           {
             "role": "native_preflight",
             "class": "native_gate_report",
             "status": "bound",
-            "sha256": "ed7e9b150f967eb1c4185e53f6e149d3d500dfa0c4ece8dd5dba890b0a026eba",
-            "sizeBytes": 3783
+            "sha256": "988e0601161887e8cf26145930504b481e778a9ad24d89b5086bbde851425962",
+            "sizeBytes": 3725
           },
           {
             "role": "render_parity",
@@ -3087,7 +4126,7 @@
       "name": "3DGS / SplatAug FR3",
       "role": "real_scene_reconstruction_and_rendering",
       "summary": "Reconstruct and register Gaussian scenes, build articulated assets, render multiview episodes, and audit quality.",
-      "integrationStatus": "upstream_ed92_runtime_pass_release_revalidation_pending",
+      "integrationStatus": "upstream_5f616b3_runtime_revalidation_in_progress",
       "adapterStatus": "implemented",
       "adapterScope": null,
       "domains": [
@@ -3099,6 +4138,7 @@
         "calibration_bundle"
       ],
       "pipelines": [
+        "publish_forge_artifact",
         "raw_rgb_forge",
         "latest_handoff_preflight",
         "capture_preflight",
@@ -3118,6 +4158,14 @@
         "native_passthrough"
       ],
       "pipelineDetails": [
+        {
+          "id": "publish_forge_artifact",
+          "description": "Fail-closed publication of passed articulated FR3, static scene, cube, camera, and runtime evidence under the fixed module-owned Forge profile.",
+          "entrypoint": "python ../../modules/splataug_3dgs/tools/publish_forge_artifact.py",
+          "requiredInputs": [
+            "forge_binding"
+          ]
+        },
         {
           "id": "raw_rgb_forge",
           "description": "Execute the declarative raw multiview RGB to aligned scene/robot/cube Forge workflow with pinned native quality gates and no release MANIFEST/reference dependency.",
@@ -3283,7 +4331,7 @@
         },
         {
           "id": "export_latest_handoff_lerobot",
-          "description": "After all six pinned ed92 native stages pass, attest the release, assets, source/render pairing, and native gates, then emit and independently validate complete 10 Hz three-view LeRobot without overwriting outputs.",
+          "description": "After all six pinned 5f616b3 native stages pass, attest the release, assets, source/render pairing, and native gates, then emit and independently validate complete 10 Hz three-view LeRobot without overwriting outputs.",
           "entrypoint": "python ../../modules/splataug_3dgs/tools/export_latest_handoff_lerobot.py",
           "requiredInputs": [
             "latest_handoff_machine_config"
@@ -3366,6 +4414,7 @@
             "artifactContract": "schemas/forge-artifact.v1.schema.json",
             "outputContract": null,
             "pipelines": [
+              "publish_forge_artifact",
               "raw_rgb_forge",
               "latest_handoff_preflight",
               "capture_preflight",
@@ -3389,8 +4438,8 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/README.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/README.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/README.md"
               },
               {
                 "id": "splataug.pipeline",
@@ -3404,8 +4453,8 @@
                   "review_original_bline"
                 ],
                 "source": "vendor/splataug_3dgs/docs/PIPELINE.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/PIPELINE.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/PIPELINE.md"
               },
               {
                 "id": "splataug.environment",
@@ -3416,8 +4465,8 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/docs/ENVIRONMENT.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ENVIRONMENT.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/ENVIRONMENT.md"
               },
               {
                 "id": "splataug.new_machine",
@@ -3428,8 +4477,8 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/docs/REPRODUCE_ON_A_NEW_MACHINE.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
               },
               {
                 "id": "splataug.robot_alignment",
@@ -3440,8 +4489,8 @@
                   "campaign_postprocess"
                 ],
                 "source": "vendor/splataug_3dgs/docs/ROBOT_ALIGNMENT_METHOD.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ROBOT_ALIGNMENT_METHOD.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/ROBOT_ALIGNMENT_METHOD.md"
               },
               {
                 "id": "splataug.reconstruction",
@@ -3453,8 +4502,8 @@
                   "reconstruct"
                 ],
                 "source": "vendor/splataug_3dgs/docs/RECONSTRUCTION_PIPELINE.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/RECONSTRUCTION_PIPELINE.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/RECONSTRUCTION_PIPELINE.md"
               }
             ]
           },
@@ -3489,8 +4538,8 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/README.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/README.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/README.md"
               },
               {
                 "id": "splataug.pipeline",
@@ -3504,8 +4553,8 @@
                   "review_original_bline"
                 ],
                 "source": "vendor/splataug_3dgs/docs/PIPELINE.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/PIPELINE.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/PIPELINE.md"
               },
               {
                 "id": "splataug.environment",
@@ -3516,8 +4565,8 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/docs/ENVIRONMENT.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/ENVIRONMENT.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/ENVIRONMENT.md"
               },
               {
                 "id": "splataug.new_machine",
@@ -3528,197 +4577,310 @@
                   "all"
                 ],
                 "source": "vendor/splataug_3dgs/docs/REPRODUCE_ON_A_NEW_MACHINE.md",
-                "revision": "ed92e3d242ef",
-                "url": "https://github.com/martian35/splataug-fr3/blob/ed92e3d242ef1da65990675059cb1a2ecc477c18/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
+                "revision": "5f616b378465",
+                "url": "https://github.com/martian35/splataug-fr3/blob/5f616b37846580921f077c030d748aa2c76044d2/docs/REPRODUCE_ON_A_NEW_MACHINE.md"
               }
             ]
           }
         ]
       },
+      "workflowRegistry": {
+        "completeKinds": [
+          "forge_e2e",
+          "augmentation_e2e"
+        ],
+        "repairOnlyKinds": [
+          "stage_graph",
+          "augmentation_handoff"
+        ],
+        "workflows": [
+          {
+            "name": "forge_to_augmentation.v1",
+            "kind": "augmentation_handoff",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 3,
+            "summary": "Bind one passed SplatAug raw-RGB Forge capability to one Augmentation Plane request, preflight it fail-closed, and execute the registered native pipeline.",
+            "source": "modules/splataug_3dgs/workflows/forge_to_augmentation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/forge_to_augmentation.v1.yaml"
+          },
+          {
+            "name": "fr3_2dgs_cube_separate_articulation.v1",
+            "kind": "stage_graph",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 5,
+            "summary": "Derive the FR3 surface, link ownership, and RoboSplat viewer schema from a native 2DGS full-scene model when task objects are reconstructed separately.",
+            "source": "modules/splataug_3dgs/workflows/fr3_2dgs_cube_separate_articulation.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/fr3_2dgs_cube_separate_articulation.v1.yaml"
+          },
+          {
+            "name": "fr3_articulation_assets.v1",
+            "kind": "stage_graph",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 6,
+            "summary": "Deterministically derive the capture-pose FR3 surface, registered link ownership, joint-axis correction, and final labels.",
+            "source": "modules/splataug_3dgs/workflows/fr3_articulation_assets.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/fr3_articulation_assets.v1.yaml"
+          },
+          {
+            "name": "fr3_articulation_shared_registration.v1",
+            "kind": "stage_graph",
+            "plane": "repair",
+            "completeE2E": false,
+            "repairOnly": true,
+            "stages": 5,
+            "summary": "Derive the capture-pose FR3 surface, native joint-axis correction, and final link labels from an upstream shared-image registration.",
+            "source": "modules/splataug_3dgs/workflows/fr3_articulation_shared_registration.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/fr3_articulation_shared_registration.v1.yaml"
+          },
+          {
+            "name": "raw_forge_to_lerobot.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 13,
+            "summary": "Consume only attested raw-RGB Forge outputs plus a native source episode, run the original renderer/local gate, and emit complete canonical LeRobot.",
+            "source": "modules/splataug_3dgs/workflows/raw_forge_to_lerobot.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_forge_to_lerobot.v1.yaml"
+          },
+          {
+            "name": "raw_rgb_to_forge.v1",
+            "kind": "forge_e2e",
+            "plane": "forge",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 11,
+            "summary": "Reconstruct, metric-register, articulate, and gate a raw FR3 three-cube RGB capture without requiring a release checkpoint, MANIFEST, or reference render.",
+            "source": "modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml"
+          },
+          {
+            "name": "richrgb_checkpoint_to_lerobot.v1",
+            "kind": "augmentation_e2e",
+            "plane": "augmentation",
+            "completeE2E": true,
+            "repairOnly": false,
+            "stages": 13,
+            "summary": "Resume from a checksummed rich-RGB scene asset checkpoint, preserve the certified R-2 articulated setup, run native B-line visual gates, and emit complete LeRobot V3.",
+            "source": "modules/splataug_3dgs/workflows/richrgb_checkpoint_to_lerobot.v1.yaml",
+            "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/richrgb_checkpoint_to_lerobot.v1.yaml"
+          }
+        ]
+      },
+      "nativeE2E": {
+        "component": "splataug_3dgs",
+        "forgeStatus": "pass_exact_r2_fresh_raw_not_run",
+        "forgeKind": "reconstruction_capability",
+        "forgeArtifact": "runs/native-e2e-smoke-20260827/splataug_3dgs/forge/forge_artifact.json",
+        "capabilities": [
+          {
+            "id": "exact_r2",
+            "label": "Certified Exact-R2",
+            "status": "pass_exact_certified_asset_load_and_native_gates",
+            "claim": "production reconstruction capability and replay",
+            "promotionAllowed": true,
+            "detail": "Exact released reconstruction inputs passed native capability and replay gates.",
+            "evidence": "evaluations/splataug_3dgs/native_e2e_exact_5f616b3_runtime_smoke_20260827.json"
+          },
+          {
+            "id": "fresh_raw_reconstruction",
+            "label": "Fresh raw-capture reconstruction",
+            "status": "not_run_by_upstream_instruction",
+            "claim": "separate future Forge campaign",
+            "promotionAllowed": false,
+            "detail": "The latest authoritative handoff explicitly requires the released reconstruction inputs and says not to start 3DGS retraining."
+          }
+        ],
+        "augmentation": {
+          "nativeEpisode": "pass_exact_A_line_and_original_B_line_render",
+          "localFilter": "pass_original_visual_review",
+          "commonValidator": "pass",
+          "rows": 153,
+          "capabilitySource": null,
+          "evidence": "evaluations/splataug_3dgs/native_e2e_exact_5f616b3_current_contract_20260827.json"
+        }
+      },
       "forgePublication": {
-        "status": "registered_not_run",
+        "status": "pass",
         "binding": {
           "field": "raw_forge_config",
-          "mechanism": "raw_rgb_forge workflow input",
-          "status": "not_bound_in_current_evidence",
-          "description": "One raw Forge config starts the workflow; no separate flat forge_binding is accepted for SplatAug 3DGS.",
+          "mechanism": "raw_rgb_forge workflow input for a fresh reconstruction",
+          "status": "attested",
+          "description": "The selected Exact-R2 capability is published and augmentation-eligible. A separate raw_rgb_forge config starts a fresh reconstruction campaign; that fresh path has not run.",
           "schema": "schemas/splataug-raw-forge.v1.schema.json",
           "schemaUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/splataug-raw-forge.v1.schema.json",
           "example": "modules/splataug_3dgs/runtime/raw-forge.example.yaml",
           "exampleUrl": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/runtime/raw-forge.example.yaml"
         },
         "profile": {
-          "kind": "aligned_scene_and_object_gaussians",
-          "uri": "modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
-          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/workflows/raw_rgb_to_forge.v1.yaml",
-          "authority": "raw_rgb_forge.attest"
+          "kind": "articulated_scene_gaussian_capability",
+          "uri": "modules/splataug_3dgs/forge/profile.yaml",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/modules/splataug_3dgs/forge/profile.yaml",
+          "authority": "module-owned fixed profile"
         },
         "publisher": {
-          "pipeline": "raw_rgb_forge",
-          "stage": "attest",
-          "entrypoint": "modules/splataug_3dgs/tools/raw_forge_runtime.py"
+          "pipeline": "publish_forge_artifact",
+          "stage": "selected Exact-R2 capability",
+          "entrypoint": "modules/splataug_3dgs/tools/publish_forge_artifact.py",
+          "freshWorkflow": "raw_rgb_forge.attest"
         },
         "requiredRoles": [
           {
-            "role": "raw_capture_inventory",
+            "role": "source_episode_hdf5",
             "class": "input"
           },
           {
-            "role": "camera_and_board_calibration",
-            "class": "input"
-          },
-          {
-            "role": "robot_urdf",
-            "class": "input"
-          },
-          {
-            "role": "colmap_vocabulary_tree",
-            "class": "input"
-          },
-          {
-            "role": "scene_gaussian",
+            "role": "articulated_robot_gaussians",
             "class": "output"
           },
           {
-            "role": "scene_registration",
-            "class": "output"
-          },
-          {
-            "role": "robot_link_labels",
-            "class": "output"
-          },
-          {
-            "role": "fr3_capture_surface",
+            "role": "static_scene_gaussians",
             "class": "output"
           },
           {
             "role": "canonical_cube_gaussians",
             "class": "output"
+          },
+          {
+            "role": "camera_candidates",
+            "class": "output"
+          },
+          {
+            "role": "robot_urdf",
+            "class": "output"
+          },
+          {
+            "role": "asset_attestation",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "runtime_smoke",
+            "class": "native_gate_report"
+          },
+          {
+            "role": "local_filter_evaluation",
+            "class": "native_gate_report"
           }
         ],
-        "missingRoles": [
-          "raw_capture_inventory",
-          "camera_and_board_calibration",
-          "robot_urdf",
-          "colmap_vocabulary_tree",
-          "scene_gaussian",
-          "scene_registration",
-          "robot_link_labels",
-          "fr3_capture_surface",
-          "canonical_cube_gaussians"
-        ],
+        "missingRoles": [],
         "nativeGates": [
           {
-            "role": "scene_registration",
+            "role": "asset_attestation",
             "jsonPointer": "/status",
-            "actual": null,
+            "actual": "certified_pass",
             "acceptedValues": [
-              "PASS"
+              "certified_pass"
             ],
-            "status": "not_run",
-            "authority": "raw_rgb_forge attest stage"
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
           },
           {
-            "role": "robot_ruler_gate",
-            "jsonPointer": "/gate",
-            "actual": null,
+            "role": "runtime_smoke",
+            "jsonPointer": "/fresh_gpu_smoke/status",
+            "actual": "PASS",
             "acceptedValues": [
               "PASS"
             ],
-            "status": "not_run",
-            "authority": "raw_rgb_forge attest stage"
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
           },
           {
-            "role": "cube_asset_gate",
+            "role": "local_filter_evaluation",
             "jsonPointer": "/status",
-            "actual": null,
+            "actual": "local_filter_passed_candidate",
             "acceptedValues": [
-              "PASS"
+              "local_filter_passed_candidate"
             ],
-            "status": "not_run",
-            "authority": "raw_rgb_forge attest stage"
+            "status": "pass",
+            "authority": "fixed forge/profile.yaml"
           }
         ],
         "checksumAssertions": [
           {
-            "artifactRole": "native_contract",
-            "reportRole": "raw_forge_materialization",
-            "jsonPointer": "/scientific_contract_sha256",
-            "status": "not_run",
-            "actualSha256": null,
-            "reportedSha256": null
+            "artifactRole": "source_episode_hdf5",
+            "reportRole": "local_filter_evaluation",
+            "jsonPointer": "/source/native_hdf5_sha256",
+            "status": "pass",
+            "actualSha256": "48ed8143a7c9153c31d1ddf24555d4ce09d1fde7b673990849350a29586dd529",
+            "reportedSha256": "48ed8143a7c9153c31d1ddf24555d4ce09d1fde7b673990849350a29586dd529"
           }
         ],
         "artifact": {
-          "status": "unavailable",
-          "uri": null,
-          "artifactId": null,
+          "status": "available",
+          "uri": "runs/native-e2e-smoke-20260827/splataug_3dgs/forge/forge_artifact.json",
+          "artifactId": "cube_stack.splataug-3dgs.native-e2e-smoke-20260827",
           "schema": "physical-data-engine/forge-artifact@v1",
-          "createdAt": null
+          "createdAt": "2026-08-27T07:21:21.405103+00:00"
         },
         "roleRecords": [
           {
-            "role": "raw_capture_inventory",
+            "role": "source_episode_hdf5",
             "class": "input",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
+            "status": "bound",
+            "sha256": "48ed8143a7c9153c31d1ddf24555d4ce09d1fde7b673990849350a29586dd529",
+            "sizeBytes": 38180
           },
           {
-            "role": "camera_and_board_calibration",
-            "class": "input",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
-          },
-          {
-            "role": "robot_urdf",
-            "class": "input",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
-          },
-          {
-            "role": "colmap_vocabulary_tree",
-            "class": "input",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
-          },
-          {
-            "role": "scene_gaussian",
+            "role": "articulated_robot_gaussians",
             "class": "output",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
+            "status": "bound",
+            "sha256": "af2dc0b03ba1cb5ef920cab1b48b4ba1f9e7be2f120ffe144074ca8acbf95ff9",
+            "sizeBytes": 26003711
           },
           {
-            "role": "scene_registration",
+            "role": "static_scene_gaussians",
             "class": "output",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
-          },
-          {
-            "role": "robot_link_labels",
-            "class": "output",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
-          },
-          {
-            "role": "fr3_capture_surface",
-            "class": "output",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
+            "status": "bound",
+            "sha256": "6b7d975532e15eb0fc2c35929c71929eda6543368635a8cce8e4ebf12697c448",
+            "sizeBytes": 272242334
           },
           {
             "role": "canonical_cube_gaussians",
             "class": "output",
-            "status": "missing",
-            "sha256": null,
-            "sizeBytes": null
+            "status": "bound",
+            "sha256": "f3b9a375a63384eb968f770d5f27eb7783134b3361f9fcb9be731f57726487e5",
+            "sizeBytes": 10688926
+          },
+          {
+            "role": "camera_candidates",
+            "class": "output",
+            "status": "bound",
+            "sha256": "a5c70715d3770ffe27a630d4e5326398292f3eee28011cdca5f0712513f9270e",
+            "sizeBytes": 8031
+          },
+          {
+            "role": "robot_urdf",
+            "class": "output",
+            "status": "bound",
+            "sha256": "38b398b765ef639604ddea2dce14e809147724de849a7ff1351bd44f694dd7dc",
+            "sizeBytes": 20086
+          },
+          {
+            "role": "asset_attestation",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "79b9bc43cef7329c9c331597fa9484ba2422bec3687f6a8da2c20f38c80cc1e8",
+            "sizeBytes": 5536
+          },
+          {
+            "role": "runtime_smoke",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "0e2a813540d89e328dd910874184cc46140392eefcaa4f98e666860a66c67299",
+            "sizeBytes": 1145
+          },
+          {
+            "role": "local_filter_evaluation",
+            "class": "native_gate_report",
+            "status": "bound",
+            "sha256": "b371d3fcadac7295fd77d14c0c92c1a883e4317b69b5ed0cd02c41dd604929a3",
+            "sizeBytes": 1491
           }
         ],
         "thresholdEditingAllowed": false,
@@ -3848,6 +5010,55 @@
             ],
             "produces": [
               "attest_record",
+              "reconstruction_forge_artifact"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "materialize_capability_outputs",
+            "needs": [
+              "attest"
+            ],
+            "produces": [
+              "scene_gaussian",
+              "scene_registration",
+              "robot_link_labels",
+              "capture_surface",
+              "resolved_robot_urdf",
+              "cube_assets",
+              "camera_calibration_bundle",
+              "table_plane",
+              "renderer_lineage"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "build_articulated_assets",
+            "needs": [
+              "materialize_capability_outputs"
+            ],
+            "produces": [
+              "renderer_asset_root"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "build_camera_candidates",
+            "needs": [
+              "materialize_capability_outputs"
+            ],
+            "produces": [
+              "camera_candidates"
+            ],
+            "status": "not_run"
+          },
+          {
+            "id": "publish_renderer_capability",
+            "needs": [
+              "build_articulated_assets",
+              "build_camera_candidates"
+            ],
+            "produces": [
               "forge_artifact"
             ],
             "status": "not_run"
@@ -4087,8 +5298,8 @@
       },
       "upstream": {
         "url": "https://github.com/martian35/splataug-fr3.git",
-        "commit": "ed92e3d242ef",
-        "tree": "a2dae55b6eb1",
+        "commit": "5f616b378465",
+        "tree": "970da6c096d0",
         "path": "vendor/splataug_3dgs"
       },
       "code": {
