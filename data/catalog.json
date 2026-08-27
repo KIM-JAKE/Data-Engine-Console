@@ -1404,7 +1404,8 @@
       "interpretation": "The runner revalidated immutable production Forge capabilities and completed Augmentation outputs. It proves orchestration, isolation, contract validation, candidate assembly, and resume; it is not a fresh native generation or training run."
     },
     "globalFilter": {
-      "status": "not_implemented_not_run",
+      "status": "source_campaign_pre_filter",
+      "recordedStatus": "not_implemented_not_run",
       "trainingPromotionAllowed": false
     },
     "remainingGates": [
@@ -1514,62 +1515,32 @@
       ]
     },
     {
-      "id": "filter_contract",
-      "uses": "builtin.filter_contract",
-      "enabled": false,
+      "id": "materialize_candidate_release",
+      "uses": "builtin.materialize_lerobot_release",
+      "enabled": true,
       "needs": [
         "canonicalize"
       ]
     },
     {
-      "id": "filter_kinematic",
-      "uses": "builtin.filter_kinematic",
-      "enabled": false,
+      "id": "cross_module_filter",
+      "uses": "builtin.cross_module_filter_adapter",
+      "enabled": true,
       "needs": [
-        "filter_contract"
-      ]
-    },
-    {
-      "id": "filter_physics_replay",
-      "uses": "builtin.filter_physics_replay",
-      "enabled": false,
-      "needs": [
-        "filter_kinematic"
-      ]
-    },
-    {
-      "id": "filter_task_success",
-      "uses": "builtin.filter_task_success",
-      "enabled": false,
-      "needs": [
-        "filter_kinematic",
-        "filter_physics_replay"
-      ]
-    },
-    {
-      "id": "filter_visual_quality",
-      "uses": "builtin.filter_visual_quality",
-      "enabled": false,
-      "needs": [
-        "filter_kinematic"
-      ]
-    },
-    {
-      "id": "curate_diversity",
-      "uses": "builtin.curate_diversity",
-      "enabled": false,
-      "needs": [
-        "filter_kinematic",
-        "filter_task_success",
-        "filter_visual_quality"
-      ]
+        "materialize_candidate_release"
+      ],
+      "config": {
+        "runtime_lock": "filters/cross_module/runtime-lock.json",
+        "authority": "shadow_filter_recommendation",
+        "training_promotion_allowed": false
+      }
     },
     {
       "id": "split",
       "uses": "builtin.leakage_safe_split",
       "enabled": false,
       "needs": [
-        "curate_diversity"
+        "cross_module_filter"
       ],
       "config": {
         "group_by": "root_seed_episode_id",
@@ -2304,7 +2275,7 @@
           }
         ],
         "thresholdEditingAllowed": false,
-        "globalFilter": "not_implemented_not_run"
+        "globalFilter": "source_artifact_pre_filter"
       },
       "rawForge": null,
       "latestHandoff": null,
@@ -2854,7 +2825,7 @@
           }
         ],
         "thresholdEditingAllowed": false,
-        "globalFilter": "not_implemented_not_run"
+        "globalFilter": "source_artifact_pre_filter"
       },
       "rawForge": null,
       "latestHandoff": null,
@@ -3517,7 +3488,7 @@
           }
         ],
         "thresholdEditingAllowed": false,
-        "globalFilter": "not_implemented_not_run",
+        "globalFilter": "source_artifact_pre_filter",
         "dependencyVerification": {
           "status": "pass",
           "uri": "runs/native-e2e-smoke-20260827/robot_3dpc/dependencies/dependency_verification.json",
@@ -4078,7 +4049,7 @@
           }
         ],
         "thresholdEditingAllowed": false,
-        "globalFilter": "not_implemented_not_run"
+        "globalFilter": "source_artifact_pre_filter"
       },
       "rawForge": null,
       "latestHandoff": null,
@@ -4884,7 +4855,7 @@
           }
         ],
         "thresholdEditingAllowed": false,
-        "globalFilter": "not_implemented_not_run"
+        "globalFilter": "source_artifact_pre_filter"
       },
       "rawForge": {
         "status": "registered_not_run",
@@ -5292,7 +5263,7 @@
           "status": "pending",
           "latestHandoffExport": "not produced",
           "currentCandidate": "Exact-R2 remains the current five-module candidate",
-          "globalFilter": "not_implemented_not_run",
+          "globalFilter": "source_release_pre_filter",
           "trainingPromotionAllowed": false
         }
       },
@@ -5361,8 +5332,8 @@
           "pass"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -5397,8 +5368,8 @@
           "pass"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -5433,8 +5404,8 @@
           "pass"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -5469,8 +5440,8 @@
           "pass"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -5505,8 +5476,8 @@
           "pass"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -5541,8 +5512,8 @@
           "rejected historical lineage"
         ],
         [
-          "global filter",
-          "not run"
+          "cross-module filter",
+          "separate downstream capsule"
         ]
       ],
       "metrics": {
@@ -35612,12 +35583,187 @@
       }
     ],
     "global": {
-      "status": "not_implemented_not_run",
-      "executed": false,
-      "training_promotion_allowed": false,
-      "input": null,
-      "accepted": null,
-      "dropped": null
+      "status": "passed_shadow_partial_coverage",
+      "implemented": true,
+      "executable": true,
+      "executed": true,
+      "runStatus": "PARTIAL_COVERAGE",
+      "scope": "video-enabled first-10-episode integration smoke, not a full production filter run",
+      "authority": "shadow_filter_recommendation",
+      "trainingPromotionAllowed": false,
+      "derivedFilteredReleaseMaterialized": false,
+      "canonicalInputUnchanged": true,
+      "slice": {
+        "episodes": 10,
+        "frames": 1399,
+        "moduleCount": 2
+      },
+      "modules": [
+        {
+          "moduleIndex": 0,
+          "component": "rl_teacher",
+          "episodes": 1,
+          "frames": 60,
+          "decisions": {
+            "ACCEPT": 0,
+            "HOLD": 1,
+            "REJECT": 0,
+            "ERROR": 0
+          },
+          "coverage": {
+            "required": 17,
+            "evaluated": 8,
+            "skipped": 9,
+            "missing": 0,
+            "ratio": 0.47058823529411764
+          },
+          "videoQuality": {
+            "PASS": 1
+          }
+        },
+        {
+          "moduleIndex": 1,
+          "component": "sim_retargeting",
+          "episodes": 9,
+          "frames": 1339,
+          "decisions": {
+            "ACCEPT": 0,
+            "HOLD": 7,
+            "REJECT": 2,
+            "ERROR": 0
+          },
+          "coverage": {
+            "required": 153,
+            "evaluated": 70,
+            "skipped": 63,
+            "missing": 20,
+            "ratio": 0.45751633986928103
+          },
+          "videoQuality": {
+            "PASS": 5,
+            "REVIEW": 2
+          }
+        }
+      ],
+      "decisions": {
+        "ACCEPT": 0,
+        "HOLD": 8,
+        "REJECT": 2,
+        "ERROR": 0
+      },
+      "coverage": {
+        "required_check_slots": 170,
+        "evaluated_required_check_slots": 78,
+        "skipped_required_check_slots": 72,
+        "missing_required_check_slots": 20,
+        "required_check_coverage": 0.4588235294117647
+      },
+      "videoQuality": {
+        "PASS": 6,
+        "REVIEW": 2,
+        "not_reached_after_earlier_hard_reject": 2
+      },
+      "hardRejects": {
+        "check_id": "extreme_value",
+        "episodes": [
+          3,
+          4
+        ]
+      },
+      "join": {
+        "episode_key": "episode_index",
+        "episode_rows": 10,
+        "frame_key": "index",
+        "frame_rows": 1399,
+        "cardinality": "one_to_one_verified",
+        "lineage": "verified"
+      },
+      "policy": {
+        "accept_is_candidate_only": true,
+        "hold_is_preserved": true,
+        "reject_is_preserved_with_evidence": true,
+        "error_blocks_consumption": true,
+        "derived_training_release_materialized": false
+      },
+      "provenance": {
+        "repository": "https://github.com/leehe228/data-engine-filtering.git",
+        "revision": "9b9495e319ee95fb4e47e46b11473a86a91b6f08",
+        "sourceTree": "204ef5db01f5ed77cab76adc3094b78123184f6a",
+        "runId": "2c0383728e88",
+        "manifestSha256": "1e20f8274bb1a5271d2b18dcc933f6a0dcc65fdbc4366c48ae267be90a774ad9",
+        "runtimeLockMatchesAudit": true,
+        "bundleVerified": true,
+        "parentRelease": "runs/pde-cube-stack-5module-forge-lineage-d78a-portable-forge-20260826",
+        "parentManifestSha256": "a6c5f338f1719ea3dcabc7a8be1d8c836b09ec26aed4cb8234c983e6901bb85d",
+        "canonicalSurfaceSha256": "6710609991c4db4656144eebc0435f83f966b39d8270ace8c8f3666bae074736"
+      },
+      "artifacts": [
+        {
+          "id": "episode_decisions",
+          "label": "episode_decisions.parquet",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/episode_decisions.parquet",
+          "url": "./assets/evidence/cross-module-filter/episode_decisions.parquet",
+          "sha256": "438845c86d55bcfa22636954f9f9901844d07259dccc3ea6166d184ca659c8e6"
+        },
+        {
+          "id": "frame_decisions",
+          "label": "frame_decisions.parquet",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/frame_decisions.parquet",
+          "url": "./assets/evidence/cross-module-filter/frame_decisions.parquet",
+          "sha256": "c643c1a4b2038cba22d5d8c5b21917c7edfd96e1a60387257903ba8521263988"
+        },
+        {
+          "id": "check_results",
+          "label": "check_results.jsonl",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/check_results.jsonl",
+          "url": "./assets/evidence/cross-module-filter/check_results.jsonl",
+          "sha256": "c3f3bc96817908dc110c2ef034f2f1fd6d7a6d155fcac67fdd82879f7477f24f"
+        },
+        {
+          "id": "module_metrics",
+          "label": "module_metrics.json",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/module_metrics.json",
+          "url": "./assets/evidence/cross-module-filter/module_metrics.json",
+          "sha256": "30fcbf21ad90afbf73401611cc07a11f57da1982923a7c1077936dadc1d6920e"
+        }
+      ],
+      "references": [
+        {
+          "label": "Integration audit",
+          "path": "evaluations/global_filter/cross_module_filter_video_smoke_20260828.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/evaluations/global_filter/cross_module_filter_video_smoke_20260828.json"
+        },
+        {
+          "label": "Boundary contract",
+          "path": "docs/CROSS_MODULE_FILTER.md",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/docs/CROSS_MODULE_FILTER.md"
+        },
+        {
+          "label": "Runbook",
+          "path": "filters/cross_module/RUNBOOK.md",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/filters/cross_module/RUNBOOK.md"
+        },
+        {
+          "label": "Result schema",
+          "path": "schemas/cross-module-filter-result.v1.schema.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/cross-module-filter-result.v1.schema.json"
+        },
+        {
+          "label": "Runtime lock",
+          "path": "filters/cross_module/runtime-lock.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/filters/cross_module/runtime-lock.json"
+        }
+      ],
+      "fullProduction": {
+        "status": "not_run",
+        "episodes": 504,
+        "modules": 5,
+        "detail": "The full five-module production filter has not run."
+      }
     }
   },
   "candidatePool": {
@@ -35730,7 +35876,190 @@
   },
   "release": {
     "status": "candidate_not_promoted",
-    "reason": "Global filtering is not implemented and was not run.",
+    "reason": "A verified 10-episode shadow-filter smoke has partial coverage. The full 504-episode production filter has not run, and promotion remains disabled.",
+    "crossModuleFilter": {
+      "status": "passed_shadow_partial_coverage",
+      "implemented": true,
+      "executable": true,
+      "executed": true,
+      "runStatus": "PARTIAL_COVERAGE",
+      "scope": "video-enabled first-10-episode integration smoke, not a full production filter run",
+      "authority": "shadow_filter_recommendation",
+      "trainingPromotionAllowed": false,
+      "derivedFilteredReleaseMaterialized": false,
+      "canonicalInputUnchanged": true,
+      "slice": {
+        "episodes": 10,
+        "frames": 1399,
+        "moduleCount": 2
+      },
+      "modules": [
+        {
+          "moduleIndex": 0,
+          "component": "rl_teacher",
+          "episodes": 1,
+          "frames": 60,
+          "decisions": {
+            "ACCEPT": 0,
+            "HOLD": 1,
+            "REJECT": 0,
+            "ERROR": 0
+          },
+          "coverage": {
+            "required": 17,
+            "evaluated": 8,
+            "skipped": 9,
+            "missing": 0,
+            "ratio": 0.47058823529411764
+          },
+          "videoQuality": {
+            "PASS": 1
+          }
+        },
+        {
+          "moduleIndex": 1,
+          "component": "sim_retargeting",
+          "episodes": 9,
+          "frames": 1339,
+          "decisions": {
+            "ACCEPT": 0,
+            "HOLD": 7,
+            "REJECT": 2,
+            "ERROR": 0
+          },
+          "coverage": {
+            "required": 153,
+            "evaluated": 70,
+            "skipped": 63,
+            "missing": 20,
+            "ratio": 0.45751633986928103
+          },
+          "videoQuality": {
+            "PASS": 5,
+            "REVIEW": 2
+          }
+        }
+      ],
+      "decisions": {
+        "ACCEPT": 0,
+        "HOLD": 8,
+        "REJECT": 2,
+        "ERROR": 0
+      },
+      "coverage": {
+        "required_check_slots": 170,
+        "evaluated_required_check_slots": 78,
+        "skipped_required_check_slots": 72,
+        "missing_required_check_slots": 20,
+        "required_check_coverage": 0.4588235294117647
+      },
+      "videoQuality": {
+        "PASS": 6,
+        "REVIEW": 2,
+        "not_reached_after_earlier_hard_reject": 2
+      },
+      "hardRejects": {
+        "check_id": "extreme_value",
+        "episodes": [
+          3,
+          4
+        ]
+      },
+      "join": {
+        "episode_key": "episode_index",
+        "episode_rows": 10,
+        "frame_key": "index",
+        "frame_rows": 1399,
+        "cardinality": "one_to_one_verified",
+        "lineage": "verified"
+      },
+      "policy": {
+        "accept_is_candidate_only": true,
+        "hold_is_preserved": true,
+        "reject_is_preserved_with_evidence": true,
+        "error_blocks_consumption": true,
+        "derived_training_release_materialized": false
+      },
+      "provenance": {
+        "repository": "https://github.com/leehe228/data-engine-filtering.git",
+        "revision": "9b9495e319ee95fb4e47e46b11473a86a91b6f08",
+        "sourceTree": "204ef5db01f5ed77cab76adc3094b78123184f6a",
+        "runId": "2c0383728e88",
+        "manifestSha256": "1e20f8274bb1a5271d2b18dcc933f6a0dcc65fdbc4366c48ae267be90a774ad9",
+        "runtimeLockMatchesAudit": true,
+        "bundleVerified": true,
+        "parentRelease": "runs/pde-cube-stack-5module-forge-lineage-d78a-portable-forge-20260826",
+        "parentManifestSha256": "a6c5f338f1719ea3dcabc7a8be1d8c836b09ec26aed4cb8234c983e6901bb85d",
+        "canonicalSurfaceSha256": "6710609991c4db4656144eebc0435f83f966b39d8270ace8c8f3666bae074736"
+      },
+      "artifacts": [
+        {
+          "id": "episode_decisions",
+          "label": "episode_decisions.parquet",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/episode_decisions.parquet",
+          "url": "./assets/evidence/cross-module-filter/episode_decisions.parquet",
+          "sha256": "438845c86d55bcfa22636954f9f9901844d07259dccc3ea6166d184ca659c8e6"
+        },
+        {
+          "id": "frame_decisions",
+          "label": "frame_decisions.parquet",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/frame_decisions.parquet",
+          "url": "./assets/evidence/cross-module-filter/frame_decisions.parquet",
+          "sha256": "c643c1a4b2038cba22d5d8c5b21917c7edfd96e1a60387257903ba8521263988"
+        },
+        {
+          "id": "check_results",
+          "label": "check_results.jsonl",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/check_results.jsonl",
+          "url": "./assets/evidence/cross-module-filter/check_results.jsonl",
+          "sha256": "c3f3bc96817908dc110c2ef034f2f1fd6d7a6d155fcac67fdd82879f7477f24f"
+        },
+        {
+          "id": "module_metrics",
+          "label": "module_metrics.json",
+          "status": "verified",
+          "path": "runs/cross-module-filter-video-smoke-20260828-r3/filter-output/module_metrics.json",
+          "url": "./assets/evidence/cross-module-filter/module_metrics.json",
+          "sha256": "30fcbf21ad90afbf73401611cc07a11f57da1982923a7c1077936dadc1d6920e"
+        }
+      ],
+      "references": [
+        {
+          "label": "Integration audit",
+          "path": "evaluations/global_filter/cross_module_filter_video_smoke_20260828.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/evaluations/global_filter/cross_module_filter_video_smoke_20260828.json"
+        },
+        {
+          "label": "Boundary contract",
+          "path": "docs/CROSS_MODULE_FILTER.md",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/docs/CROSS_MODULE_FILTER.md"
+        },
+        {
+          "label": "Runbook",
+          "path": "filters/cross_module/RUNBOOK.md",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/filters/cross_module/RUNBOOK.md"
+        },
+        {
+          "label": "Result schema",
+          "path": "schemas/cross-module-filter-result.v1.schema.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/schemas/cross-module-filter-result.v1.schema.json"
+        },
+        {
+          "label": "Runtime lock",
+          "path": "filters/cross_module/runtime-lock.json",
+          "url": "https://github.com/KIM-JAKE/Data-Engine/blob/main/filters/cross_module/runtime-lock.json"
+        }
+      ],
+      "fullProduction": {
+        "status": "not_run",
+        "episodes": 504,
+        "modules": 5,
+        "detail": "The full five-module production filter has not run."
+      }
+    },
     "materialized": {
       "status": "available",
       "reason": "All required release metadata is available.",

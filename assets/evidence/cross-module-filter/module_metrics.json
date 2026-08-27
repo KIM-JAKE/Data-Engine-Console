@@ -1,0 +1,329 @@
+{
+  "schema_version": "data-engine.cross-module-filter.v1",
+  "run_id": "2c0383728e88",
+  "overall": {
+    "input_episodes": 10,
+    "input_frames": 1399,
+    "decision_counts": {
+      "ACCEPT": 0,
+      "HOLD": 8,
+      "REJECT": 2,
+      "ERROR": 0
+    },
+    "decision_rates": {
+      "ACCEPT": 0.0,
+      "HOLD": 0.8,
+      "REJECT": 0.2,
+      "ERROR": 0.0
+    },
+    "kept_frames": 0,
+    "masked_action_frames": 1399,
+    "required_check_slots": 170,
+    "evaluated_required_check_slots": 78,
+    "skipped_required_check_slots": 72,
+    "missing_required_check_slots": 20,
+    "required_check_coverage": 0.4588235294117647,
+    "skipped_required_check_counts": {
+      "action_state_alignment": 8,
+      "collision_solver": 8,
+      "eef_physics": 8,
+      "fk_consistency": 8,
+      "joint_physics": 8,
+      "lineage_split": 8,
+      "object_continuity": 8,
+      "terminal_success": 8,
+      "video_state_consistency": 8
+    },
+    "missing_required_check_counts": {
+      "action_state_alignment": 2,
+      "collision_solver": 2,
+      "eef_physics": 2,
+      "fk_consistency": 2,
+      "joint_physics": 2,
+      "lineage_split": 2,
+      "object_continuity": 2,
+      "terminal_success": 2,
+      "video_quality": 2,
+      "video_state_consistency": 2
+    },
+    "check_status_counts": {
+      "action_state_alignment": {
+        "SKIP": 8
+      },
+      "collision_solver": {
+        "SKIP": 8
+      },
+      "duplicates": {
+        "PASS": 8
+      },
+      "eef_physics": {
+        "SKIP": 8
+      },
+      "extreme_value": {
+        "FAIL": 2,
+        "PASS": 4,
+        "REVIEW": 4
+      },
+      "finite": {
+        "PASS": 10
+      },
+      "first_frame_mask": {
+        "SKIP": 10
+      },
+      "fk_consistency": {
+        "SKIP": 8
+      },
+      "inactivity": {
+        "PASS": 10
+      },
+      "joint_physics": {
+        "SKIP": 8
+      },
+      "lineage_split": {
+        "SKIP": 8
+      },
+      "object_continuity": {
+        "SKIP": 8
+      },
+      "schema": {
+        "PASS": 10
+      },
+      "sudden_change": {
+        "PASS": 10
+      },
+      "task_contract": {
+        "PASS": 10
+      },
+      "teacher_distribution": {
+        "SKIP": 8
+      },
+      "terminal_success": {
+        "SKIP": 8
+      },
+      "timeline": {
+        "PASS": 10
+      },
+      "video_quality": {
+        "PASS": 6,
+        "REVIEW": 2
+      },
+      "video_state_consistency": {
+        "SKIP": 8
+      }
+    }
+  },
+  "modules": [
+    {
+      "module_index": 0,
+      "module_name": "rl_teacher",
+      "input_episodes": 1,
+      "input_frames": 60,
+      "decision_counts": {
+        "ACCEPT": 0,
+        "HOLD": 1,
+        "REJECT": 0,
+        "ERROR": 0
+      },
+      "decision_rates": {
+        "ACCEPT": 0.0,
+        "HOLD": 1.0,
+        "REJECT": 0.0,
+        "ERROR": 0.0
+      },
+      "kept_frames": 0,
+      "masked_action_frames": 60,
+      "required_check_slots": 17,
+      "evaluated_required_check_slots": 8,
+      "skipped_required_check_slots": 9,
+      "missing_required_check_slots": 0,
+      "required_check_coverage": 0.47058823529411764,
+      "skipped_required_check_counts": {
+        "action_state_alignment": 1,
+        "collision_solver": 1,
+        "eef_physics": 1,
+        "fk_consistency": 1,
+        "joint_physics": 1,
+        "lineage_split": 1,
+        "object_continuity": 1,
+        "terminal_success": 1,
+        "video_state_consistency": 1
+      },
+      "missing_required_check_counts": {},
+      "check_status_counts": {
+        "action_state_alignment": {
+          "SKIP": 1
+        },
+        "collision_solver": {
+          "SKIP": 1
+        },
+        "duplicates": {
+          "PASS": 1
+        },
+        "eef_physics": {
+          "SKIP": 1
+        },
+        "extreme_value": {
+          "PASS": 1
+        },
+        "finite": {
+          "PASS": 1
+        },
+        "first_frame_mask": {
+          "SKIP": 1
+        },
+        "fk_consistency": {
+          "SKIP": 1
+        },
+        "inactivity": {
+          "PASS": 1
+        },
+        "joint_physics": {
+          "SKIP": 1
+        },
+        "lineage_split": {
+          "SKIP": 1
+        },
+        "object_continuity": {
+          "SKIP": 1
+        },
+        "schema": {
+          "PASS": 1
+        },
+        "sudden_change": {
+          "PASS": 1
+        },
+        "task_contract": {
+          "PASS": 1
+        },
+        "teacher_distribution": {
+          "SKIP": 1
+        },
+        "terminal_success": {
+          "SKIP": 1
+        },
+        "timeline": {
+          "PASS": 1
+        },
+        "video_quality": {
+          "PASS": 1
+        },
+        "video_state_consistency": {
+          "SKIP": 1
+        }
+      }
+    },
+    {
+      "module_index": 1,
+      "module_name": "sim_retargeting",
+      "input_episodes": 9,
+      "input_frames": 1339,
+      "decision_counts": {
+        "ACCEPT": 0,
+        "HOLD": 7,
+        "REJECT": 2,
+        "ERROR": 0
+      },
+      "decision_rates": {
+        "ACCEPT": 0.0,
+        "HOLD": 0.7777777777777778,
+        "REJECT": 0.2222222222222222,
+        "ERROR": 0.0
+      },
+      "kept_frames": 0,
+      "masked_action_frames": 1339,
+      "required_check_slots": 153,
+      "evaluated_required_check_slots": 70,
+      "skipped_required_check_slots": 63,
+      "missing_required_check_slots": 20,
+      "required_check_coverage": 0.45751633986928103,
+      "skipped_required_check_counts": {
+        "action_state_alignment": 7,
+        "collision_solver": 7,
+        "eef_physics": 7,
+        "fk_consistency": 7,
+        "joint_physics": 7,
+        "lineage_split": 7,
+        "object_continuity": 7,
+        "terminal_success": 7,
+        "video_state_consistency": 7
+      },
+      "missing_required_check_counts": {
+        "action_state_alignment": 2,
+        "collision_solver": 2,
+        "eef_physics": 2,
+        "fk_consistency": 2,
+        "joint_physics": 2,
+        "lineage_split": 2,
+        "object_continuity": 2,
+        "terminal_success": 2,
+        "video_quality": 2,
+        "video_state_consistency": 2
+      },
+      "check_status_counts": {
+        "action_state_alignment": {
+          "SKIP": 7
+        },
+        "collision_solver": {
+          "SKIP": 7
+        },
+        "duplicates": {
+          "PASS": 7
+        },
+        "eef_physics": {
+          "SKIP": 7
+        },
+        "extreme_value": {
+          "FAIL": 2,
+          "PASS": 3,
+          "REVIEW": 4
+        },
+        "finite": {
+          "PASS": 9
+        },
+        "first_frame_mask": {
+          "SKIP": 9
+        },
+        "fk_consistency": {
+          "SKIP": 7
+        },
+        "inactivity": {
+          "PASS": 9
+        },
+        "joint_physics": {
+          "SKIP": 7
+        },
+        "lineage_split": {
+          "SKIP": 7
+        },
+        "object_continuity": {
+          "SKIP": 7
+        },
+        "schema": {
+          "PASS": 9
+        },
+        "sudden_change": {
+          "PASS": 9
+        },
+        "task_contract": {
+          "PASS": 9
+        },
+        "teacher_distribution": {
+          "SKIP": 7
+        },
+        "terminal_success": {
+          "SKIP": 7
+        },
+        "timeline": {
+          "PASS": 9
+        },
+        "video_quality": {
+          "PASS": 5,
+          "REVIEW": 2
+        },
+        "video_state_consistency": {
+          "SKIP": 7
+        }
+      }
+    }
+  ]
+}
